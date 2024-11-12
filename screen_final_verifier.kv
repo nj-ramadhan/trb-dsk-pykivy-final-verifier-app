@@ -1,6 +1,6 @@
 #:kivy 2.1.0
 
-<ScreenCounter>:
+<ScreenFinalVerifier>:
     MDBoxLayout:
         orientation: "vertical"
 
@@ -209,53 +209,145 @@
 					orientation: "vertical"
 					size_hint_x: 0.5
 
-					MDFloatLayout:
-						id: layout_sound
+					MDLabel:
+						id: lb_test_subtitle
+						text: "Final Verifier"
+						halign: "center"
+						valign: "middle"
+						font_style: 'H6'
+						pos_hint: {'x':.0, 'y':.20}
 
-						AsyncImage:
-							source: 'assets/wtm-1100-display-width.png'
-							pos_hint: {'x':.0, 'y':.0}
-							fit_mode: 'contain' #scale-down, fill, contain, cover
-
+					MDBoxLayout:
+						orientation: "horizontal"
 						MDLabel:
-							id: lb_test_subtitle
-							text: "MEMULAI PENGUKURAN"
-							halign: "center"
+							text: "Play Detector:"
+							halign: "left"
 							valign: "middle"
 							font_style: 'H6'
-							pos_hint: {'x':.0, 'y':.20}
+						MDLabel:
+							id: lb_play_detector
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+					
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Gas Emission:"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_gas_emission
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
 
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Side Slip:"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_side_slip
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Axle Load:"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_axle_load
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Brake:"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_brake
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Speed:"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_speed
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Headlamp"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_headlamp
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Sound Level"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
+						MDLabel:
+							id: lb_sound_level
+							halign: "right"
+							valign: "middle"
+							font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						MDLabel:
+							text: "Window Tint:"
+							halign: "left"
+							valign: "middle"
+							font_style: 'H6'
 						MDLabel:
 							id: lb_window_tint
-							text: "..."
-							halign: "center"
+							halign: "right"
 							valign: "middle"
-							font_style: 'Display'
-							font_size: '80dp'
-							pos_hint: {'x':.0, 'y':.0}
+							font_style: 'H6'
 
+					MDBoxLayout:
+						orientation: "horizontal"
 						MDRectangleFlatIconButton:
 						# MDFloatingActionButton:
-							id: bt_reload
-							text: "ULANGI"
-							icon: "reload"
-							theme_text_color: "Custom"
-							text_color: "#EEEEEE"
-							pos_hint: {'x':.275, 'y':.06}
-							disabled: True
-							on_press: root.exec_reload()
-
-						MDRectangleFlatIconButton:
-						# MDFloatingActionButton:
-							id: bt_save
-							text: "SIMPAN"
+							id: bt_print
+							text: "PRINT"
 							icon: "printer"
 							theme_text_color: "Custom"
+							md_bg_color: "4471C4"
 							text_color: "#EEEEEE"
-							pos_hint: {'x':.425, 'y':.06}
-							disabled: True
-							on_press: root.exec_save()
-
+							on_press: root.exec_print()
+						
+						Widget:
+						
 						MDRectangleFlatIconButton:
 						# MDIconButton:
 						# MDFloatingActionButton:
@@ -265,7 +357,6 @@
 							theme_text_color: "Custom"
 							md_bg_color: "4471C4"
 							text_color: "#EEEEEE"
-							pos_hint: {'x':.575, 'y':.06}
 							on_press: root.open_screen_main()
 
 

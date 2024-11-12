@@ -80,7 +80,6 @@ COM_PORT_PRINTER = config['device']['COM_PORT_PRINTER']
 COM_PORT_WTM = config['device']['COM_PORT_WTM']
 TIME_OUT = 500
 
-dt_wtm_value = 0
 dt_wtm_flag = 0
 dt_wtm_user = 1
 dt_wtm_post = str(time.strftime("%Y/%m/%d %H:%M:%S", time.localtime()))
@@ -90,6 +89,16 @@ dt_no_reg = ""
 dt_no_uji = ""
 dt_nama = ""
 dt_jenis_kendaraan = ""
+
+dt_pd_value = 0
+dt_gem_value = 0
+dt_ssm_value = 0
+dt_alm_value = 0
+dt_bm_value = 0
+dt_sm_value = 0
+dt_hlm_value = 0
+dt_slm_value = 0
+dt_wtm_value = 0
 
 class ScreenLogin(MDScreen):
     def __init__(self, **kwargs):
@@ -108,8 +117,10 @@ class ScreenLogin(MDScreen):
         global dt_wtm_user, dt_user
 
         try:
-            input_username = self.ids.tx_username.text
-            input_password = self.ids.tx_password.text        
+            #input_username = self.ids.tx_username.text
+            #input_password = self.ids.tx_password.text        
+            input_username = "miko"
+            input_password = "miko"     
             # Adding salt at the last of the password
             dataBase_password = input_password
             # Encoding the password
@@ -141,18 +152,9 @@ class ScreenMain(MDScreen):
     def __init__(self, **kwargs):
         super(ScreenMain, self).__init__(**kwargs)
         global mydb, db_antrian
-        global audio, stream
-        global flag_conn_stat, flag_play
-        global count_starting, count_get_data
-
-        Clock.schedule_interval(self.regular_update_connection, 5)
+    
         Clock.schedule_once(self.delayed_init, 1)
 
-        flag_conn_stat = False
-        flag_play = False
-
-        count_starting = 3
-        count_get_data = 4
         try:
             mydb = mysql.connector.connect(
             host = DB_HOST,
@@ -166,7 +168,7 @@ class ScreenMain(MDScreen):
             toast(toast_msg)           
 
     def regular_update_connection(self, dt):
-        global printer, wtm_device
+        global printer
         global flag_conn_stat
 
         try:
@@ -183,6 +185,24 @@ class ScreenMain(MDScreen):
                     timeout = 1.00,
                     dsrdtr = True)    
 
+
+            wtm_device = serial.Serial()
+            wtm_device.baudrate = 115200
+            wtm_device.port = COM_PORT_WTM
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS        
+
+            # wtm_device = serial.Serial()devfile = COM_PORT_WTM,
+            #         baudrate = 115200,
+            #         bytesize = 8,
+            #         parity = 'N',
+            #         stopbits = 1,
+            #         timeout = 1.00)
+            
+            wtm_device.open()
+            
+            
             wtm_device = serial.Serial()
             wtm_device.baudrate = 115200
             wtm_device.port = COM_PORT_WTM
@@ -204,7 +224,7 @@ class ScreenMain(MDScreen):
             toast(toast_msg)   
             flag_conn_stat = False
 
-    def delayed_init(self, dt):
+    def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
         Clock.schedule_interval(self.regular_update_display, 1)
         layout = self.ids.layout_table
         
@@ -226,13 +246,13 @@ class ScreenMain(MDScreen):
         layout.add_widget(self.data_tables)
         self.exec_reload_table()
 
-    def sort_on_num(self, data):
+    def sort_on_num(self, data): #buat ngesorting data
         try:
             return zip(*sorted(enumerate(data),key=lambda l: l[0][0]))
         except:
             toast("Error sorting data")
 
-    def on_row_press(self, table, row):
+    def on_row_press(self, table, row): #buat nentuin identitas kendaraan
         global dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan
         global dt_wtm_flag, dt_wtm_value, dt_wtm_user, dt_wtm_post
 
@@ -249,145 +269,60 @@ class ScreenMain(MDScreen):
             toast_msg = f'error update table: {e}'
             toast(toast_msg)   
 
-    def regular_update_display(self, dt):
+    def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
         global flag_conn_stat
         global dt_wtm_value, count_starting, count_get_data
         global dt_user, dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan
         global dt_wtm_flag, dt_wtm_value, dt_wtm_user, dt_wtm_post
         try:
             screen_login = self.screen_manager.get_screen('screen_login')
-            screen_counter = self.screen_manager.get_screen('screen_counter')
+            screen_final_verifier = self.screen_manager.get_screen('screen_final_verifier')
 
+            #Ngatur waktu
             self.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             self.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_login.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_login.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
-            screen_counter.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
-            screen_counter.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
+            screen_final_verifier.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
+            screen_final_verifier.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
 
+            #Ngatur identitas kendaraan (main)
             self.ids.lb_no_antrian.text = str(dt_no_antrian)
             self.ids.lb_no_reg.text = str(dt_no_reg)
             self.ids.lb_no_uji.text = str(dt_no_uji)
             self.ids.lb_nama.text = str(dt_nama)
             self.ids.lb_jenis_kendaraan.text = str(dt_jenis_kendaraan)
 
-            screen_counter.ids.lb_no_antrian.text = str(dt_no_antrian)
-            screen_counter.ids.lb_no_reg.text = str(dt_no_reg)
-            screen_counter.ids.lb_no_uji.text = str(dt_no_uji)
-            screen_counter.ids.lb_nama.text = str(dt_nama)
-            screen_counter.ids.lb_jenis_kendaraan.text = str(dt_jenis_kendaraan)
+            #Ngatur identitas kendaraan (final verifier)
+            screen_final_verifier.ids.lb_no_antrian.text = str(dt_no_antrian)
+            screen_final_verifier.ids.lb_no_reg.text = str(dt_no_reg)
+            screen_final_verifier.ids.lb_no_uji.text = str(dt_no_uji)
+            screen_final_verifier.ids.lb_nama.text = str(dt_nama)
+            screen_final_verifier.ids.lb_jenis_kendaraan.text = str(dt_jenis_kendaraan)
 
-            if(dt_wtm_flag == "Belum Tes"):
-                self.ids.bt_start.disabled = False
-            else:
-                self.ids.bt_start.disabled = True
+            #Ngatur hasil final verifier
+            print(dt_hlm_value,dt_slm_value,dt_wtm_value)
+            screen_final_verifier.ids.lb_play_detector.text = str(dt_pd_value)
+            screen_final_verifier.ids.lb_gas_emission.text = str(dt_gem_value)
+            screen_final_verifier.ids.lb_side_slip.text = str(dt_ssm_value)
+            screen_final_verifier.ids.lb_axle_load.text = str(dt_alm_value)
+            screen_final_verifier.ids.lb_brake.text = str(dt_bm_value)
+            screen_final_verifier.ids.lb_speed.text = str(dt_sm_value)
+            screen_final_verifier.ids.lb_headlamp.text = str(dt_hlm_value)
+            screen_final_verifier.ids.lb_sound_level.text = str(dt_slm_value)
+            screen_final_verifier.ids.lb_window_tint.text = str(dt_wtm_value)
+            
 
-            if(not flag_play):
-                screen_counter.ids.bt_save.md_bg_color = colors['Green']['200']
-                screen_counter.ids.bt_save.disabled = False
-                screen_counter.ids.bt_reload.md_bg_color = colors['Red']['A200']
-                screen_counter.ids.bt_reload.disabled = False
-            else:
-                screen_counter.ids.bt_reload.disabled = True
-                screen_counter.ids.bt_save.disabled = True
-
-            if(not flag_conn_stat):
-                self.ids.lb_comm.color = colors['Red']['A200']
-                self.ids.lb_comm.text = 'Printer Tidak Terhubung'
-                screen_login.ids.lb_comm.color = colors['Red']['A200']
-                screen_login.ids.lb_comm.text = 'Printer Tidak Terhubung'
-                screen_counter.ids.lb_comm.color = colors['Red']['A200']
-                screen_counter.ids.lb_comm.text = 'Printer Tidak Terhubung'
-
-            else:
-                self.ids.lb_comm.color = colors['Blue']['200']
-                self.ids.lb_comm.text = 'Printer Terhubung'
-                screen_login.ids.lb_comm.color = colors['Blue']['200']
-                screen_login.ids.lb_comm.text = 'Printer Terhubung'
-                screen_counter.ids.lb_comm.color = colors['Blue']['200']
-                screen_counter.ids.lb_comm.text = 'Printer Terhubung'
-
-            if(count_starting <= 0):
-                screen_counter.ids.lb_test_subtitle.text = "HASIL PENGUKURAN"
-                screen_counter.ids.lb_window_tint.text = str(np.round(dt_wtm_value, 2))
-                screen_counter.ids.lb_info.text = "Ambang Batas Tingkat Meneruskan Cahaya pada Kaca Kendaraan Anda adalah 70%"
-                                               
-            elif(count_starting > 0):
-                if(flag_play):
-                    screen_counter.ids.lb_test_subtitle.text = "MEMULAI PENGUKURAN"
-                    screen_counter.ids.lb_window_tint.text = str(count_starting)
-                    screen_counter.ids.lb_info.text = "Silahkan Nyalakan Klakson Kendaraan"
-
-            if(dt_wtm_value >= 70):
-                screen_counter.ids.lb_info.text = "Kaca Kendaraan Anda Memiliki Tingkat Meneruskan Cahaya Dalam Range Ambang Batas"
-            else:
-                screen_counter.ids.lb_info.text = "Kaca Kendaraan Anda Memiliki Tingkat Meneruskan Cahaya Diluar Ambang Batas"
-
-            if(count_get_data <= 0):
-                if(not flag_play):
-                    screen_counter.ids.lb_test_result.size_hint_y = 0.25
-                    if(dt_wtm_value >= 70):
-                        screen_counter.ids.lb_test_result.md_bg_color = colors['Green']['200']
-                        screen_counter.ids.lb_test_result.text = "LULUS"
-                        dt_wtm_flag = "Lulus"
-                        screen_counter.ids.lb_test_result.text_color = colors['Green']['700']
-                    else:
-                        screen_counter.ids.lb_test_result.md_bg_color = colors['Red']['A200']
-                        screen_counter.ids.lb_test_result.text = "TIDAK LULUS"
-                        dt_wtm_flag = "Tidak Lulus"
-                        screen_counter.ids.lb_test_result.text_color = colors['Red']['A700']
-
-            elif(count_get_data > 0):
-                    screen_counter.ids.lb_test_result.md_bg_color = "#EEEEEE"
-                    # screen_counter.ids.lb_test_result.size_hint_y = None
-                    # screen_counter.ids.lb_test_result.height = dp(0)
-                    screen_counter.ids.lb_test_result.text = ""
-
+            #Ngatur identitas operator
             self.ids.lb_operator.text = dt_user
             screen_login.ids.lb_operator.text = dt_user
-            screen_counter.ids.lb_operator.text = dt_user
+            screen_final_verifier.ids.lb_operator.text = dt_user
 
         except Exception as e:
             toast_msg = f'error update display: {e}'
             toast(toast_msg)                
 
-    def regular_get_data(self, dt):
-        global flag_play
-        global dt_wtm_value
-        global count_starting, count_get_data
-        global wtm_device
-        try:
-            if(count_starting > 0):
-                count_starting -= 1              
-
-            if(count_get_data > 0):
-                count_get_data -= 1
-                
-            elif(count_get_data <= 0):
-                # flag_play = False
-                # Clock.unschedule(self.regular_get_data)
-
-            # if(count_starting <= 0):
-                arr_ref = np.loadtxt("data\sample_data.csv", delimiter=";", dtype=str, skiprows=1)
-                arr_val_ref = arr_ref[:,0]
-                arr_data_ref = arr_ref[:,1:]
-
-                data_byte = wtm_device.readline().decode("utf-8").strip()  # read the incoming data and remove newline character
-                if data_byte != "":
-                    arr_data_byte = np.array(data_byte.split())
-
-                    for i in range(arr_val_ref.size):
-                        if(np.array_equal(arr_data_byte, arr_data_ref[i])):
-                            dt_wtm_value = float(arr_val_ref[i])
-                
-                flag_play = False
-                Clock.unschedule(self.regular_get_data)
-
-        except Exception as e:
-            toast_msg = f'error get data: {e}'
-            print(toast_msg) 
-
-    def exec_reload_table(self):
+    def exec_reload_table(self): #buat reload table nyesuain sama database (jalanin setiap 1 detik dipanggil delayed_init)
         global mydb, db_antrian
         try:
             mycursor = mydb.cursor()
@@ -403,29 +338,28 @@ class ScreenMain(MDScreen):
             toast_msg = f'error reload table: {e}'
             print(toast_msg)
 
-    def exec_start(self):
-        global flag_play, stream, audio
+    def exec_open_final_verifier(self): #Ngambil hasil final verifier dan assing ke variable
+        global dt_pd_value, dt_gem_value, dt_ssm_value, dt_alm_value, dt_bm_value, dt_sm_value, dt_hlm_value, dt_slm_value, dt_wtm_value
+        
+        #Ambil hasil final verifier
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT hlm_value, slm_value, wtm_value FROM tb_cekident WHERE nouji = '%s'" % (dt_no_uji))
+        dt_hlm_value, dt_slm_value, dt_wtm_value = mycursor.fetchone()
+        #mycursor.execute("SELECT pd_value, gem_value, ssm_value, alm_value, bm_value, sm_value hlm_value, slm_value, wtm_value FROM tb_cekident WHERE nouji = '%s'" % (dt_no_uji))
+        #dt_pd_value, dt_gem_value, dt_ssm_value, dt_alm_value, dt_bm_value, dt_sm_value, dt_hlm_value, dt_slm_value, dt_wtm_value = mycursor.fetchone()
+        #Ngatur layout 
 
-        if(not flag_play):
-            stream.start_stream()
-            Clock.schedule_interval(self.regular_get_data, 1)
-            self.open_screen_counter()
-            flag_play = True
 
-            # stream.close()
-            # audio.terminate()  
-
-    def open_screen_counter(self):
-        self.screen_manager.current = 'screen_counter'
+        self.screen_manager.current = 'screen_final_verifier'
 
     def exec_logout(self):
         self.screen_manager.current = 'screen_login'
 
-class ScreenCounter(MDScreen):        
+class ScreenFinalVerifier(MDScreen):        
     def __init__(self, **kwargs):
-        super(ScreenCounter, self).__init__(**kwargs)
+        super(ScreenFinalVerifier, self).__init__(**kwargs)
         Clock.schedule_once(self.delayed_init, 2)
-        
+
     def delayed_init(self, dt):
         pass
 
@@ -439,46 +373,15 @@ class ScreenCounter(MDScreen):
         count_get_data = 10
 
         if(not flag_play):
-            stream.start_stream()
             Clock.schedule_interval(screen_main.regular_get_data, 1)
             flag_play = True
 
-    def exec_reload(self):
-        global flag_play
-        global count_starting, count_get_data, dt_wtm_value
-
-        screen_main = self.screen_manager.get_screen('screen_main')
-
-        count_starting = 3
-        count_get_data = 10
-        dt_wtm_value = 0
-        self.ids.bt_reload.disabled = True
-        self.ids.lb_window_tint.text = "..."
-
-        if(not flag_play):
-            stream.start_stream()
-            Clock.schedule_interval(screen_main.regular_get_data, 1)
-            flag_play = True
-
-    def exec_save(self):
-        global flag_play
+    def exec_print(self): #Buat print hasil final verifier
         global count_starting, count_get_data
-        global mydb, db_antrian
         global dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan
         global dt_wtm_flag, dt_wtm_value, dt_wtm_user, dt_wtm_post
         global printer
-
-        self.ids.bt_save.disabled = True
-
-        mycursor = mydb.cursor()
-
-        sql = "UPDATE tb_cekident SET wtm_flag = %s, wtm_value = %s, wtm_user = %s, wtm_post = %s WHERE noantrian = %s"
-        sql_wtm_flag = (1 if dt_wtm_flag == "Lulus" else 2)
-        dt_wtm_post = str(time.strftime("%Y/%m/%d %H:%M:%S", time.localtime()))
         print_datetime = str(time.strftime("%d %B %Y %H:%M:%S", time.localtime()))
-        sql_val = (sql_wtm_flag, dt_wtm_value, dt_wtm_user, dt_wtm_post, dt_no_antrian)
-        mycursor.execute(sql, sql_val)
-        mydb.commit()
 
         printer.set(align="center", normal_textsize=True)
         printer.image("assets/logo-dishub-print.png")
@@ -527,7 +430,7 @@ class ScreenCounter(MDScreen):
 class RootScreen(ScreenManager):
     pass             
 
-class SoundLevelMeterApp(MDApp):
+class FinalVerifier(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -546,7 +449,7 @@ class SoundLevelMeterApp(MDApp):
         self.theme_cls.font_styles["Display"] = [
             "Orbitron-Regular", 72, False, 0.15]       
         
-        Window.fullscreen = 'auto'
+        #Window.fullscreen = 'auto'
         # Window.borderless = False
         # Window.size = 900, 1440
         # Window.size = 450, 720
@@ -556,4 +459,4 @@ class SoundLevelMeterApp(MDApp):
         return RootScreen()
 
 if __name__ == '__main__':
-    SoundLevelMeterApp().run()
+    FinalVerifier().run()
