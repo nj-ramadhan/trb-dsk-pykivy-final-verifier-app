@@ -1,6 +1,6 @@
 #:kivy 2.1.0
 
-<ScreenCounter>:
+<ScreenPrinter>:
     MDBoxLayout:
         orientation: "vertical"
 
@@ -34,7 +34,7 @@
 
 				MDLabel:
 					id: subtitle            
-					text: "WINDOW TINT METER / WTM"
+					text: "FINAL VERIFIER"
 					halign: "left"
 					valign: "middle"
 					font_style: 'H5'
@@ -96,22 +96,22 @@
 			orientation: "horizontal"
 			size_hint_y: 0.7
 			padding:20
-			spacing:20
 
 			MDBoxLayout:
 				id: layout_display
 				orientation: "horizontal"
+				spacing:20
 
 				MDBoxLayout:
 					orientation: "vertical"
-					size_hint_x: 0.5
+					size_hint_x: 0.4
 					padding:20
-					spacing:20
+					spacing:50
 
 					MDBoxLayout:
 						orientation: "vertical"
 						size_hint_y: 0.75
-						spacing:10
+						spacing:20
 
 						MDLabel:
 							text: "IDENTITAS KENDARAAN"
@@ -207,69 +207,242 @@
 
 				MDBoxLayout:
 					orientation: "vertical"
-					size_hint_x: 0.5
+					size_hint_x: 0.6
 
-					MDFloatLayout:
-						id: layout_sound
-
-						AsyncImage:
-							source: 'assets/wtm-1100-display-width.png'
-							pos_hint: {'x':.0, 'y':.0}
-							fit_mode: 'contain' #scale-down, fill, contain, cover
+					MDBoxLayout:
+						orientation: "vertical"
+						size_hint_y: 0.75
+						spacing:20
 
 						MDLabel:
-							id: lb_test_subtitle
-							text: "MEMULAI PENGUKURAN"
+							text: "HASIL UJI KENDARAAN"
 							halign: "center"
 							valign: "middle"
-							font_style: 'H6'
-							pos_hint: {'x':.0, 'y':.20}
+							font_style: 'H4'
 
-						MDLabel:
-							id: lb_window_tint
-							text: "..."
-							halign: "center"
-							valign: "middle"
-							font_style: 'Display'
-							font_size: '80dp'
-							pos_hint: {'x':.0, 'y':.0}
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Jenis Pengujian"
+								halign: "center"
+								valign: "middle"
+								font_style: 'H5'
 
-						MDRectangleFlatIconButton:
-						# MDFloatingActionButton:
-							id: bt_reload
-							text: "ULANGI"
-							icon: "reload"
-							theme_text_color: "Custom"
-							text_color: "#EEEEEE"
-							pos_hint: {'x':.275, 'y':.06}
-							disabled: True
-							on_press: root.exec_reload()
+							MDLabel:
+								text: "Nilai Hasil Pengujian"
+								halign: "center"
+								valign: "middle"
+								font_style: 'H5'
 
-						MDRectangleFlatIconButton:
-						# MDFloatingActionButton:
-							id: bt_save
-							text: "SIMPAN"
-							icon: "printer"
-							theme_text_color: "Custom"
-							text_color: "#EEEEEE"
-							pos_hint: {'x':.425, 'y':.06}
-							disabled: True
-							on_press: root.exec_save()
+							MDLabel:
+								text: "Status Hasil Pengujian"
+								halign: "center"
+								valign: "middle"
+								font_style: 'H5'
 
-						MDRectangleFlatIconButton:
-						# MDIconButton:
-						# MDFloatingActionButton:
-							id: bt_back
-							text: "KEMBALI"
-							icon: "arrow-left"
-							theme_text_color: "Custom"
-							md_bg_color: "4471C4"
-							text_color: "#EEEEEE"
-							pos_hint: {'x':.575, 'y':.06}
-							on_press: root.open_screen_main()
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Play Detector"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
 
+							MDLabel:
+								id: lb_result_value_playdetect
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
 
-									
+							MDLabel:
+								id: lb_result_flag_playdetect
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Emission"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_emission
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_emission
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Slide Slip"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_sideslip
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_sideslip
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Axle Load"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_load
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_load
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Brake"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_brake
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_brake
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Speed"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_speed
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_speed
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Head Light"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_hlm
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_hlm
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Sound Level"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_slm
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_slm
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Window Tint"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_value_wtm
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+
+							MDLabel:
+								id: lb_result_flag_wtm
+								halign: "center"
+								valign: "middle"
+								font_style: 'H6'
+						
+						MDBoxLayout:
+							orientation: "horizontal"
+							spacing:10
+
+							MDRectangleFlatIconButton:
+								id: bt_print
+								text: "CETAK"
+								icon: "printer"
+								theme_text_color: "Custom"
+								text_color: "#EEEEEE"
+								size_hint_x: 0.5
+								disabled: True
+								on_press: root.exec_print()
+
+							MDRectangleFlatIconButton:
+								id: bt_back
+								text: "KEMBALI"
+								icon: "arrow-left"
+								theme_text_color: "Custom"
+								text_color: "#EEEEEE"
+								size_hint_x: 0.5
+								disabled: True
+								on_press: root.exec_back()									
 		# footer layout
         MDBoxLayout:
             orientation: "horizontal"
@@ -338,7 +511,7 @@
 
 				MDLabel:
 					id: lb_info
-					text: "Ambang Batas Kebisingan adalah 83 dB hingga 118 dB"
+					text: ""
 					halign: "left"
 					valign: "middle"
 					font_style: 'H6'
