@@ -187,6 +187,7 @@ class ScreenMain(MDScreen):
 
     def regular_update_connection(self, dt):
         global printer
+        global printer
         global flag_conn_stat
 
         try:
@@ -208,7 +209,7 @@ class ScreenMain(MDScreen):
             toast(toast_msg)   
             flag_conn_stat = False
 
-    def delayed_init(self, dt):
+    def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
         Clock.schedule_interval(self.regular_update_display, 1)
         layout = self.ids.layout_table
         
@@ -230,7 +231,7 @@ class ScreenMain(MDScreen):
         layout.add_widget(self.data_tables)
         self.exec_reload_table()
 
-    def sort_on_num(self, data):
+    def sort_on_num(self, data): #buat ngesorting data
         try:
             return zip(*sorted(enumerate(data),key=lambda l: l[0][0]))
         except:
@@ -253,7 +254,7 @@ class ScreenMain(MDScreen):
             toast_msg = f'error update table: {e}'
             toast(toast_msg)   
 
-    def regular_update_display(self, dt):
+    def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
         global flag_conn_stat
         global count_starting, count_get_data
         global dt_user, dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan, dt_flag_print
@@ -266,6 +267,7 @@ class ScreenMain(MDScreen):
             screen_login = self.screen_manager.get_screen('screen_login')
             screen_printer = self.screen_manager.get_screen('screen_printer')
 
+            #Ngatur waktu
             self.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             self.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_login.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
@@ -273,6 +275,7 @@ class ScreenMain(MDScreen):
             screen_printer.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_printer.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
 
+            #Ngatur identitas kendaraan (main)
             self.ids.lb_no_antrian.text = str(dt_no_antrian)
             self.ids.lb_no_reg.text = str(dt_no_reg)
             self.ids.lb_no_uji.text = str(dt_no_uji)
@@ -450,7 +453,7 @@ class ScreenPrinter(MDScreen):
     def __init__(self, **kwargs):
         super(ScreenPrinter, self).__init__(**kwargs)
         Clock.schedule_once(self.delayed_init, 2)
-        
+
     def delayed_init(self, dt):
         pass
 
@@ -525,7 +528,7 @@ class ScreenPrinter(MDScreen):
 class RootScreen(ScreenManager):
     pass             
 
-class SoundLevelMeterApp(MDApp):
+class FinalVerifierApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -554,4 +557,4 @@ class SoundLevelMeterApp(MDApp):
         return RootScreen()
 
 if __name__ == '__main__':
-    SoundLevelMeterApp().run()
+    FinalVerifierApp().run()

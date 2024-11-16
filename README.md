@@ -1,5 +1,5 @@
-# Window Tint Meter
- Desktop application for Window Tint Meter
+# Final Verifier
+Desktop application for Final Verifier
 
 ## for Windows OS
 Install git for windows
