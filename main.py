@@ -129,14 +129,11 @@ class ScreenLogin(MDScreen):
         global dt_result_user, dt_user
 
         try:
-            #input_username = self.ids.tx_username.text
-            #input_password = self.ids.tx_password.text        
-            input_username = "miko"
-            input_password = "miko"     
-            # Adding salt at the last of the password
-            dataBase_password = input_password
+            input_username = self.ids.tx_username.text
+            input_password = self.ids.tx_password.text        
+
             # Encoding the password
-            hashed_password = hashlib.md5(dataBase_password.encode())
+            hashed_password = hashlib.md5(input_password.encode())
 
             mycursor = mydb.cursor()
             mycursor.execute(f"SELECT id_user, nama, username, password, nama FROM {TB_USER} WHERE username = '"+str(input_username)+"' and password = '"+str(hashed_password.hexdigest())+"'")
@@ -189,7 +186,6 @@ class ScreenMain(MDScreen):
 
     def regular_update_connection(self, dt):
         global printer
-        global printer
         global flag_conn_stat
 
         try:
@@ -211,7 +207,6 @@ class ScreenMain(MDScreen):
             toast(toast_msg)   
             flag_conn_stat = False
 
-    def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
     def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
         Clock.schedule_interval(self.regular_update_display, 1)
         layout = self.ids.layout_table
@@ -235,7 +230,6 @@ class ScreenMain(MDScreen):
         self.exec_reload_table()
 
     def sort_on_num(self, data): #buat ngesorting data
-    def sort_on_num(self, data): #buat ngesorting data
         try:
             return zip(*sorted(enumerate(data),key=lambda l: l[0][0]))
         except:
@@ -258,7 +252,6 @@ class ScreenMain(MDScreen):
             toast_msg = f'error update table: {e}'
             toast(toast_msg)   
 
-    def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
     def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
         global flag_conn_stat
         global count_starting, count_get_data
@@ -399,7 +392,6 @@ class ScreenMain(MDScreen):
                 myresult = mycursor.fetchone()
                 mydb.commit()
                 db_antrian = np.array(myresult).T
-                print(db_antrian)
 
                 dt_flag_playdetect = int(db_antrian[0])
                 dt_flag_emission = int(db_antrian[1])
@@ -555,7 +547,7 @@ class FinalVerifierApp(MDApp):
         self.theme_cls.font_styles["Display"] = [
             "Orbitron-Regular", 72, False, 0.15]       
         
-        #Window.fullscreen = 'auto'
+        Window.fullscreen = 'auto'
         # Window.borderless = False
         # Window.size = 900, 1440
         # Window.size = 450, 720

@@ -1,10 +1,6 @@
 #:kivy 2.1.0
 
-<<<<<<<< HEAD:screen_printer.kv
 <ScreenPrinter>:
-========
-<ScreenFinalVerifier>:
->>>>>>>> adb05d530b9ee15374a7204e9244c088fa42529d:screen_final_verifier.kv
     MDBoxLayout:
         orientation: "vertical"
 
@@ -213,25 +209,12 @@
 					orientation: "vertical"
 					size_hint_x: 0.6
 
-<<<<<<<< HEAD:screen_printer.kv
 					MDBoxLayout:
 						orientation: "vertical"
 						size_hint_y: 0.75
 						spacing:20
-========
-					MDLabel:
-						id: lb_test_subtitle
-						text: "Final Verifier"
-						halign: "center"
-						valign: "middle"
-						font_style: 'H6'
-						pos_hint: {'x':.0, 'y':.20}
->>>>>>>> adb05d530b9ee15374a7204e9244c088fa42529d:screen_final_verifier.kv
 
-					MDBoxLayout:
-						orientation: "horizontal"
 						MDLabel:
-<<<<<<<< HEAD:screen_printer.kv
 							text: "HASIL UJI KENDARAAN"
 							halign: "center"
 							valign: "middle"
@@ -264,146 +247,6 @@
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
-========
-							text: "Play Detector:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_play_detector
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-					
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Gas Emission:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_gas_emission
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Side Slip:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_side_slip
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Axle Load:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_axle_load
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Brake:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_brake
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Speed:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_speed
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Headlamp"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_headlamp
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Sound Level"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_sound_level
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Window Tint:"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-						MDLabel:
-							id: lb_window_tint
-							halign: "right"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDRectangleFlatIconButton:
-						# MDFloatingActionButton:
-							id: bt_print
-							text: "PRINT"
-							icon: "printer"
-							theme_text_color: "Custom"
-							md_bg_color: "4471C4"
-							text_color: "#EEEEEE"
-							on_press: root.exec_print()
-						
-						Widget:
-						
-						MDRectangleFlatIconButton:
-						# MDIconButton:
-						# MDFloatingActionButton:
-							id: bt_back
-							text: "KEMBALI"
-							icon: "arrow-left"
-							theme_text_color: "Custom"
-							md_bg_color: "4471C4"
-							text_color: "#EEEEEE"
-							on_press: root.open_screen_main()
->>>>>>>> adb05d530b9ee15374a7204e9244c088fa42529d:screen_final_verifier.kv
 
 							MDLabel:
 								id: lb_result_value_playdetect
