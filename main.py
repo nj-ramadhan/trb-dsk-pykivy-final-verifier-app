@@ -129,8 +129,10 @@ class ScreenLogin(MDScreen):
         global dt_result_user, dt_user
 
         try:
-            input_username = self.ids.tx_username.text
-            input_password = self.ids.tx_password.text        
+            #input_username = self.ids.tx_username.text
+            #input_password = self.ids.tx_password.text        
+            input_username = "miko"
+            input_password = "miko"     
             # Adding salt at the last of the password
             dataBase_password = input_password
             # Encoding the password
@@ -210,6 +212,7 @@ class ScreenMain(MDScreen):
             flag_conn_stat = False
 
     def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
+    def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
         Clock.schedule_interval(self.regular_update_display, 1)
         layout = self.ids.layout_table
         
@@ -231,6 +234,7 @@ class ScreenMain(MDScreen):
         layout.add_widget(self.data_tables)
         self.exec_reload_table()
 
+    def sort_on_num(self, data): #buat ngesorting data
     def sort_on_num(self, data): #buat ngesorting data
         try:
             return zip(*sorted(enumerate(data),key=lambda l: l[0][0]))
@@ -255,6 +259,7 @@ class ScreenMain(MDScreen):
             toast(toast_msg)   
 
     def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
+    def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
         global flag_conn_stat
         global count_starting, count_get_data
         global dt_user, dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan, dt_flag_print
@@ -268,6 +273,7 @@ class ScreenMain(MDScreen):
             screen_printer = self.screen_manager.get_screen('screen_printer')
 
             #Ngatur waktu
+            #Ngatur waktu
             self.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             self.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_login.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
@@ -275,6 +281,7 @@ class ScreenMain(MDScreen):
             screen_printer.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_printer.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
 
+            #Ngatur identitas kendaraan (main)
             #Ngatur identitas kendaraan (main)
             self.ids.lb_no_antrian.text = str(dt_no_antrian)
             self.ids.lb_no_reg.text = str(dt_no_reg)
@@ -454,6 +461,7 @@ class ScreenPrinter(MDScreen):
         super(ScreenPrinter, self).__init__(**kwargs)
         Clock.schedule_once(self.delayed_init, 2)
 
+
     def delayed_init(self, dt):
         pass
 
@@ -547,7 +555,7 @@ class FinalVerifierApp(MDApp):
         self.theme_cls.font_styles["Display"] = [
             "Orbitron-Regular", 72, False, 0.15]       
         
-        Window.fullscreen = 'auto'
+        #Window.fullscreen = 'auto'
         # Window.borderless = False
         # Window.size = 900, 1440
         # Window.size = 450, 720
