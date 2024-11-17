@@ -4,8 +4,13 @@ from kivy.core.window import Window
 from kivy.core.text import LabelBase
 from kivymd.font_definitions import theme_font_styles
 from kivymd.uix.datatables import MDDataTable
+from kivymd.uix.list import MDList
+from kivymd.uix.card import MDCard
+from kivymd.uix.label import MDLabel
+from kivymd.uix.scrollview import MDScrollView
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
+
 from kivymd.app import MDApp
 from kivy.metrics import dp
 from kivymd.toast import toast
@@ -209,24 +214,24 @@ class ScreenMain(MDScreen):
 
     def delayed_init(self, dt): #Nampilin row (run setiap 1 detik dari __init__)
         Clock.schedule_interval(self.regular_update_display, 1)
-        layout = self.ids.layout_table
-        
-        self.data_tables = MDDataTable(
-            use_pagination=True,
-            pagination_menu_pos="auto",
-            rows_num=10,
-            column_data=[
-                ("No.", dp(10), self.sort_on_num),
-                ("Antrian", dp(20)),
-                ("No. Reg", dp(25)),
-                ("No. Uji", dp(35)),
-                ("Nama", dp(35)),
-                ("Jenis", dp(50)),
-                ("Status", dp(40)),
-            ],
-        )
-        self.data_tables.bind(on_row_press=self.on_row_press)
-        layout.add_widget(self.data_tables)
+        # layout = self.ids.layout_table
+
+        # self.data_tables = MDDataTable(
+        #     use_pagination=True,
+        #     pagination_menu_pos="auto",
+        #     rows_num=10,
+        #     column_data=[
+        #         ("No.", dp(10), self.sort_on_num),
+        #         ("Antrian", dp(20)),
+        #         ("No. Reg", dp(25)),
+        #         ("No. Uji", dp(35)),
+        #         ("Nama", dp(35)),
+        #         ("Jenis", dp(50)),
+        #         ("Status", dp(40)),
+        #     ],
+        # )
+        # self.data_tables.bind(on_row_press=self.on_row_press)
+        # layout.add_widget(self.data_tables)
         self.exec_reload_table()
 
     def sort_on_num(self, data): #buat ngesorting data
@@ -235,22 +240,40 @@ class ScreenMain(MDScreen):
         except:
             toast("Error sorting data")
 
-    def on_row_press(self, table, row):
+    def on_row_press(self, instance):
         global dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan, dt_flag_print
         global dt_result_flag, dt_result_user, dt_result_post
+        global db_antrian
 
         try:
-            start_index, end_index  = row.table.recycle_data[row.index]["range"]
-            dt_no_antrian           = row.table.recycle_data[start_index + 1]["text"]
-            dt_no_reg               = row.table.recycle_data[start_index + 2]["text"]
-            dt_no_uji               = row.table.recycle_data[start_index + 3]["text"]
-            dt_nama                 = row.table.recycle_data[start_index + 4]["text"]
-            dt_jenis_kendaraan      = row.table.recycle_data[start_index + 5]["text"]
-            dt_flag_print           = row.table.recycle_data[start_index + 6]["text"]
+            row = int(str(instance.id).replace("card",""))
+            dt_no_antrian           = f"{db_antrian[0, row]}"
+            dt_no_reg               = f"{db_antrian[1, row]}"
+            dt_no_uji               = f"{db_antrian[2, row]}"
+            dt_nama                 = f"{db_antrian[3, row]}"
+            dt_jenis_kendaraan      = f"{db_antrian[4, row]}"
+            dt_flag_print           = 'Belum Dicetak' if (int(db_antrian[5, row]) == 0) else 'Sudah Dicetak'
 
         except Exception as e:
             toast_msg = f'error update table: {e}'
             toast(toast_msg)   
+
+    # def on_row_press(self, table, row):
+    #     global dt_no_antrian, dt_no_reg, dt_no_uji, dt_nama, dt_jenis_kendaraan, dt_flag_print
+    #     global dt_result_flag, dt_result_user, dt_result_post
+
+    #     try:
+    #         start_index, end_index  = row.table.recycle_data[row.index]["range"]
+    #         dt_no_antrian           = row.table.recycle_data[start_index + 1]["text"]
+    #         dt_no_reg               = row.table.recycle_data[start_index + 2]["text"]
+    #         dt_no_uji               = row.table.recycle_data[start_index + 3]["text"]
+    #         dt_nama                 = row.table.recycle_data[start_index + 4]["text"]
+    #         dt_jenis_kendaraan      = row.table.recycle_data[start_index + 5]["text"]
+    #         dt_flag_print           = row.table.recycle_data[start_index + 6]["text"]
+
+    #     except Exception as e:
+    #         toast_msg = f'error update table: {e}'
+    #         toast(toast_msg)   
 
     def regular_update_display(self, dt): #Update display (run setiap 1 detik dari delayed_init)
         global flag_conn_stat
@@ -418,7 +441,7 @@ class ScreenMain(MDScreen):
             print(toast_msg) 
 
     def exec_reload_table(self):
-        global mydb, db_antrian
+        global mydb, db_antrian, row
         try:
             mycursor = mydb.cursor()
             mycursor.execute(f"SELECT noantrian, nopol, nouji, user, idjeniskendaraan, print_flag FROM {TB_DATA}")
@@ -426,9 +449,39 @@ class ScreenMain(MDScreen):
             mydb.commit()
             db_antrian = np.array(myresult).T
 
-            self.data_tables.row_data=[(f"{i+1}", f"{db_antrian[0, i]}", f"{db_antrian[1, i]}", f"{db_antrian[2, i]}", f"{db_antrian[3, i]}" ,f"{db_antrian[4, i]}", 
-                                        'Belum Dicetak' if (int(db_antrian[5, i]) == 0) else 'Sudah Dicetak') 
-                                        for i in range(len(db_antrian[0]))]
+            layout_list = self.ids.layout_list
+            layout_list.clear_widgets(children=None)
+
+        except Exception as e:
+            toast_msg = f'error remove widget: {e}'
+            print(toast_msg)
+        
+        try:           
+            layout_list = self.ids.layout_list
+            for i in range(db_antrian[0,:].size):
+                layout_list.add_widget(
+                    MDCard(
+                        MDLabel(text=f"{i+1}", size_hint_x= 0.1),
+                        MDLabel(text=f"{db_antrian[0, i]}", size_hint_x= 0.2),
+                        MDLabel(text=f"{db_antrian[1, i]}", size_hint_x= 0.3),
+                        MDLabel(text=f"{db_antrian[2, i]}", size_hint_x= 0.3),
+                        MDLabel(text=f"{db_antrian[3, i]}", size_hint_x= 0.3),
+                        MDLabel(text=f"{db_antrian[4, i]}", size_hint_x= 0.4),
+                        MDLabel(text='Belum Dicetak' if (int(db_antrian[5, i]) == 0) else 'Sudah Dicetak', size_hint_x= 0.2),
+
+                        ripple_behavior = True,
+                        on_press = self.on_row_press,
+                        padding = 10,
+                        id=f"card{i}",
+                        size_hint_y=None,
+                        height="60dp",
+                        )
+                    )
+                # print(i)
+
+            # self.data_tables.row_data=[(f"{i+1}", f"{db_antrian[0, i]}", f"{db_antrian[1, i]}", f"{db_antrian[2, i]}", f"{db_antrian[3, i]}" ,f"{db_antrian[4, i]}", 
+            #                             'Belum Dicetak' if (int(db_antrian[5, i]) == 0) else 'Sudah Dicetak') 
+            #                             for i in range(len(db_antrian[0]))]
 
         except Exception as e:
             toast_msg = f'error reload table: {e}'
