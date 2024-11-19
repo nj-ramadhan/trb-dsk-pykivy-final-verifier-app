@@ -1,0 +1,26 @@
+#:kivy 2.1.0
+
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:include screen_login.kv
+#:include screen_main.kv
+#:include screen_printer.kv
+
+# ScreenManager:
+<RootScreen>:
+    id: screen_manager
+    transition: NoTransition()
+
+    ScreenLogin:
+        id: screen_login
+        name: 'screen_login'
+        screen_manager: screen_manager
+
+    ScreenMain:
+        id: screen_main
+        name: 'screen_main'
+        screen_manager: screen_manager
+
+    ScreenPrinter:
+        id: screen_printer
+        name: 'screen_printer'
+        screen_manager: screen_manager
