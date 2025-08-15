@@ -5,6 +5,11 @@ venv/
 build/
 dist/
 *.spec
+Output/
+
+# Ignore Log files
+logs/
+*.log
 
 # Ignore Python cache files
 __pycache__/

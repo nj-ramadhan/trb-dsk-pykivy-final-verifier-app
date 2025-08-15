@@ -15,7 +15,7 @@
                     
             Image:
                 id: logo
-                source:'assets/logo-trb-dark.png'
+                source:'assets/images/logo-trb.png'
                 size_hint_x: 0.15
                 allow_stretch: True 
 
@@ -24,18 +24,18 @@
 				size_hint_x: 0.7
 
 				MDLabel:
-					id: title            
-					text: "VEHICLE INSPECTION INTEGRATION SYSTEM"
+					id: lb_title            
+					text: "VEHICLE INSPECTION INTEGRATION MANAGEMENT SYSTEM"
 					halign: "left"
 					valign: "middle"
-					font_style: 'H3'
+					font_style: 'H4'
 					theme_text_color: "Custom"
 					text_color: "#FFFFFF"
 
 
 				MDLabel:
-					id: subtitle            
-					text: "FINAL VERIFIER"
+					id: lb_subtitle            
+					text: "AXLE LOAD & BRAKE METER"
 					halign: "left"
 					valign: "middle"
 					font_style: 'H5'
@@ -45,16 +45,6 @@
 			MDBoxLayout:
 				orientation: "vertical"
 				size_hint_x: 0.15
-
-				MDRectangleFlatIconButton:
-					id: bt_logout
-					icon: "logout"
-					text: "LOGOUT"
-					md_bg_color: "#FF2A2A"
-					theme_text_color: "Custom"
-					text_color: "#EEEEEE"
-					size_hint_x: 1
-					on_press: root.exec_logout()
 
 				MDLabel:
 					id: lb_time
@@ -76,7 +66,7 @@
 
 				MDLabel:
 					id: lb_operator
-					text: "Silahkan Login"
+					text: "Nama Operator"
 					halign: "center"
 					valign: "middle"
 					font_style: 'H6'
@@ -104,137 +94,288 @@
 
 				MDBoxLayout:
 					orientation: "vertical"
-					size_hint_x: 0.7
+					size_hint_x: 0.1
 					spacing: 20
 
-					MDBoxLayout:
-						orientation: "horizontal"
-						size_hint_y: 0.1
+					MDCard:
+						ripple_behavior: True
+                        on_press: root.exec_navigate_home()
+						md_bg_color: "#EEEEEE"
+                        padding: 10
+						Image:
+							source:'assets/images/icon-home.png'
+							size_hint_x: 0.15
+							allow_stretch: True 
 
-						MDRectangleFlatIconButton:
-							text: "RELOAD TABLE"
-							icon: "reload"
-							theme_text_color: "Custom"
-							text_color: "#EEEEEE"
-							md_bg_color: "#4471C4"
-							on_press: root.exec_reload_table()
+					MDCard:
+						ripple_behavior: True
+                        on_press: root.exec_navigate_login()
+						md_bg_color: "#EEEEEE"
+                        padding: 10
+						AsyncImage:
+							id: img_user
+							source:'assets/images/icon-login.png'
+							size_hint_x: 0.15
+							allow_stretch: True 
 
-						MDLabel:
-							text: "ANTRIAN KENDARAAN"
-							halign: "center"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						id: layout_table
-						orientation: "vertical"
-						MDScrollView:
-							id: layout_scroll
-							scroll_timeout:100
-							MDList:
-								id: layout_list
-							   
+					MDCard:
+						ripple_behavior: True
+                        on_press: root.exec_navigate_main()
+						md_bg_color: "#EEEEEE"
+                        padding: 10
+						Image:
+							source:'assets/images/icon-realtime.png'
+							size_hint_x: 0.15
+							allow_stretch: True 
 
 				MDBoxLayout:
 					orientation: "vertical"
-					size_hint_x: 0.3
-					spacing: 10
+					size_hint_x: 0.9
+					spacing: 20
 
 					MDLabel:
-						text: "IDENTITAS KENDARAAN"
+						text: "ANTRIAN KENDARAAN"
 						halign: "center"
 						valign: "middle"
 						font_style: 'H6'
+						size_hint_y: 0.05
 
 					MDBoxLayout:
 						orientation: "horizontal"
-						MDLabel:
-							text: "No. Antrian"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
+						md_bg_color: "#DDDDDD"
+						size_hint_y: 0.1
+						spacing: 50
 
-						MDLabel:
-							id: lb_no_antrian
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
+						MDBoxLayout:
+							orientation: "vertical"
+							MDLabel:
+								text: "PENDAFTARAN"
+								halign: "center"
+								valign: "middle"
+								font_style: 'Subtitle1'
+
+							MDLabel:
+								id: lb_dash_antri
+								halign: "center"
+								valign: "middle"
+								font_style: 'H4'
+								text: "0"
+
+						MDBoxLayout:
+							orientation: "vertical"
+							MDLabel:
+								text: "BELUM UJI"
+								halign: "center"
+								valign: "middle"
+								font_style: 'Subtitle1'
+
+							MDLabel:
+								id: lb_dash_belum_uji
+								halign: "center"
+								valign: "middle"
+								font_style: 'H4'
+								text: "0"
+							
+						MDBoxLayout:
+							orientation: "vertical"
+							MDLabel:
+								text: "SUDAH UJI"
+								halign: "center"
+								valign: "middle"
+								font_style: 'Subtitle1'
+
+							MDLabel:
+								id: lb_dash_sudah_uji
+								halign: "center"
+								valign: "middle"
+								font_style: 'H4'
+								text: "0"
 
 					MDBoxLayout:
 						orientation: "horizontal"
+						size_hint_y: 0.05
+						spacing: 50
+
+						MDRectangleFlatIconButton:
+							icon: "reload"
+							text: "RELOAD TABLE"
+							theme_text_color: "Custom"
+							text_color: "#EEEEEE"
+							md_bg_color: "#4471C4"
+							size_hint_x: 0.2
+							on_press: root.exec_reload_table()
+
+						# MDRectangleFlatIconButton:
+						# 	id: bt_calibrate
+						# 	icon: "gauge"
+						# 	text: "CALIBRATE"
+						# 	theme_text_color: "Custom"
+						# 	text_color: "#EEEEEE"
+						# 	md_bg_color: "#2CA02C"
+						# 	size_hint_x: 0.2
+						# 	on_press: root.exec_navigate_calibration()
+
+						#MDRectangleFlatIconButton:
+						#	id: bt_add_data
+						#	icon: "plus"
+						#	text: "DATA UJI BARU"
+						#	theme_text_color: "Custom"
+						#	text_color: "#EEEEEE"
+						#	md_bg_color: "#2CA02C"
+						#	size_hint_x: 0.2
+						#	on_press: root.exec_navigate_add_data()
+
+						#MDRectangleFlatIconButton:
+						#	id: bt_add_queue
+						#	icon: "plus"
+						#	text: "TAMBAH ANTRIAN"	
+						#	theme_text_color: "Custom"
+						#	text_color: "#EEEEEE"
+						#	md_bg_color: "#2CA02C"
+						#	size_hint_x: 0.2
+						#	on_press: root.exec_navigate_add_queue()
+
+						MDRectangleFlatIconButton:
+							id: bt_logout
+							icon: "logout"
+							text: "LOGOUT"
+							theme_text_color: "Custom"
+							text_color: "#EEEEEE"
+							md_bg_color: "#FF2A2A"
+							size_hint_x: 0.25
+							on_press: root.exec_logout()
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						md_bg_color: "#FFFFFF"
+						size_hint_y: 0.05
+						padding: 20
+
+						MDLabel:
+							text: "Antrian"
+							halign: "left"
+							valign: "middle"
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
+
 						MDLabel:
 							text: "No. Reg"
 							halign: "left"
 							valign: "middle"
-							font_style: 'H6'
+							font_style: 'Subtitle1'
+							size_hint_x: 0.07
 
-						MDLabel:
-							id: lb_no_reg
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
 						MDLabel:
 							text: "No. Uji"
 							halign: "left"
 							valign: "middle"
-							font_style: 'H6'
+							font_style: 'Subtitle1'
+							size_hint_x: 0.08
 
 						MDLabel:
-							id: lb_no_uji
+							text: "Status Uji"
 							halign: "left"
 							valign: "middle"
-							font_style: 'H6'
-
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Nama"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
+							font_style: 'Subtitle1'
+							size_hint_x: 0.07
 
 						MDLabel:
-							id: lb_nama
+							text: "Merk"
 							halign: "left"
 							valign: "middle"
-							font_style: 'H6'
-
-					MDBoxLayout:
-						orientation: "horizontal"
-						MDLabel:
-							text: "Jenis Kendaraan"
-							halign: "left"
-							valign: "middle"
-							font_style: 'H6'
+							font_style: 'Subtitle1'
+							size_hint_x: 0.08
 
 						MDLabel:
-							id: lb_jenis_kendaraan
+							text: "Type"
 							halign: "left"
 							valign: "middle"
-							font_style: 'H6'
+							font_style: 'Subtitle1'
+							size_hint_x: 0.10
 
-					MDBoxLayout:
-						orientation: "horizontal"
+						# MDLabel:
+						# 	text: "Jenis"
+						# 	halign: "left"
+						# 	valign: "middle"
+						# 	font_style: 'Subtitle1'
+						# 	size_hint_x: 0.15
+
+						# MDLabel:
+						# 	text: "JBB"
+						# 	halign: "left"
+						# 	valign: "middle"
+						# 	font_style: 'Subtitle1'
+						# 	size_hint_x: 0.05
+
+						# MDLabel:
+						# 	text: "Berat Kosong"
+						# 	halign: "left"
+						# 	valign: "middle"
+						# 	font_style: 'Subtitle1'
+						# 	size_hint_x: 0.05
+
+						# MDLabel:
+						# 	text: "Bahan Bakar"
+						# 	halign: "left"
+						# 	valign: "middle"
+						# 	font_style: 'Subtitle1'
+						# 	size_hint_x: 0.08
+
+						# MDLabel:
+						# 	text: "Warna"
+						# 	halign: "left"
+						# 	valign: "middle"
+						# 	font_style: 'Subtitle1'
+						# 	size_hint_x: 0.08
+
 						MDLabel:
-							id: lb_status
+							text: "Visual"
 							halign: "left"
 							valign: "middle"
-							font_style: 'H6'
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
 
-					MDRectangleFlatIconButton:
-						id: bt_start
-						icon: "glasses"
-						text: "VERIFIKASI HASIL TES"
-						halign: "center"
-						theme_text_color: "Custom"
-						text_color: "#EEEEEE"
-						md_bg_color: "#2CA02C"
-						size_hint_x: 1
-						on_press: root.exec_start()
+						MDLabel:
+							text: "Axle Load"
+							halign: "left"
+							valign: "middle"
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
+
+						MDLabel:
+							text: "Brake"
+							halign: "left"
+							valign: "middle"
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
+
+						MDLabel:
+							text: "HandBrake"
+							halign: "left"
+							valign: "middle"
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
+
+						MDLabel:
+							text: "Sideslip"
+							halign: "left"
+							valign: "middle"
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
+
+						MDLabel:
+							text: "Speedo"
+							halign: "left"
+							valign: "middle"
+							font_style: 'Subtitle1'
+							size_hint_x: 0.05
+
+					MDScrollView:
+						id: layout_scroll
+						size_hint_y: 0.75
+						scroll_timeout:100
+						MDList:
+							id: layout_list
 
 		# footer layout
         MDBoxLayout:
@@ -248,13 +389,15 @@
 				md_bg_color: "#4471C4"
 				size_hint_x: 0.4
 				
-				Image:
-					source:'assets/logo-sorong.png'
+				AsyncImage:
+					id: img_pemkab
+					source:'assets/images/logo-sorong.png'
 					size_hint_x: 0.1
 					allow_stretch: True  
 
-				Image:
-					source:'assets/logo-dishub.png'
+				AsyncImage:
+					id: img_dishub
+					source:'assets/images/logo-dishub.png'
 					size_hint_x: 0.1
 					allow_stretch: True  
 
@@ -262,25 +405,35 @@
 					orientation: "vertical"
 					size_hint_x: 0.8
 
-					MDLabel:			
+					MDLabel:
+						id: lb_pemkab
 						text: "PEMERINTAH KABUPATEN SORONG"
 						halign: "left"
 						valign: "middle"
-						font_style: 'Subtitle1'
-
-					MDLabel:			
-						text: "DINAS PERHUBUNGAN"
-						halign: "left"
-						valign: "middle"
-						font_style: 'Subtitle1'
-
-					MDLabel:			
-						text: "UNIT PELAKSANA UJI BERKALA KENDARAAN BERMOTOR"
-						halign: "left"
-						valign: "middle"
+						theme_text_color: "Custom"
+						text_color: "#EEEEEE"						
 						font_style: 'Subtitle1'
 
 					MDLabel:
+						id: lb_dishub
+						text: "DINAS PERHUBUNGAN"
+						halign: "left"
+						valign: "middle"
+						theme_text_color: "Custom"
+						text_color: "#EEEEEE"
+						font_style: 'Subtitle1'
+
+					MDLabel:
+						id: lb_unit			
+						text: "UNIT PELAKSANA UJI BERKALA KENDARAAN BERMOTOR"
+						halign: "left"
+						valign: "middle"
+						theme_text_color: "Custom"
+						text_color: "#EEEEEE"
+						font_style: 'Subtitle1'
+
+					MDLabel:
+						id: lb_unit_address
 						text: " Klamasen, Distrik Mariat, Kabupaten Sorong, Papua Barat Daya. 98416"
 						halign: "left"
 						valign: "middle"

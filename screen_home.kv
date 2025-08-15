@@ -1,6 +1,6 @@
 #:kivy 2.1.0
 
-<ScreenLogin>:
+<ScreenHome>:
     MDBoxLayout:
         orientation: "vertical"
 
@@ -44,6 +44,7 @@
 			MDBoxLayout:
 				orientation: "vertical"
 				size_hint_x: 0.15
+
 				MDLabel:
 					id: lb_time
 					text: "12:34:00"
@@ -89,7 +90,7 @@
 			MDBoxLayout:
 				orientation: "horizontal"
 				spacing:50
-
+				
 				MDBoxLayout:
 					orientation: "vertical"
 					size_hint_x: 0.1
@@ -132,76 +133,42 @@
 					spacing: 20
 
 					MDLabel:
-						text: "SILAHKAN LOGIN"
+						text: "HOME"
 						halign: "center"
 						valign: "middle"
 						font_style: 'H6'
-						theme_text_color: "Custom"
 						size_hint_y: 0.05
-						
-					MDTextField:
-						id: tx_username
-						font_size: '30sp'
-						font_name: "Recharge"
-						font_name_hint_text:'Recharge'
-						icon_left: "account"
-						hint_text: "Nama Pengguna"
-						text_color_focus: "#4471C4"
-						hint_text_color_focus: "#4471C4"
-						line_color_focus: "#4471C4"	
-						icon_left_color_focus: "#4471C4"				
-						mode: "rectangle"
-						on_text_validate: root.exec_login()
-						size_hint_y: 0.15
 
-					MDTextField:
-						id: tx_password
-						font_size: '30dp'
-						font_name: "Recharge"
-						font_name_hint_text:'Recharge'
-						icon_left: "lock"
-						hint_text: "Password"
-						text_color_focus: "#4471C4"
-						hint_text_color_focus: "#4471C4"
-						line_color_focus: "#4471C4"
-						icon_left_color_focus: "#4471C4"
-						mode: "rectangle"
-						password: True
-						on_text_validate: root.exec_login()
-						size_hint_y: 0.15
-
-					MDBoxLayout:
+					MDCarousel:
+						id: carousel
 						orientation: "horizontal"
-						spacing_x: 100
-						size_hint_y: 0.15
+						size_hint_y: 0.95
+						loop: True
+						spacing: 50
 
-						MDRectangleFlatIconButton:
-							id: bt_login
-							type: "large"
-							size_hint_x: 0.5
-							size_hint_y: 1
-							icon: "login"
-							text:"MASUK"
-							text_color: "#EEEEEE"
-							md_bg_color: "#4471C4"
-							font_style: 'H6'
-							on_press: root.exec_login()
+						MDCard:
+							Image:
+								source:'assets/images/1.jpg'
+								allow_stretch: True 
+								fit_mode: "cover"
 
-						MDRectangleFlatIconButton:
-							id: bt_cancel
-							type: "large"
-							size_hint_x: 0.5
-							size_hint_y: 1
-							icon: "cancel"
-							text:"BATAL"
-							text_color: "#EEEEEE"
-							md_bg_color: "#FF2A2A"
-							font_style: 'H6'
-							on_press: root.exec_cancel()
+						MDCard:
+							Image:
+								source:'assets/images/2.jpg'
+								allow_stretch: True 
+								fit_mode: "cover"
 
-					MDBoxLayout:
-						orientation: "horizontal"
-						size_hint_y: 0.5
+						MDCard:
+							Image:
+								source:'assets/images/3.jpg'
+								allow_stretch: True 
+								fit_mode: "cover"
+
+						MDCard:
+							Image:
+								source:'assets/images/4.jpg'
+								allow_stretch: True 
+								fit_mode: "cover"
 
 		# footer layout
         MDBoxLayout:
@@ -283,8 +250,7 @@
 
 				MDLabel:
 					id: lb_info
-					text: "Silahkan Login untuk menggunakan aplikasi"
+					text: "Silahkan tekan tombol navigasi yang ada di sebelah kiri layar"
 					halign: "left"
 					valign: "middle"
 					font_style: 'H6'
-		
