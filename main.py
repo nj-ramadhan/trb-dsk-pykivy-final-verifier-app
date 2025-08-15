@@ -39,6 +39,7 @@ import configparser, hashlib, mysql.connector
 from pymodbus.client import ModbusTcpClient
 from fpdf import FPDF
 from escpos.printer import Serial
+import requests
 
 colors = {
     "Red"   : {"A200": "#FF2A2A","A500": "#FF8080","A700": "#FFD5D5",},
@@ -267,7 +268,7 @@ class ScreenMain(MDScreen):
         global dt_merk, dt_type, dt_jns_kend, dt_jbb, dt_brt_ksg, dt_warna, dt_chasis, dt_no_mesin    
         global dt_id_user    
         global dt_visual_flag, dt_load_flag, dt_brake_flag, dt_handbrake_flag, dt_sideslip_flag, dt_speed_flag
-        global dt_test_number, dt_dash_antri, dt_dash_belum_uji, dt_dash_sudah_uji
+        global dt_dash_antri, dt_dash_belum_uji, dt_dash_sudah_uji
 
         dt_user = dt_foto_user = dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = ""
         dt_merk = dt_type = dt_jns_kend = dt_jbb = dt_brt_ksg = dt_warna = dt_chasis = dt_no_mesin = ""
@@ -700,58 +701,58 @@ class ScreenAddData(MDScreen):
         
     def exec_register(self):
         try:
-            dt_temp_no_uji = self.ids.tx_nouji.text.strip()
-            dt_temp_no_pol = self.ids.tx_nopol.text.strip()
+            dt_no_uji = self.ids.tx_nouji.text.strip()
+            dt_no_pol = self.ids.tx_nopol.text.strip()
 
-            if not dt_temp_no_uji or not dt_temp_no_pol:
+            if not dt_no_uji or not dt_no_pol:
                 toast("Nomor Uji dan Nomor Regristasi tidak boleh kosong!")
                 return
 
             mycursor = mydb.cursor()
 
             check_nouji_sql = f"SELECT COUNT(*) FROM {TB_DATA_MASTER} WHERE NOUJI = %s"
-            mycursor.execute(check_nouji_sql, (dt_temp_no_uji,))
+            mycursor.execute(check_nouji_sql, (dt_no_uji,))
             result_nouji = mycursor.fetchone()
             
             if result_nouji and result_nouji[0] > 0:
                 toast("Nomor Uji ini sudah terdaftar!")
-                Logger.warning(f"{self.name}: Upaya menambahkan duplikat NOUJI: {dt_temp_no_uji}")
+                Logger.warning(f"{self.name}: Upaya menambahkan duplikat NOUJI: {dt_no_uji}")
                 return 
 
             check_nopol_sql = f"SELECT COUNT(*) FROM {TB_DATA_MASTER} WHERE NOPOL = %s"
-            mycursor.execute(check_nopol_sql, (dt_temp_no_pol,))
+            mycursor.execute(check_nopol_sql, (dt_no_pol,))
             result_nopol = mycursor.fetchone()
 
             if result_nopol and result_nopol[0] > 0:
                 toast("Nomor Polisi ini sudah terdaftar!")
-                Logger.warning(f"{self.name}: Upaya menambahkan duplikat NOPOL: {dt_temp_no_pol}")
+                Logger.warning(f"{self.name}: Upaya menambahkan duplikat NOPOL: {dt_no_pol}")
                 return 
 
-            dt_temp_no_uji_new = self.ids.tx_nouji.text.strip()
-            dt_temp_nama = self.ids.tx_nama.text.strip()
-            dt_temp_alamat = self.ids.tx_alamat.text.strip()
-            dt_temp_type = self.ids.tx_type.text.strip()
-            dt_temp_jenis_kendaraan = self.ids.tx_jeniskendaraan.text.strip()
-            dt_temp_jbb = self.ids.tx_jbb.text.strip()
-            dt_temp_brt_ksg = self.ids.tx_beratkosong.text.strip()
-            dt_temp_tgl_uji_terakhir = str(time.strftime("%Y/%m/%d %H:%M:%S", time.localtime()))
+            dt_no_uji_new = self.ids.tx_nouji.text.strip()
+            dt_nama = self.ids.tx_nama.text.strip()
+            dt_alamat = self.ids.tx_alamat.text.strip()
+            dt_type = self.ids.tx_type.text.strip()
+            dt_jenis_kendaraan = self.ids.tx_jeniskendaraan.text.strip()
+            dt_jbb = self.ids.tx_jbb.text.strip()
+            dt_brt_ksg = self.ids.tx_beratkosong.text.strip()
+            dt_tgl_uji_terakhir = str(time.strftime("%Y/%m/%d %H:%M:%S", time.localtime()))
 
-            # self.ids.lb_temp_nama.text = f'{dt_temp_nama}'
-            # self.ids.lb_temp_alamat.text = f'{dt_temp_alamat}'
-            # self.ids.lb_temp_no_uji.text = f'{dt_temp_no_uji}'
-            # self.ids.lb_temp_no_pol.text = f'{dt_temp_no_pol}'
-            # self.ids.lb_temp_status_uji.text = 'Berkala' if dt_temp_status_uji == 'B' else 'Uji Ulang' if dt_temp_status_uji == 'U' else 'Baru' if dt_temp_status_uji == 'BR' else 'Numpang Uji' if dt_temp_status_uji == 'NB' else 'Mutasi'
-            # self.ids.lb_temp_tgl_uji_terakhir.text = f'{dt_temp_tgl_uji_terakhir}'
-            # self.ids.lb_temp_tgl_uji_habis.text = f'{dt_temp_tgl_uji_habis}'
-            # self.ids.lb_temp_merk.text = '-' if dt_temp_id_merk == None else f"{db_merk[np.where(db_merk == dt_temp_id_merk)[0][0],1]}"
-            # self.ids.lb_temp_type.text = f'{dt_temp_type}'
-            # self.ids.lb_temp_jenis_kendaraan.text = f'{dt_temp_jenis_kendaraan}'
-            # self.ids.lb_temp_warna.text = '-' if dt_temp_warna == None else f"{db_warna[np.where(db_warna == dt_temp_warna)[0][0],1]}"
-            # self.ids.lb_temp_chasis.text = f'{dt_temp_chasis}'
-            # self.ids.lb_temp_mesin.text = f'{dt_temp_mesin}'
-            # self.ids.lb_temp_bahan_bakar.text = '-' if dt_temp_bhn_bkr == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_temp_bhn_bkr)[0][0],1]}"
-            # self.ids.lb_temp_jbb.text = f'{dt_temp_jbb}'
-            # self.ids.lb_temp_berat_kosong.text = f'{dt_temp_brt_ksg}'
+            # self.ids.lb_nama.text = f'{dt_nama}'
+            # self.ids.lb_alamat.text = f'{dt_alamat}'
+            # self.ids.lb_no_uji.text = f'{dt_no_uji}'
+            # self.ids.lb_no_pol.text = f'{dt_no_pol}'
+            # self.ids.lb_status_uji.text = 'Berkala' if dt_status_uji == 'B' else 'Uji Ulang' if dt_status_uji == 'U' else 'Baru' if dt_status_uji == 'BR' else 'Numpang Uji' if dt_status_uji == 'NB' else 'Mutasi'
+            # self.ids.lb_tgl_uji_terakhir.text = f'{dt_tgl_uji_terakhir}'
+            # self.ids.lb_tgl_uji_habis.text = f'{dt_tgl_uji_habis}'
+            # self.ids.lb_merk.text = '-' if dt_id_merk == None else f"{db_merk[np.where(db_merk == dt_id_merk)[0][0],1]}"
+            # self.ids.lb_type.text = f'{dt_type}'
+            # self.ids.lb_jenis_kendaraan.text = f'{dt_jenis_kendaraan}'
+            # self.ids.lb_warna.text = '-' if dt_warna == None else f"{db_warna[np.where(db_warna == dt_warna)[0][0],1]}"
+            # self.ids.lb_chasis.text = f'{dt_chasis}'
+            # self.ids.lb_mesin.text = f'{dt_mesin}'
+            # self.ids.lb_bahan_bakar.text = '-' if dt_bhn_bkr == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1]}"
+            # self.ids.lb_jbb.text = f'{dt_jbb}'
+            # self.ids.lb_berat_kosong.text = f'{dt_brt_ksg}'
 
             # Validate dropdowns have values selected
             if not hasattr(self.ids.drop_merk, 'merk_id'):
@@ -764,9 +765,9 @@ class ScreenAddData(MDScreen):
                 toast("Pilih Warna!")
                 return
 
-            dt_temp_id_merk = self.ids.drop_merk.merk_id
-            dt_temp_bhn_bkr = self.ids.drop_bahan_bakar.bahan_bakar_id
-            dt_temp_warna = self.ids.drop_warna.warna_id
+            dt_id_merk = self.ids.drop_merk.merk_id
+            dt_bhn_bkr = self.ids.drop_bahan_bakar.bahan_bakar_id
+            dt_warna = self.ids.drop_warna.warna_id
 
             # Insert into database
             mycursor = mydb.cursor()
@@ -776,20 +777,20 @@ class ScreenAddData(MDScreen):
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             values = (
-                dt_temp_no_uji,
-                dt_temp_no_uji_new,
-                dt_temp_no_pol,
-                dt_temp_nama,
-                dt_temp_alamat,
-                dt_temp_id_merk,
-                dt_temp_type,
-                dt_temp_jenis_kendaraan,
-                dt_temp_bhn_bkr,
-                dt_temp_jbb,
-                dt_temp_brt_ksg,
-                dt_temp_warna,
-                dt_temp_tgl_uji_terakhir,
-                dt_temp_tgl_uji_terakhir
+                dt_no_uji,
+                dt_no_uji_new,
+                dt_no_pol,
+                dt_nama,
+                dt_alamat,
+                dt_id_merk,
+                dt_type,
+                dt_jenis_kendaraan,
+                dt_bhn_bkr,
+                dt_jbb,
+                dt_brt_ksg,
+                dt_warna,
+                dt_tgl_uji_terakhir,
+                dt_tgl_uji_terakhir
             )
             mycursor.execute(sql, values)
             mydb.commit()
@@ -824,23 +825,23 @@ class ScreenAddQueue(MDScreen):
         pass
 
     def exec_cancel(self):
-        global dt_temp_no_uji, dt_temp_no_uji_new, dt_temp_no_wilayah, dt_temp_no_kendaraan, dt_temp_no_plat, dt_temp_no_pol
-        global dt_temp_nama, dt_temp_no_hp, dt_temp_alamat, dt_temp_id_izin, dt_temp_wilayah, dt_temp_provinsi, dt_temp_kabupaten_kota, dt_temp_kecamatan
-        global dt_temp_id_merk, dt_temp_id_subjenis, dt_temp_type, dt_temp_tahun_buat, dt_temp_silinder, dt_temp_warna, dt_temp_chasis, dt_temp_mesin, dt_temp_warna_plat
-        global dt_temp_bhn_bkr, dt_temp_jbb, dt_temp_daya_motor, dt_temp_tgl_uji_terakhir, dt_temp_tgl_uji_habis, dt_temp_status_uji, dt_temp_status_penerbitan, dt_temp_jenis_kendaraan, dt_temp_kode_jenis_kendaraan, dt_temp_kode_wilayah
+        global dt_no_uji, dt_no_uji_new, dt_no_wilayah, dt_no_kendaraan, dt_no_plat, dt_no_pol
+        global dt_nama, dt_no_hp, dt_alamat, dt_id_izin, dt_wilayah, dt_provinsi, dt_kabupaten_kota, dt_kecamatan
+        global dt_id_merk, dt_id_subjenis, dt_type, dt_tahun_buat, dt_silinder, dt_warna, dt_chasis, dt_mesin, dt_warna_plat
+        global dt_bhn_bkr, dt_jbb, dt_daya_motor, dt_tgl_uji_terakhir, dt_tgl_uji_habis, dt_status_uji, dt_status_penerbitan, dt_jenis_kendaraan, dt_kode_jenis_kendaraan, dt_kode_wilayah
 
         try:
-            dt_temp_no_uji = dt_temp_no_uji_new = dt_temp_no_wilayah = dt_temp_no_kendaraan = dt_temp_no_plat = dt_temp_no_pol = ""
-            dt_temp_nama = dt_temp_no_hp = dt_temp_alamat = dt_temp_id_izin = dt_temp_wilayah = dt_temp_provinsi = dt_temp_kabupaten_kota = dt_temp_kecamatan = ""
-            dt_temp_id_merk = dt_temp_id_subjenis = dt_temp_type = dt_temp_tahun_buat = dt_temp_silinder = dt_temp_warna = dt_temp_chasis = dt_temp_mesin = dt_temp_warna_plat = ""
-            dt_temp_bhn_bkr = dt_temp_jbb = dt_temp_daya_motor = dt_temp_tgl_uji_terakhir = dt_temp_tgl_uji_habis = dt_temp_status_uji = dt_temp_status_penerbitan = dt_temp_jenis_kendaraan = dt_temp_kode_jenis_kendaraan = dt_temp_kode_wilayah = ""
+            dt_no_uji = dt_no_uji_new = dt_no_wilayah = dt_no_kendaraan = dt_no_plat = dt_no_pol = ""
+            dt_nama = dt_no_hp = dt_alamat = dt_id_izin = dt_wilayah = dt_provinsi = dt_kabupaten_kota = dt_kecamatan = ""
+            dt_id_merk = dt_id_subjenis = dt_type = dt_tahun_buat = dt_silinder = dt_warna = dt_chasis = dt_mesin = dt_warna_plat = ""
+            dt_bhn_bkr = dt_jbb = dt_daya_motor = dt_tgl_uji_terakhir = dt_tgl_uji_habis = dt_status_uji = dt_status_penerbitan = dt_jenis_kendaraan = dt_kode_jenis_kendaraan = dt_kode_wilayah = ""
 
             self.ids.tx_nopol.text = "" 
             self.ids.tx_nouji.text = "" 
-            self.ids.lb_temp_nama.text = self.ids.lb_temp_alamat.text = ""
-            self.ids.lb_temp_no_uji.text = self.ids.lb_temp_no_pol.text = self.ids.lb_temp_status_uji.text = self.ids.lb_temp_tgl_uji_terakhir.text = self.ids.lb_temp_tgl_uji_habis.text = ""
-            self.ids.lb_temp_merk.text = self.ids.lb_temp_type.text = self.ids.lb_temp_jenis_kendaraan.text = self.ids.lb_temp_warna.text = ""
-            self.ids.lb_temp_chasis.text = self.ids.lb_temp_mesin.text = self.ids.lb_temp_bahan_bakar.text = self.ids.lb_temp_jbb.text = ""
+            self.ids.lb_nama.text = self.ids.lb_alamat.text = ""
+            self.ids.lb_no_uji.text = self.ids.lb_no_pol.text = self.ids.lb_status_uji.text = self.ids.lb_tgl_uji_terakhir.text = self.ids.lb_tgl_uji_habis.text = ""
+            self.ids.lb_merk.text = self.ids.lb_type.text = self.ids.lb_jenis_kendaraan.text = self.ids.lb_warna.text = ""
+            self.ids.lb_chasis.text = self.ids.lb_mesin.text = self.ids.lb_bahan_bakar.text = self.ids.lb_jbb.text = ""
             self.ids.bt_register.disabled = True
 
             self.exec_navigate_main()
@@ -853,32 +854,32 @@ class ScreenAddQueue(MDScreen):
     def exec_find(self):
         global mydb, db_users, db_merk, db_bahan_bakar, db_warna
         global dt_id_user, dt_user, dt_foto_user
-        global dt_temp_no_uji, dt_temp_no_uji_new, dt_temp_no_wilayah, dt_temp_no_kendaraan, dt_temp_no_plat, dt_temp_no_pol
-        global dt_temp_nama, dt_temp_no_hp, dt_temp_alamat, dt_temp_id_izin, dt_temp_wilayah, dt_temp_provinsi, dt_temp_kabupaten_kota, dt_temp_kecamatan
-        global dt_temp_id_merk, dt_temp_id_subjenis, dt_temp_type, dt_temp_tahun_buat, dt_temp_silinder, dt_temp_warna, dt_temp_chasis, dt_temp_mesin, dt_temp_warna_plat
-        global dt_temp_bhn_bkr, dt_temp_jbb, dt_temp_daya_motor, dt_temp_tgl_uji_terakhir, dt_temp_tgl_uji_habis, dt_temp_status_uji, dt_temp_status_penerbitan, dt_temp_jenis_kendaraan, dt_temp_kode_jenis_kendaraan, dt_temp_kode_wilayah
+        global dt_no_uji, dt_no_uji_new, dt_no_wilayah, dt_no_kendaraan, dt_no_plat, dt_no_pol
+        global dt_nama, dt_no_hp, dt_alamat, dt_id_izin, dt_wilayah, dt_provinsi, dt_kabupaten_kota, dt_kecamatan
+        global dt_id_merk, dt_id_subjenis, dt_type, dt_tahun_buat, dt_silinder, dt_warna, dt_chasis, dt_mesin, dt_warna_plat
+        global dt_bhn_bkr, dt_jbb, dt_daya_motor, dt_tgl_uji_terakhir, dt_tgl_uji_habis, dt_status_uji, dt_status_penerbitan, dt_jenis_kendaraan, dt_kode_jenis_kendaraan, dt_kode_wilayah
 
         try:
             dt_find_no_pol = self.ids.tx_nopol.text
             dt_find_no_uji = self.ids.tx_nouji.text
             self.exec_fetch_master_data(dt_find_no_pol, dt_find_no_uji)
 
-            self.ids.lb_temp_nama.text = f'{dt_temp_nama}'
-            self.ids.lb_temp_alamat.text = f'{dt_temp_alamat}'
-            self.ids.lb_temp_no_uji.text = f'{dt_temp_no_uji}'
-            self.ids.lb_temp_no_pol.text = f'{dt_temp_no_pol}'
-            self.ids.lb_temp_status_uji.text = 'Berkala' if dt_temp_status_uji == 'B' else 'Uji Ulang' if dt_temp_status_uji == 'U' else 'Baru' if dt_temp_status_uji == 'BR' else 'Numpang Uji' if dt_temp_status_uji == 'NB' else 'Mutasi'
-            self.ids.lb_temp_tgl_uji_terakhir.text = f'{dt_temp_tgl_uji_terakhir}'
-            self.ids.lb_temp_tgl_uji_habis.text = f'{dt_temp_tgl_uji_habis}'
-            self.ids.lb_temp_merk.text = '-' if dt_temp_id_merk == None else f"{db_merk[np.where(db_merk == dt_temp_id_merk)[0][0],1]}"
-            self.ids.lb_temp_type.text = f'{dt_temp_type}'
-            self.ids.lb_temp_jenis_kendaraan.text = f'{dt_temp_jenis_kendaraan}'
-            self.ids.lb_temp_warna.text = '-' if dt_temp_warna == None else f"{db_warna[np.where(db_warna == dt_temp_warna)[0][0],1]}"
-            self.ids.lb_temp_chasis.text = f'{dt_temp_chasis}'
-            self.ids.lb_temp_mesin.text = f'{dt_temp_mesin}'
-            self.ids.lb_temp_bahan_bakar.text = '-' if dt_temp_bhn_bkr == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_temp_bhn_bkr)[0][0],1]}"
-            self.ids.lb_temp_jbb.text = f'{dt_temp_jbb}'
-            self.ids.lb_temp_berat_kosong.text = f'{dt_temp_brt_ksg}'
+            self.ids.lb_nama.text = f'{dt_nama}'
+            self.ids.lb_alamat.text = f'{dt_alamat}'
+            self.ids.lb_no_uji.text = f'{dt_no_uji}'
+            self.ids.lb_no_pol.text = f'{dt_no_pol}'
+            self.ids.lb_status_uji.text = 'Berkala' if dt_status_uji == 'B' else 'Uji Ulang' if dt_status_uji == 'U' else 'Baru' if dt_status_uji == 'BR' else 'Numpang Uji' if dt_status_uji == 'NB' else 'Mutasi'
+            self.ids.lb_tgl_uji_terakhir.text = f'{dt_tgl_uji_terakhir}'
+            self.ids.lb_tgl_uji_habis.text = f'{dt_tgl_uji_habis}'
+            self.ids.lb_merk.text = '-' if dt_id_merk == None else f"{db_merk[np.where(db_merk == dt_id_merk)[0][0],1]}"
+            self.ids.lb_type.text = f'{dt_type}'
+            self.ids.lb_jenis_kendaraan.text = f'{dt_jenis_kendaraan}'
+            self.ids.lb_warna.text = '-' if dt_warna == None else f"{db_warna[np.where(db_warna == dt_warna)[0][0],1]}"
+            self.ids.lb_chasis.text = f'{dt_chasis}'
+            self.ids.lb_mesin.text = f'{dt_mesin}'
+            self.ids.lb_bahan_bakar.text = '-' if dt_bhn_bkr == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1]}"
+            self.ids.lb_jbb.text = f'{dt_jbb}'
+            self.ids.lb_berat_kosong.text = f'{dt_brt_ksg}'
             self.ids.bt_register.disabled = False
             
         except Exception as e:
@@ -889,10 +890,10 @@ class ScreenAddQueue(MDScreen):
     def exec_fetch_master_data(self, dt_find_no_pol, dt_find_no_uji):
         global mydb, db_users, db_merk, db_bahan_bakar, db_warna
         global dt_id_user, dt_user, dt_foto_user
-        global dt_temp_no_uji, dt_temp_no_uji_new, dt_temp_no_wilayah, dt_temp_no_kendaraan, dt_temp_no_plat, dt_temp_no_pol
-        global dt_temp_nama, dt_temp_no_hp, dt_temp_alamat, dt_temp_id_izin, dt_temp_wilayah, dt_temp_provinsi, dt_temp_kabupaten_kota, dt_temp_kecamatan
-        global dt_temp_id_merk, dt_temp_id_subjenis, dt_temp_type, dt_temp_tahun_buat, dt_temp_silinder, dt_temp_warna, dt_temp_chasis, dt_temp_mesin, dt_temp_warna_plat
-        global dt_temp_bhn_bkr, dt_temp_jbb, dt_temp_brt_ksg, dt_temp_daya_motor, dt_temp_tgl_uji_terakhir, dt_temp_tgl_uji_habis, dt_temp_status_uji, dt_temp_status_penerbitan, dt_temp_jenis_kendaraan, dt_temp_kode_jenis_kendaraan, dt_temp_kode_wilayah
+        global dt_no_uji, dt_no_uji_new, dt_no_wilayah, dt_no_kendaraan, dt_no_plat, dt_no_pol
+        global dt_nama, dt_no_hp, dt_alamat, dt_id_izin, dt_wilayah, dt_provinsi, dt_kabupaten_kota, dt_kecamatan
+        global dt_id_merk, dt_id_subjenis, dt_type, dt_tahun_buat, dt_silinder, dt_warna, dt_chasis, dt_mesin, dt_warna_plat
+        global dt_bhn_bkr, dt_jbb, dt_brt_ksg, dt_daya_motor, dt_tgl_uji_terakhir, dt_tgl_uji_habis, dt_status_uji, dt_status_penerbitan, dt_jenis_kendaraan, dt_kode_jenis_kendaraan, dt_kode_wilayah
 
         try:
             mycursor = mydb.cursor()
@@ -910,39 +911,39 @@ class ScreenAddQueue(MDScreen):
                 toast('Data Tidak Ditemukan di Database, Silahkan Ajukan Pengujian Baru')
                 self.exec_cancel()
             else:
-                dt_temp_no_uji = db_master_data[0]
-                dt_temp_no_uji_new = db_master_data[1]
-                dt_temp_no_wilayah = db_master_data[2]
-                dt_temp_no_kendaraan = db_master_data[3]
-                dt_temp_no_plat = db_master_data[4]
-                dt_temp_no_pol = db_master_data[5]
-                dt_temp_nama = db_master_data[6]
-                dt_temp_no_hp = db_master_data[7]
-                dt_temp_alamat = db_master_data[8]
-                dt_temp_id_izin = db_master_data[9]
-                dt_temp_wilayah = db_master_data[10]
-                dt_temp_provinsi = db_master_data[11]
-                dt_temp_kabupaten_kota = db_master_data[12]
-                dt_temp_kecamatan = db_master_data[13]
-                dt_temp_id_merk = db_master_data[14]
-                dt_temp_id_subjenis = db_master_data[15]
-                dt_temp_type = db_master_data[16]
-                dt_temp_tahun_buat = db_master_data[17]
-                dt_temp_silinder = db_master_data[18]
-                dt_temp_warna = db_master_data[19]
-                dt_temp_chasis = db_master_data[20]
-                dt_temp_mesin = db_master_data[21]
-                dt_temp_warna_plat = db_master_data[22]
-                dt_temp_bhn_bkr = db_master_data[23]
-                dt_temp_jbb = db_master_data[24]
-                dt_temp_brt_ksg = db_master_data[25]
-                dt_temp_daya_motor = db_master_data[26]
+                dt_no_uji = db_master_data[0]
+                dt_no_uji_new = db_master_data[1]
+                dt_no_wilayah = db_master_data[2]
+                dt_no_kendaraan = db_master_data[3]
+                dt_no_plat = db_master_data[4]
+                dt_no_pol = db_master_data[5]
+                dt_nama = db_master_data[6]
+                dt_no_hp = db_master_data[7]
+                dt_alamat = db_master_data[8]
+                dt_id_izin = db_master_data[9]
+                dt_wilayah = db_master_data[10]
+                dt_provinsi = db_master_data[11]
+                dt_kabupaten_kota = db_master_data[12]
+                dt_kecamatan = db_master_data[13]
+                dt_id_merk = db_master_data[14]
+                dt_id_subjenis = db_master_data[15]
+                dt_type = db_master_data[16]
+                dt_tahun_buat = db_master_data[17]
+                dt_silinder = db_master_data[18]
+                dt_warna = db_master_data[19]
+                dt_chasis = db_master_data[20]
+                dt_mesin = db_master_data[21]
+                dt_warna_plat = db_master_data[22]
+                dt_bhn_bkr = db_master_data[23]
+                dt_jbb = db_master_data[24]
+                dt_brt_ksg = db_master_data[25]
+                dt_daya_motor = db_master_data[26]
                 
-                dt_temp_status_uji = db_master_data[28]
-                dt_temp_status_penerbitan = db_master_data[29]
-                dt_temp_jenis_kendaraan = db_master_data[30]
-                dt_temp_kode_jenis_kendaraan = db_master_data[31]
-                dt_temp_kode_wilayah = db_master_data[32]
+                dt_status_uji = db_master_data[28]
+                dt_status_penerbitan = db_master_data[29]
+                dt_jenis_kendaraan = db_master_data[30]
+                dt_kode_jenis_kendaraan = db_master_data[31]
+                dt_kode_wilayah = db_master_data[32]
 
                 if(db_master_data[26] is not None):
                     last_uji_date = db_master_data[27]
@@ -964,8 +965,8 @@ class ScreenAddQueue(MDScreen):
                     if month_replaced == 4 or month_replaced == 6 or month_replaced == 9 or month_replaced == 11:
                         day_replaced = 30
                     
-                dt_temp_tgl_uji_terakhir = str(last_uji_date.strftime('%d-%m-%Y'))
-                dt_temp_tgl_uji_habis = str(last_uji_date.replace(month=month_replaced, year=year_replaced, day=day_replaced).strftime('%d-%m-%Y'))
+                dt_tgl_uji_terakhir = str(last_uji_date.strftime('%d-%m-%Y'))
+                dt_tgl_uji_habis = str(last_uji_date.replace(month=month_replaced, year=year_replaced, day=day_replaced).strftime('%d-%m-%Y'))
                 
         except Exception as e:
             toast_msg = f'Gagal Menemukan Data dari Database Master'
@@ -975,10 +976,10 @@ class ScreenAddQueue(MDScreen):
     def exec_register(self):
         global mydb, db_users, db_merk, db_bahan_bakar, db_warna
         global dt_id_user, dt_user, dt_foto_user
-        global dt_temp_no_uji, dt_temp_no_uji_new, dt_temp_no_wilayah, dt_temp_no_kendaraan, dt_temp_no_plat, dt_temp_no_pol
-        global dt_temp_nama, dt_temp_no_hp, dt_temp_alamat, dt_temp_id_izin, dt_temp_wilayah, dt_temp_provinsi, dt_temp_kabupaten_kota, dt_temp_kecamatan
-        global dt_temp_id_merk, dt_temp_id_subjenis, dt_temp_type, dt_temp_tahun_buat, dt_temp_silinder, dt_temp_warna, dt_temp_chasis, dt_temp_mesin, dt_temp_warna_plat
-        global dt_temp_bhn_bkr, dt_temp_jbb, dt_temp_brt_ksg, dt_temp_daya_motor, dt_temp_tgl_uji_terakhir, dt_temp_tgl_uji_habis, dt_temp_status_uji, dt_temp_status_penerbitan, dt_temp_jenis_kendaraan, dt_temp_kode_jenis_kendaraan, dt_temp_kode_wilayah
+        global dt_no_uji, dt_no_uji_new, dt_no_wilayah, dt_no_kendaraan, dt_no_plat, dt_no_pol
+        global dt_nama, dt_no_hp, dt_alamat, dt_id_izin, dt_wilayah, dt_provinsi, dt_kabupaten_kota, dt_kecamatan
+        global dt_id_merk, dt_id_subjenis, dt_type, dt_tahun_buat, dt_silinder, dt_warna, dt_chasis, dt_mesin, dt_warna_plat
+        global dt_bhn_bkr, dt_jbb, dt_brt_ksg, dt_daya_motor, dt_tgl_uji_terakhir, dt_tgl_uji_habis, dt_status_uji, dt_status_penerbitan, dt_jenis_kendaraan, dt_kode_jenis_kendaraan, dt_kode_wilayah
 
         try:
             mycursor = mydb.cursor()
@@ -989,7 +990,7 @@ class ScreenAddQueue(MDScreen):
 
             mycursor = mydb.cursor()
             sql = f"INSERT INTO {TB_DATA} (noantrian, nopol, nouji, NEW_NOUJI, merk, type, idjeniskendaraan, jbb, berat_kosong, warna) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            values = (noantrian, dt_temp_no_pol, dt_temp_no_uji, dt_temp_no_uji_new, dt_temp_id_merk, dt_temp_type, dt_temp_id_subjenis, dt_temp_jbb, dt_temp_brt_ksg, dt_temp_warna)
+            values = (noantrian, dt_no_pol, dt_no_uji, dt_no_uji_new, dt_id_merk, dt_type, dt_id_subjenis, dt_jbb, dt_brt_ksg, dt_warna)
             mycursor.execute(sql, values)
             mydb.commit()
 
@@ -1064,20 +1065,159 @@ class ScreenPrinter(MDScreen):
         self.ids.lb_bhn_bkr.text = '-' if dt_bhn_bkr == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1]}"
         self.ids.lb_warna.text = '-' if dt_warna == None else f"{db_warna[np.where(db_warna == dt_warna)[0][0],1]}"
 
-    def exec_select_axle(self, number):
-        global dt_test_number
+        self.load_data()
 
-        dt_test_number = number - 1
+    def load_data(self):
+        global db_merk, db_bahan_bakar, db_warna
+        global dt_no_antri, dt_no_pol, dt_no_uji, dt_sts_uji
+        global dt_merk, dt_type, dt_jns_kend, dt_jbb, dt_brt_ksg, dt_bhn_bkr, dt_warna
+        global dt_visual_flag, dt_load_flag, dt_brake_flag, dt_handbrake_flag, dt_sideslip_flag, dt_speed_flag
+        global db_load_left_value, db_load_right_value, db_load_total_value, dt_load_total_value
+        global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value, dt_brake_total_value, dt_brake_efficiency_value, dt_brake_difference_value
+        global db_handbrake_left_value, db_handbrake_right_value, dt_handbrake_total_value, dt_handbrake_efficiency_value, dt_handbrake_difference_value
+        global dt_visual_flag, dt_speed_flag, dt_speed_value, dt_sideslip_flag, dt_sideslip_value
+        
+        try:
+            # Connect to DB
+            cursor = mydb.cursor()
 
-    def exec_start_load(self):
-        self.open_screen_load_meter()
+            # Query: Get one record by noantrian (or modify to get latest)
+            query = f"""
+            SELECT 
+                noantrian, nouji, nopol, jbb, berat_kosong,
+                load_flag,
+                load_l_s1_value, load_r_s1_value, load_total_s1_value,
+                load_l_s2_value, load_r_s2_value, load_total_s2_value,
+                load_l_s3_value, load_r_s3_value, load_total_s3_value,
+                load_l_s4_value, load_r_s4_value, load_total_s4_value,
+                load_l_s5_value, load_r_s5_value, load_total_s5_value,
+                load_l_s6_value, load_r_s6_value, load_total_s6_value,
+                load_l_s7_value, load_r_s7_value, load_total_s7_value,
+                load_l_s8_value, load_r_s8_value, load_total_s8_value,
+                load_l_s9_value, load_r_s9_value, load_total_s9_value,
+                load_l_s10_value, load_r_s10_value, load_total_s10_value,
+                load_total_value,
+                brake_flag,
+                brake_l_s1_value, brake_r_s1_value, brake_total_s1_value, brake_difference_s1_value,
+                brake_l_s2_value, brake_r_s2_value, brake_total_s2_value, brake_difference_s2_value,
+                brake_l_s3_value, brake_r_s3_value, brake_total_s3_value, brake_difference_s3_value,
+                brake_l_s4_value, brake_r_s4_value, brake_total_s4_value, brake_difference_s4_value,
+                brake_l_s5_value, brake_r_s5_value, brake_total_s5_value, brake_difference_s5_value,
+                brake_l_s6_value, brake_r_s6_value, brake_total_s6_value, brake_difference_s6_value,
+                brake_l_s7_value, brake_r_s7_value, brake_total_s7_value, brake_difference_s7_value,
+                brake_l_s8_value, brake_r_s8_value, brake_total_s8_value, brake_difference_s8_value,
+                brake_l_s9_value, brake_r_s9_value, brake_total_s9_value, brake_difference_s9_value,
+                brake_l_s10_value, brake_r_s10_value, brake_total_s10_value, brake_difference_s10_value,
+                brake_total_value, brake_efficiency_value, brake_difference_value,
+                handbrake_flag,
+                handbrake_l_s1_value, handbrake_r_s1_value,
+                handbrake_l_s2_value, handbrake_r_s2_value,
+                handbrake_l_s3_value, handbrake_r_s3_value,
+                handbrake_l_s4_value, handbrake_r_s4_value,
+                handbrake_l_s5_value, handbrake_r_s5_value,
+                handbrake_l_s6_value, handbrake_r_s6_value,
+                handbrake_l_s7_value, handbrake_r_s7_value,
+                handbrake_l_s8_value, handbrake_r_s8_value,
+                handbrake_l_s9_value, handbrake_r_s9_value,
+                handbrake_l_s10_value, handbrake_r_s10_value,
+                handbrake_total_value, handbrake_efficiency_value, handbrake_difference_value,
+                check_flag, 
+                speed_flag, speed_value,
+                sideslip_flag, sideslip_value
+            FROM {TB_DATA}
+            WHERE noantrian = %s
+            """
 
-    def exec_start_brake(self):
-        self.open_screen_brake_meter()
+            cursor.execute(query, (dt_no_antri,))
+            result = cursor.fetchone()
 
-    def exec_start_handbrake(self):
-        self.open_screen_handbrake_meter()
+            if result is None:
+                toast("Data tidak ditemukan untuk nomor antrian tersebut.")
+                # Reset variables or exit
+            else:
+                # Convert to NumPy array (optional, for consistency)
+                db_row = np.array(result, dtype=object)
 
+                # === Map to your global variables used in PDF ===
+                # Basic Info
+                dt_no_antri = result[0]
+                dt_no_uji = result[1]
+                dt_no_pol = result[2]
+                dt_jbb = float(result[3]) if result[3] else 0.0
+                dt_brt_ksg = float(result[4]) if result[4] else 0.0
+
+                # Axle Load
+                dt_load_flag = int(result[5]) if result[5] is not None else 0
+
+                # Initialize arrays for 10 axles (index 0 to 9)
+                db_load_left_value = np.zeros(10)
+                db_load_right_value = np.zeros(10)
+                db_load_total_value = np.zeros(10)
+
+                for i in range(10):
+                    db_load_left_value[i] = float(result[6 + i*3]) if result[6 + i*3] else 0.0
+                    db_load_right_value[i] = float(result[7 + i*3]) if result[7 + i*3] else 0.0
+                    db_load_total_value[i] = float(result[8 + i*3]) if result[8 + i*3] else 0.0
+
+                dt_load_total_value = float(result[6 + 10*3]) if result[6 + 10*3] else 0.0  # load_total_value
+
+                # Brake
+                dt_brake_flag = int(result[37]) if result[37] is not None else 0
+
+                db_brake_left_value = np.zeros(10)
+                db_brake_right_value = np.zeros(10)
+                db_brake_total_value = np.zeros(10)
+                db_brake_difference_value = np.zeros(10)
+
+                brake_start_idx = 38  # First brake_l_s1_value
+                for i in range(10):
+                    idx = brake_start_idx + i * 4
+                    db_brake_left_value[i] = float(result[idx]) if result[idx] else 0.0
+                    db_brake_right_value[i] = float(result[idx + 1]) if result[idx + 1] else 0.0
+                    db_brake_total_value[i] = float(result[idx + 2]) if result[idx + 2] else 0.0
+                    db_brake_difference_value[i] = float(result[idx + 3]) if result[idx + 3] else 0.0
+
+                dt_brake_total_value = float(result[38 + 10*4]) if result[38 + 10*4] else 0.0       # brake_total_value
+                dt_brake_efficiency_value = float(result[38 + 10*4 + 1]) if result[38 + 10*4 + 1] else 0.0  # brake_efficiency_value
+                dt_brake_difference_value = float(result[38 + 10*4 + 2]) if result[38 + 10*4 + 2] else 0.0  # brake_difference_value
+
+                # Handbrake
+                dt_handbrake_flag = int(result[81]) if result[81] is not None else 0
+
+                db_handbrake_left_value = np.zeros(10)
+                db_handbrake_right_value = np.zeros(10)
+
+                # Handbrake values
+                handbrake_start_idx = 82  # handbrake_l_s1_value starts at index 82
+                for i in range(10):
+                    idx = handbrake_start_idx + i * 2
+                    db_handbrake_left_value[i] = float(result[idx]) if result[idx] is not None else 0.0
+                    db_handbrake_right_value[i] = float(result[idx + 1]) if result[idx + 1] is not None else 0.0
+
+                dt_handbrake_total_value = float(result[102]) if result[102] is not None else 0.0
+                dt_handbrake_efficiency_value = float(result[103]) if result[103] is not None else 0.0
+                dt_handbrake_difference_value = float(result[104]) if result[104] is not None else 0.0
+
+                # Lamp / Visual Check
+                dt_visual_flag = int(result[105]) == 1 if result[105] is not None else False
+
+                # Speed
+                dt_speed_flag = int(result[106]) == 1 if result[106] is not None else False
+                dt_speed_value = float(result[107]) if result[107] is not None else 0.0
+
+                # Sideslip
+                dt_sideslip_flag = int(result[108]) == 1 if result[108] is not None else False
+                dt_sideslip_value = float(result[109]) if result[109] is not None else 0.0
+
+                toast(f"Data berhasil dimuat: No Antri {dt_no_antri}")
+
+            cursor.close()
+            mydb.close()
+
+        except mysql.connector.Error as err:
+            toast(f"Database error: {err}")
+            Logger.error(f"MySQL Error: {err}")
+                    
     def exec_navigate_main(self):
         try:
             self.screen_manager.current = 'screen_main'
@@ -1088,7 +1228,6 @@ class ScreenPrinter(MDScreen):
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
     def exec_save(self):
-        global count_starting, count_get_data
         global mydb, db_antrian, dt_id_user, dt_no_antri
 
         try:
@@ -1119,276 +1258,394 @@ class ScreenPrinter(MDScreen):
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
     def exec_print_pdf(self):
-        global count_starting, count_get_data
-        global mydb, db_antrian
         global dt_no_antri, dt_no_pol, dt_no_uji, dt_nama, dt_jns_kend
+        global dt_merk, dt_type, dt_jbb, dt_brt_ksg, dt_bhn_bkr, dt_warna
         global dt_load_flag, dt_brake_flag, dt_handbrake_flag
+        global dt_visual_flag, dt_speed_flag, dt_speed_value, dt_sideslip_flag, dt_sideslip_value
+        global db_load_left_value, db_load_right_value, db_load_total_value, dt_load_total_value
+        global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value
+        global dt_brake_total_value, dt_brake_efficiency_value, dt_brake_difference_value
+        global db_handbrake_left_value, db_handbrake_right_value, dt_handbrake_total_value, dt_handbrake_efficiency_value, dt_handbrake_difference_value
 
         try:
-            # Print datetime
-            print_datetime = str(time.strftime("%Y/%m/%d %H:%M:%S", time.localtime()))
-
-            # Create PDF
-            pdf = FPDF(format=(210, 297), unit='cm')
+            print_datetime = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime())
+            pdf = FPDF(format='A4', unit='mm')  # Standard A4
             pdf.add_page()
+            pdf.set_auto_page_break(auto=True, margin=15)
 
-            # Header: Logos and Titles
-            pdf.set_xy(0, 2)
-            pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", w=30.0, h=0, x=20)
-            pdf.image(f"assets/images/{IMG_LOGO_PEMKAB}", w=30.0, h=0, x=160)
+            # --- Header: Logos & Title ---
+            pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", x=20, y=10, w=30)
+            pdf.image(f"assets/images/{IMG_LOGO_PEMKAB}", x=160, y=10, w=30)
 
-            pdf.set_font('Arial', 'B', 26.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=15.0, align='C', w=0, txt="DINAS PERHUBUNGAN", border=0)
-            pdf.cell(ln=1, h=15.0, align='C', w=0, txt="UPTD PKB KAB. PANDEGLANG", border=0)
-            pdf.cell(ln=1, h=5.0, w=0)
+            pdf.set_font('Arial', 'B', 16)
+            pdf.set_xy(10, 50)
+            pdf.cell(0, 10, "DINAS PERHUBUNGAN", align='C')
+            pdf.set_xy(10, 58)
+            pdf.cell(0, 10, "UPTD PKB KAB. PANDEGLANG", align='C')
+            pdf.ln(20)
 
-            # Identification Details
-            pdf.set_font('Arial', 'B', 18.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="IDENTITAS KENDARAAN BERMOTOR", border=0)
-            pdf.set_font('Arial', '', 14.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Tanggal: {print_datetime}", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"No Reg Kend: {dt_no_pol}", border=0)
-            pdf.cell(ln=0, h=10.0, align='L', w=0, txt=f"No Antrian: {dt_no_antri}", border=0)
-            pdf.cell(ln=1, h=10.0, align='R', w=0, txt=f"No Uji: {dt_no_uji}", border=0)
+            # --- Identification ---
+            pdf.set_font('Arial', 'B', 14)
+            pdf.cell(0, 10, "IDENTITAS KENDARAAN BERMOTOR")
+            pdf.ln(10)
 
-            # Vehicle Photos (Simulate placeholders)
-            pdf.set_font('Arial', 'B', 16.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="Foto Kendaraan:", border=0)
-            pdf.set_font('Arial', '', 12.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.image("placeholder_front.jpg", x=10, y=pdf.get_y(), w=40, h=30)
-            pdf.image("placeholder_back.jpg", x=60, y=pdf.get_y(), w=40, h=30)
-            pdf.image("placeholder_right.jpg", x=110, y=pdf.get_y(), w=40, h=30)
-            pdf.image("placeholder_left.jpg", x=160, y=pdf.get_y(), w=40, h=30)
+            pdf.set_font('Arial', '', 12)
+            pdf.cell(50, 8, f"Tanggal: {print_datetime}")
+            pdf.ln(8)
+            pdf.cell(50, 8, f"No Reg Kend: {dt_no_pol}")
+            pdf.ln(8)
+            pdf.cell(50, 8, f"No Antrian: {dt_no_antri}")
+            pdf.cell(0, 8, f"No Uji: {dt_no_uji}", align='R')
+            pdf.ln(8)
+            pdf.cell(50, 8, f"Jenis Kendaraan: {dt_jns_kend}")
+            pdf.ln(8)
+            pdf.cell(50, 8, f"JBB: {dt_jbb} kg")
+            pdf.cell(0, 8, f"Berat Kosong: {dt_brt_ksg} kg", align='R')
+            pdf.ln(15)
 
-            # Technical Specifications
-            pdf.set_font('Arial', 'B', 18.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="SPESIFIKASI TEKNIS KENDARAAN", border=0)
-            pdf.set_font('Arial', '', 14.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Jenis: {dt_jns_kend}", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Merek: {dt_merk}", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Type: {dt_type}", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Jenis Kendaraan: {dt_jns_kend}", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"JBB/JBKb: {dt_jbb}", border=0)            
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Bahan bakar: {dt_bhn_bkr}", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Tahun pembuatan/perakitan: 2014", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Isi silinder: 1,493 cc", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Daya motor: 0.0 KW/PS/HP", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Ukuran ban: 550 R13.S", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Konfigurasi sumbu: 1.1", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Berat kosong kendaraan: 1020 kg", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Pajang: 3,750 mm", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Lebar: 1,650 mm", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Tinggi: 1,825 mm", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Jarak Sumbu: 1,970 mm", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Sumbu I-II: ", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Sumbu II-III: ", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Sumbu III-IV: ", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Dimensi bak muatan / tangki: (2,360x1,400x0 ) mm", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"GWP/GCF: 1,660 kg/kg", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Daya angkut (orang/kg): 3 orang / 600 kg / kg", border=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Kelas jalan terendah yang boleh dilalui: III", border=0)
+            # --- Vehicle Photos ---
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "Foto Kendaraan:")
+            pdf.ln(10)
+            y_photo = pdf.get_y()
 
-            # Inspection Results
-            pdf.set_font('Arial', 'B', 18.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="HASIL PENGUJIAN", border=0)
-            pdf.set_font('Arial', '', 14.0)
-            pdf.cell(ln=1, h=5.0, w=0)
+            try:
+                today = time.strftime("%Y-%m-%d")
+                base_url = f"https://{FTP_HOST}/system/storage/app/capture/{today}/{dt_sts_uji}-{dt_no_antri}/{dt_no_pol}"
+
+                # Local directory
+                documents_dir = os.path.join(os.environ["USERPROFILE"], "Pictures", "VIIS")
+                os.makedirs(documents_dir, exist_ok=True)
+
+                # List to store image paths
+                img_paths = []
+
+                for i in range(1, 5):
+                    url = f"{base_url}-{i}.jpg"
+                    local_path = os.path.join(documents_dir, f"{dt_no_pol}_view_{i}.jpg")
+                    img_paths.append(local_path)
+
+                    try:
+                        response = requests.get(url, timeout=5, stream=True)
+                        if response.status_code == 200:
+                            with open(local_path, 'wb') as f:
+                                f.write(response.content)
+                            Logger.info(f"Downloaded: {url}")
+                        else:
+                            Logger.warning(f"Image not found: {url} (Status: {response.status_code})")
+                            img_paths[-1] = None  # Mark as missing
+                    except Exception as e:
+                        Logger.error(f"Failed to download {url}: {e}")
+                        img_paths[-1] = None
+
+                y_photo = pdf.get_y()
+                x_positions = [15, 60, 110, 160]
+                labels = ["Depan", "Belakang", "Kanan", "Kiri"]
+
+                for i in range(4):
+                    if img_paths[i] and os.path.exists(img_paths[i]):
+                        try:
+                            pdf.image(img_paths[i], x=x_positions[i], y=y_photo, w=40, h=30)
+                            # Optional: Add label under image
+                            pdf.set_xy(x_positions[i], y_photo + 30)
+                            pdf.set_font('Arial', '', 8)
+                            pdf.cell(40, 5, labels[i], align='C')
+                        except Exception as img_err:
+                            Logger.error(f"FPDF failed to insert image {img_paths[i]}: {img_err}")
+                            # Optionally draw placeholder
+                            pdf.set_draw_color(128)
+                            pdf.rect(x_positions[i], y_photo, 40, 30)
+                            pdf.set_xy(x_positions[i], y_photo + 15)
+                            pdf.cell(40, 10, "Foto Error", align='C')
+                    else:
+                        # Draw placeholder box
+                        pdf.set_draw_color(128)
+                        pdf.rect(x_positions[i], y_photo, 40, 30)
+                        pdf.set_xy(x_positions[i], y_photo + 10)
+                        pdf.cell(40, 5, "Foto Tidak", align='C')
+                        pdf.set_xy(x_positions[i], y_photo + 15)
+                        pdf.cell(40, 5, "Tersedia", align='C')
+                        pdf.set_xy(x_positions[i], y_photo + 30)
+                        pdf.set_font('Arial', '', 8)
+                        pdf.cell(40, 5, labels[i], align='C')
+                        pdf.set_font('Arial', '', 12)
+
+            except Exception as e:
+                Logger.error(f"{self.name}: {e}")
+                pdf.ln(10)
+                pdf.set_font('Arial', 'I', 10)
+                pdf.cell(0, 10, "Foto kendaraan: Gagal dimuat", align='C')
+                pdf.ln(10)
+
+            pdf.ln(20)
+
+            # --- Technical Specs ---
+            pdf.set_font('Arial', 'B', 14)
+            pdf.cell(0, 10, "SPESIFIKASI TEKNIS KENDARAAN")
+            pdf.ln(8)
+
+            pdf.set_font('Arial', '', 11)
+            specs = [
+                f"Merek: {dt_merk}",
+                f"Tipe: {dt_type}",
+                f"Bahan Bakar: {dt_bhn_bkr}",
+                f"Warna: {dt_warna}",
+                # f"Tahun: 2014",
+                # f"Isi Silinder: 1,493 cc",
+                # f"Daya Motor: 0.0 KW",
+                # f"Ukuran Ban: 550 R13.S",
+                # f"Konfigurasi Sumbu: 1.1",
+                # f"Pajang: 3,750 mm",
+                # f"Lebar: 1,650 mm",
+                # f"Tinggi: 1,825 mm",
+                # f"Jarak Sumbu: 1,970 mm",
+                # f"Dimensi Muatan: (2,360x1,400x0) mm",
+                # f"Daya Angkut: 3 orang / 600 kg",
+                # f"Kelas Jalan: III"
+            ]
+            for spec in specs:
+                pdf.cell(0, 7, spec)
+                pdf.ln(5)
+
+            pdf.ln(5)
+
+            # --- Inspection Results ---
+            pdf.set_font('Arial', 'B', 14)
+            pdf.cell(0, 10, "HASIL PENGUJIAN")
+            pdf.ln(8)
 
             # Axle Load
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="AXLE LOAD", border=0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Sumbu No.")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kiri")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kanan")
-            pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"Total")
-            # for i in range(10):
-            #     if db_load_total_value[i] > 0:
-            #         pdf.cell(ln=0, h=10.0, align='L', w=80, txt=f"Sumbu {i+1}")
-            #         pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"{int(db_load_left_value[i])} kg")
-            #         pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"{int(db_load_right_value[i])} kg")
-            #         pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"{int(db_load_total_value[i])} kg")
-            # pdf.cell(ln=0, h=10.0, align='L', w=160, txt=f"Total :")
-            # pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"{int(dt_load_total_value)} kg")
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "AXLE LOAD")
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(40, 8, "Sumbu")
+            pdf.cell(30, 8, "Kiri (kg)")
+            pdf.cell(30, 8, "Kanan (kg)")
+            pdf.cell(30, 8, "Total (kg)")
+            pdf.ln(8)
 
-            # Brake Test
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="REM UTAMA", border=0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Sumbu No.")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kiri")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kanan")
-            pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"Selisih")
-            # for i in range(10):
-            #     if db_brake_total_value[i] > 0:
-            #         pdf.cell(ln=0, h=10.0, align='L', w=80, txt=f"Sumbu {i+1}")
-            #         pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"{int(db_brake_left_value[i])} kg")
-            #         pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"{int(db_brake_right_value[i])} kg")
-            #         pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"{int(db_brake_difference_value[i])} %")
-            # pdf.cell(ln=0, h=10.0, align='L', w=160, txt=f"Total :")
-            # pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"{int(dt_brake_total_value)} kg")
-            # pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Efisiensi : {str(np.round(dt_brake_efficiency_value, 1)).replace('.', ',')} %")
-            pdf.cell(ln=0, h=10.0, align='L', w=80, txt=f"Status Pengujian :")
-            str_brake_result = f'Lulus' if int(dt_brake_flag) == 2 else 'Tidak Lulus' if int(dt_brake_flag) == 1 else 'Belum Diuji'
-            Logger.info(f"Status Brake: {str_brake_result}, Brake Flag: {dt_brake_flag}")
-            pdf.cell(ln=1, h=10.0, align='R', w=30, txt=f"{str_brake_result}")
+            for i in range(10):
+                if db_load_total_value[i] > 0:
+                    pdf.cell(40, 8, f"Sumbu {i+1}")
+                    pdf.cell(30, 8, f"{int(db_load_left_value[i])}")
+                    pdf.cell(30, 8, f"{int(db_load_right_value[i])}")
+                    pdf.cell(30, 8, f"{int(db_load_total_value[i])}")
+                    pdf.ln(8)
 
-            # Handbrake Test
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="REM PARKIR", border=0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Sumbu No.")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kiri")
-            pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"Kanan")
-            # for i in range(10):
-            #     if db_handbrake_total_value[i] > 0:
-            #         pdf.cell(ln=0, h=10.0, align='L', w=80, txt=f"Sumbu {i+1}")
-            #         pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"{int(db_handbrake_left_value[i])} kg")
-            #         pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"{int(db_handbrake_right_value[i])} kg")
-            # pdf.cell(ln=0, h=10.0, align='L', w=160, txt=f"Total :")
-            # pdf.cell(ln=1, h=10.0, align='L', w=40, txt=f"{int(dt_handbrake_total_value)} kg")
-            # pdf.cell(ln=1, h=10.0, align='L', w=0, txt=f"Efisiensi : {str(np.round(dt_handbrake_efficiency_value, 1)).replace('.', ',')} %")
-            pdf.cell(ln=0, h=10.0, align='L', w=80, txt=f"Status Pengujian :")
-            str_handbrake_result = f'Lulus' if int(dt_handbrake_flag) == 2 else 'Tidak Lulus' if int(dt_handbrake_flag) == 1 else 'Belum Diuji'
-            Logger.info(f"Status Handbrake: {str_handbrake_result}, Handbrake Flag: {dt_handbrake_flag}")
-            pdf.cell(ln=1, h=10.0, align='R', w=30, txt=f"{str_handbrake_result}")
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(100, 8, "Total:")
+            pdf.cell(30, 8, f"{int(dt_load_total_value)} kg")
+            pdf.ln(8)
 
-            # Lamp Testing
-            pdf.set_font('Arial', 'B', 18.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="PENGECEKAN LAMPU", border=0)
-            pdf.set_font('Arial', '', 14.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Lampu Depan:")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kiri: OK")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kanan: OK")
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Lampu Belakang:")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kiri: OK")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kanan: OK")
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Lampu Rem:")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kiri: OK")
-            pdf.cell(ln=0, h=10.0, align='L', w=40, txt=f"Kanan: OK")
+            # Brake
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "REM UTAMA")
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(40, 8, "Sumbu")
+            pdf.cell(30, 8, "Kiri (kg)")
+            pdf.cell(30, 8, "Kanan (kg)")
+            pdf.cell(30, 8, "Selisih (%)")
+            pdf.ln(8)
 
-            # Emission Test
-            pdf.set_font('Arial', 'B', 18.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="PENGECEKAN EMISI", border=0)
-            pdf.set_font('Arial', '', 14.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"CO₂: 0.00 %")
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Hidrogen Karbon (HC): 0.00 ppm")
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Noksida (NOx): 0.00 ppm")
+            for i in range(10):
+                if db_brake_total_value[i] > 0:
+                    pdf.cell(40, 8, f"Sumbu {i+1}")
+                    pdf.cell(30, 8, f"{int(db_brake_left_value[i])}")
+                    pdf.cell(30, 8, f"{int(db_brake_right_value[i])}")
+                    pdf.cell(30, 8, f"{int(db_brake_difference_value[i])}")
+                    pdf.ln(8)
 
-            # Operator Information
-            pdf.set_font('Arial', 'B', 18.0)
-            pdf.cell(ln=1, h=10.0, align='L', w=0, txt="PETUGAS PENGUJI", border=0)
-            pdf.set_font('Arial', '', 14.0)
-            pdf.cell(ln=1, h=5.0, w=0)
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Nama Petugas: EDI SYAHUDIN")
-            pdf.cell(ln=1, h=10.0, align='L', w=80, txt=f"Tanda Tangan:")
-            # Add placeholder for signature
-            pdf.image("signature_placeholder.png", x=pdf.get_x(), y=pdf.get_y(), w=40, h=20)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(100, 8, "Total Rem:")
+            pdf.cell(30, 8, f"{int(dt_brake_total_value)} kg")
+            pdf.ln(8)
+            pdf.cell(100, 8, f"Efisiensi: {np.round(dt_brake_efficiency_value, 1)} %")
+            pdf.ln(8)
+            result_brake = "Lulus" if dt_brake_flag == 2 else "Tidak Lulus" if dt_brake_flag == 1 else "Belum Diuji"
+            pdf.cell(100, 8, f"Status: {result_brake}")
+            pdf.ln(8)
 
-            # Resume and Conclusion
-            pdf.set_font('Arial', 'B', 26.0)
-            pdf.cell(ln=1, h=10.0, align='C', w=0, txt=f"Resume Hasil Pengujian")
-            pdf.set_font('Arial', 'B', 26.0)
+            # Handbrake
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "REM PARKIR")
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(40, 8, "Sumbu")
+            pdf.cell(30, 8, "Kiri (kg)")
+            pdf.cell(30, 8, "Kanan (kg)")
+            pdf.ln(8)
 
-            dt_brake_resume_flag = all(x == 2 for x in db_brake_flag if x != 0)
-            if dt_brake_resume_flag and int(dt_brake_flag) == 2 and int(dt_handbrake_flag) == 2:
-                str_resume_result = f"LULUS"
-            else:
-                str_resume_result = f"TIDAK LULUS"
-            pdf.cell(ln=1, h=10.0, align='C', w=0, txt=f"{str_resume_result}")
+            for i in range(10):
+                if db_handbrake_left_value[i] > 0 or db_handbrake_right_value[i] > 0:
+                    pdf.cell(40, 8, f"Sumbu {i+1}")
+                    pdf.cell(30, 8, f"{int(db_handbrake_left_value[i])}")
+                    pdf.cell(30, 8, f"{int(db_handbrake_right_value[i])}")
+                    pdf.ln(8)
+
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(100, 8, "Total Rem Parkir:")
+            pdf.cell(30, 8, f"{int(dt_handbrake_total_value)} kg")
+            pdf.ln(8)
+            pdf.cell(100, 8, f"Efisiensi: {np.round(dt_handbrake_efficiency_value, 1)} %")
+            pdf.ln(8)
+            result_handbrake = "Lulus" if dt_handbrake_flag == 2 else "Tidak Lulus" if dt_handbrake_flag == 1 else "Belum Diuji"
+            pdf.cell(100, 8, f"Status: {result_handbrake}")
+            pdf.ln(8)
+
+            # Lamp Check
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "PENGECEKAN LAMPU")
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 10)
+            lamp_status = "Lulus" if dt_visual_flag == 1 else "Belum Diperiksa"
+            pdf.cell(0, 8, f"Hasil: {lamp_status}")
+            pdf.ln(8)
+
+            # Emission
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "EMISI")
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(0, 8, f"CO: {getattr(self, 'emission_co_value', 0.0) or 0.0} %")
+            pdf.ln(8)
+            pdf.cell(0, 8, f"HC: {getattr(self, 'emission_hc_value', 0.0) or 0.0} ppm")
+            pdf.ln(8)
+            pdf.cell(0, 8, f"Asap: {getattr(self, 'emission_smoke_value', 0.0) or 0.0} %")
+            pdf.ln(8)
+
+            # Speed & Sideslip
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "KECEPATAN & SIDE SLIP")
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(0, 8, f"Kecepatan: {dt_speed_value} rpm")
+            pdf.ln(8)
+            pdf.cell(0, 8, f"Side Slip: {dt_sideslip_value} mm")
+            pdf.ln(10)
+
+            # Final Result
+            pdf.set_font('Arial', 'B', 16)
+            final_ok = (dt_brake_flag == 2) and (dt_handbrake_flag == 2) and (dt_load_flag == 2)
+            result_text = "LULUS" if final_ok else "TIDAK LULUS"
+            pdf.cell(0, 10, f"KEPUTUSAN: {result_text}", align='C')
+            pdf.ln(15)
+
+            # Operator
+            pdf.set_font('Arial', '', 12)
+            pdf.cell(0, 8, "Petugas Penguji:")
+            pdf.ln(8)
+            pdf.cell(0, 8, "Nama: ")
+            pdf.ln(10)
+            try:
+                pdf.image("assets/images/signature.png", x=20, y=pdf.get_y(), w=40)
+            except:
+                pdf.cell(0, 10, "Tanda Tangan: ________________")
+            pdf.ln(15)
 
             # Save PDF
             documents_dir = os.path.join(os.environ["USERPROFILE"], "Documents")
-            folder_name = f"Hasil_Uji_VIIS_Final_{time.strftime('%Y-%m-%d', time.localtime())}"
+            folder_name = f"Hasil_Uji_VIIS_Final_{time.strftime('%Y-%m-%d')}"
             date_folder_path = os.path.join(documents_dir, folder_name)
-
-            if not os.path.exists(date_folder_path):
-                os.makedirs(date_folder_path)
-                toast(f"Folder created: {date_folder_path}")
-            else:
-                toast(f"Folder already exists: {date_folder_path}")
+            os.makedirs(date_folder_path, exist_ok=True)
 
             pdf_filename = f"Hasil_Uji_No_{dt_no_antri}.pdf"
             pdf_path = os.path.join(date_folder_path, pdf_filename)
 
             pdf.output(pdf_path, 'F')
-            toast(f"PDF saved to: {pdf_path}")
+            toast(f"PDF saved: {pdf_path}")
             os.startfile(pdf_path)
 
         except Exception as e:
-            toast_msg = f'Gagal menyimpan ke pdf'
+            toast_msg = 'Gagal menyimpan PDF'
             toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")
+            Logger.error(f"{self.name}: {toast_msg}, Error: {e}")
 
     def exec_print_thermal(self):
-        global mydb, db_antrian
-        global dt_no_antri, dt_no_pol, dt_no_uji, dt_nama, dt_jns_kend
+        global dt_no_antri, dt_no_pol, dt_no_uji, dt_jns_kend
         global dt_load_flag, dt_brake_flag, dt_handbrake_flag
-        global db_load_left_value, db_load_right_value, db_load_total_value
-        global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value
-        global db_handbrake_left_value, db_handbrake_right_value, db_handbrake_total_value
+        global db_load_left_value, db_load_right_value, db_load_total_value, dt_load_total_value
+        global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value, dt_brake_total_value, dt_brake_efficiency_value
+        global db_handbrake_left_value, db_handbrake_right_value, dt_handbrake_total_value, dt_handbrake_efficiency_value
 
         try:
-            """ 9600 Baud, 8N1, Flow Control Enabled """
-            printer = Serial(devfile=PRINTER_THERM_COM,
-                    baudrate=PRINTER_THERM_BAUD,
-                    bytesize=PRINTER_THERM_BYTESIZE,
-                    parity=PRINTER_THERM_PARITY,
-                    stopbits=PRINTER_THERM_STOPBITS,
-                    timeout=PRINTER_THERM_TIMEOUT,
-                    dsrdtr=PRINTER_THERM_DSRDTR,)
-            print_datetime = str(time.strftime("%d %B %Y %H:%M:%S", time.localtime()))
-            
-            printer.image("assets/images/logo-dishub.png")
-            printer.image("assets/images/logo-pandeglang.png")
-            printer.textln(" \n ")
-            printer.textln("VEHICLE INSPECTION INTEGRATION SYSTEM")
-            printer.textln("AXLE LOAD & BRAKE")
-            printer.textln("================================================================")
-            printer.text(f"No Antrian: {dt_no_antri}\t")
-            printer.text(f"No Reg: {dt_no_pol}\t")
-            printer.textln(f"No Uji: {dt_no_uji}")
-            printer.textln("  ")
-            printer.textln(f"Jenis Kendaraan: {dt_jns_kend}")
-            printer.textln("  ")
-            printer.textln(f"Tanggal: {print_datetime}")
-            printer.textln("  ")
-            printer.textln(f"AXLE LOAD")
-            printer.text(f"No. Sumbu \tKiri \tKanan \tTotal")
+            printer = Serial(
+                devfile=PRINTER_THERM_COM,
+                baudrate=PRINTER_THERM_BAUD,
+                bytesize=PRINTER_THERM_BYTESIZE,
+                parity=PRINTER_THERM_PARITY,
+                stopbits=PRINTER_THERM_STOPBITS,
+                timeout=PRINTER_THERM_TIMEOUT,
+                dsrdtr=PRINTER_THERM_DSRDTR,
+            )
+
+            print_datetime = time.strftime("%d %b %Y %H:%M", time.localtime())
+
+            # Logo (if supported)
+            try:
+                printer.image("assets/images/logo-dishub-thermal.png")
+            except:
+                printer.textln("DISHUB PANDEGLANG")
+
+            printer.textln("VIIS - AXLE & BRAKE")
+            printer.textln("="*32)
+
+            # Header
+            printer.text(f"Antrian: {dt_no_antri}\n")
+            printer.text(f"No Pol: {dt_no_pol}\n")
+            printer.text(f"No Uji: {dt_no_uji}\n")
+            printer.text(f"Jenis: {dt_jns_kend}\n")
+            printer.text(f"Tgl: {print_datetime}\n")
+            printer.textln("-" * 32)
+
+            # Axle Load
+            printer.textln("AXLE LOAD")
+            printer.text("Sb\tKiri\tKanan\tTotal\n")
             for i in range(10):
-                if (db_load_total_value[i] > 0.0):
-                    printer.textln(f"S{i+1} \t{db_load_left_value[i]} \t{db_load_right_value[i]} \t{db_load_total_value[i]}")
-            printer.textln(f"Nilai Axle Load Total : {dt_load_total_value}")
-            printer.textln(f"Status Pengujian Axle Load : {'Lulus' if int(dt_load_flag) == 2 else 'Tidak Lulus' if int(dt_load_flag) == 1 else 'Belum Diuji'}")
-            printer.textln("  ")
-            printer.textln(f"REM UTAMA")
-            printer.text(f"No. Sumbu \tKiri \tKanan \tTotal \tSelisih")
+                if db_load_total_value[i] > 0:
+                    printer.text(f"S{i+1}\t{int(db_load_left_value[i])}\t{int(db_load_right_value[i])}\t{int(db_load_total_value[i])}\n")
+            printer.text(f"Ttl: {int(dt_load_total_value)} kg\n")
+            printer.text(f"Status: {'Lulus' if dt_load_flag == 2 else 'Tdk Lulus' if dt_load_flag == 1 else 'Belum'}\n")
+            printer.textln("-" * 32)
+
+            # Brake
+            printer.textln("REM UTAMA")
+            printer.text("Sb\tKiri\tKanan\tSelisih\n")
             for i in range(10):
-                if (db_load_total_value[i] > 0.0):
-                    printer.textln(f"S{i+1} \t{db_brake_left_value[i]} \t{db_brake_right_value[i]} \t{db_brake_total_value[i]} \t{db_brake_difference_value[i]}")
-            printer.textln(f"Nilai Rem Utama Total : {dt_brake_total_value}")
-            printer.textln(f"Nilai Efisiensi Rem Utama : {dt_brake_efficiency_value}")
-            printer.textln(f"Status Pengujian Rem : {'Lulus' if int(dt_brake_flag) == 2 else 'Tidak Lulus' if int(dt_brake_flag) == 1 else 'Belum Diuji'}")
-            printer.textln("  ")            
-            printer.textln(f"REM PARKIR")
-            printer.text(f"No. Sumbu \tKiri \tKanan \tTotal")
+                if db_brake_total_value[i] > 0:
+                    printer.text(f"S{i+1}\t{int(db_brake_left_value[i])}\t{int(db_brake_right_value[i])}\t{int(db_brake_difference_value[i])}\n")
+            printer.text(f"Ttl: {int(dt_brake_total_value)} kg\n")
+            printer.text(f"Efisiensi: {dt_brake_efficiency_value:.1f}%\n")
+            printer.text(f"Status: {'Lulus' if dt_brake_flag == 2 else 'Tdk Lulus' if dt_brake_flag == 1 else 'Belum'}\n")
+            printer.textln("-" * 32)
+
+            # Handbrake
+            printer.textln("REM PARKIR")
+            printer.text("Sb\tKiri\tKanan\n")
             for i in range(10):
-                if (db_load_total_value[i] > 0.0):
-                    printer.textln(f"S{i+1} \t{db_handbrake_left_value[i]} \t{db_handbrake_right_value[i]} \t{db_handbrake_total_value[i]}")
-            printer.textln(f"Nilai Rem Parkir Total : {dt_handbrake_total_value}")
-            printer.textln(f"Nilai Efisiensi Rem Parkir : {dt_handbrake_efficiency_value}")
-            printer.textln(f"Status Pengujian Rem Parkir : {'Lulus' if int(dt_handbrake_flag) == 2 else 'Tidak Lulus' if int(dt_handbrake_flag) == 1 else 'Belum Diuji'}")
-            printer.textln("  ")
-            printer.textln("================================================================")
+                if db_handbrake_left_value[i] > 0 or db_handbrake_right_value[i] > 0:
+                    printer.text(f"S{i+1}\t{int(db_handbrake_left_value[i])}\t{int(db_handbrake_right_value[i])}\n")
+            printer.text(f"Ttl: {int(dt_handbrake_total_value)} kg\n")
+            printer.text(f"Efisiensi: {dt_handbrake_efficiency_value:.1f}%\n")
+            printer.text(f"Status: {'Lulus' if dt_handbrake_flag == 2 else 'Tdk Lulus' if dt_handbrake_flag == 1 else 'Belum'}\n")
+            printer.textln("=" * 32)
+
+            # Final Result
+            final_ok = (dt_brake_flag == 2) and (dt_handbrake_flag == 2)
+            result = "LULUS" if final_ok else "TIDAK LULUS"
+            printer.textln(f"KEPUTUSAN: {result}")
+
+            printer.textln("Petugas:")
+            printer.textln(" ")
             printer.cut()
 
+            toast("Thermal print berhasil")
+
         except Exception as e:
-            toast_msg = f'Gagal mencetak menggunakan Thermal Printer'
+            toast_msg = "Gagal cetak thermal"
             toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+            Logger.error(f"{self.name}: {toast_msg}, Error: {e}")
 
     def exec_navigate_main(self):
         try:
@@ -1485,8 +1742,8 @@ class FinalVerifierApp(MDApp):
         from kivymd.uix.label import MDLabel
         if isinstance(widget, MDLabel):
             original_style = widget.font_style
-            temp_style = "Body1" if original_style != "Body1" else "H6"
-            widget.font_style = temp_style
+            style = "Body1" if original_style != "Body1" else "H6"
+            widget.font_style = style
             widget.font_style = original_style
         if hasattr(widget, 'children'):
             for child in widget.children:
