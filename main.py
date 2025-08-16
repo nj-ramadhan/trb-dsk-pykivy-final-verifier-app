@@ -269,6 +269,7 @@ class ScreenMain(MDScreen):
         global dt_id_user    
         global dt_visual_flag, dt_load_flag, dt_brake_flag, dt_handbrake_flag, dt_sideslip_flag, dt_speed_flag
         global dt_dash_antri, dt_dash_belum_uji, dt_dash_sudah_uji
+        global db_brake_total_value
 
         dt_user = dt_foto_user = dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = ""
         dt_merk = dt_type = dt_jns_kend = dt_jbb = dt_brt_ksg = dt_warna = dt_chasis = dt_no_mesin = ""
@@ -1266,44 +1267,80 @@ class ScreenPrinter(MDScreen):
         global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value
         global dt_brake_total_value, dt_brake_efficiency_value, dt_brake_difference_value
         global db_handbrake_left_value, db_handbrake_right_value, dt_handbrake_total_value, dt_handbrake_efficiency_value, dt_handbrake_difference_value
+        global LB_PEMKAB, LB_DISHUB, LB_UNIT, LB_UNIT_ADDRESS
+        global IMG_LOGO_DISHUB, IMG_LOGO_PEMKAB
+        global dt_sideslip_flag, dt_speed_flag, dt_sideslip_value, dt_speed_value
 
         try:
             print_datetime = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime())
-            pdf = FPDF(format='A4', unit='mm')  # Standard A4
+            pdf = FPDF(format='A4', unit='mm')
             pdf.add_page()
             pdf.set_auto_page_break(auto=True, margin=15)
 
-            # --- Header: Logos & Title ---
-            pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", x=20, y=10, w=30)
-            pdf.image(f"assets/images/{IMG_LOGO_PEMKAB}", x=160, y=10, w=30)
+            # KOP SURAT
+            # ==================================================================
+            pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", x=170, y=8, w=32)
+            pdf.image(f"assets/images/{IMG_LOGO_PEMKAB}", x=10, y=8, w=32)
 
             pdf.set_font('Arial', 'B', 16)
-            pdf.set_xy(10, 50)
-            pdf.cell(0, 10, "DINAS PERHUBUNGAN", align='C')
-            pdf.set_xy(10, 58)
-            pdf.cell(0, 10, "UPTD PKB KAB. PANDEGLANG", align='C')
-            pdf.ln(20)
-
-            # --- Identification ---
-            pdf.set_font('Arial', 'B', 14)
-            pdf.cell(0, 10, "IDENTITAS KENDARAAN BERMOTOR")
-            pdf.ln(10)
-
+            pdf.cell(0, 7, LB_PEMKAB, align='C', ln=1)
+            pdf.set_font('Arial', 'B', 16)
+            pdf.cell(0, 9, LB_DISHUB, align='C', ln=1)
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "UNIT PELAKSANA TEKNIS DAERAH", align='C', ln=1)
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "PENGUJIAN KENDARAAN BERMOTOR", align='C', ln=1)
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(0, 5, LB_UNIT_ADDRESS, align='C', ln=1)
+            # ==================================================================
+            pdf.set_line_width(1)
+            pdf.line(10, 48, 200, 48)
+            pdf.set_line_width(0.2)
+            pdf.line(10, 49, 200, 49)
+            pdf.ln(5)
+            # ==================================================================
+            pdf.set_font('Arial', 'B', 16)
+            pdf.cell(0, 8, "BERITA ACARA PEMERIKSAAN", align='C', ln=1)
+            pdf.cell(0, 8, "TEKNIS UJI KENDARAAN BERMOTOR", align='C', ln=1)
+            pdf.set_font('Arial', '', 14)
+            pdf.cell(0, 8, f"Tanggal:{time.strftime('%d %B %Y')}", align='C', ln=1)
+            # ==================================================================
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "IDENTITAS KENDARAAN", align='L', ln=1)
             pdf.set_font('Arial', '', 12)
-            pdf.cell(50, 8, f"Tanggal: {print_datetime}")
-            pdf.ln(8)
-            pdf.cell(50, 8, f"No Reg Kend: {dt_no_pol}")
-            pdf.ln(8)
-            pdf.cell(50, 8, f"No Antrian: {dt_no_antri}")
-            pdf.cell(0, 8, f"No Uji: {dt_no_uji}", align='R')
-            pdf.ln(8)
-            pdf.cell(50, 8, f"Jenis Kendaraan: {dt_jns_kend}")
-            pdf.ln(8)
-            pdf.cell(50, 8, f"JBB: {dt_jbb} kg")
-            pdf.cell(0, 8, f"Berat Kosong: {dt_brt_ksg} kg", align='R')
-            pdf.ln(15)
+            col_width1 = 35
+            col_width2 = 60
 
-            # --- Vehicle Photos ---
+            y_pos = pdf.get_y()
+            pdf.cell(col_width1, 7, "No. Reg Kendaraan")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{dt_no_pol}")
+            pdf.cell(col_width1, 7, "Merk")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{db_merk[np.where(db_merk == dt_merk)[0][0],1] if dt_merk else '-'}")
+            pdf.ln() #baris 2
+            pdf.cell(col_width1, 7, "Jenis Kendaraan")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{dt_jns_kend}")
+            pdf.cell(col_width1, 7, "Tipe")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{dt_type}")
+            pdf.ln() #baris 3
+            pdf.cell(col_width1, 7, "JBB")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{dt_jbb} kg")
+            pdf.cell(col_width1, 7, "Bahan Bakar")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1] if dt_bhn_bkr else '-'}")
+            pdf.ln() #baris 4
+            pdf.cell(col_width1, 7, "Berat Kosong")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{dt_brt_ksg} kg")
+            pdf.cell(col_width1, 7, "Warna")
+            pdf.cell(5, 7, ":")
+            pdf.cell(col_width2, 7, f"{db_warna[np.where(db_warna == dt_warna)[0][0],1] if dt_warna else '-'}")
+            pdf.ln(10)
+            # ==================================================================
             pdf.set_font('Arial', 'B', 12)
             pdf.cell(0, 8, "Foto Kendaraan:")
             pdf.ln(10)
@@ -1313,11 +1350,9 @@ class ScreenPrinter(MDScreen):
                 today = time.strftime("%Y-%m-%d")
                 base_url = f"https://{FTP_HOST}/system/storage/app/capture/{today}/{dt_sts_uji}-{dt_no_antri}/{dt_no_pol}"
 
-                # Local directory
                 documents_dir = os.path.join(os.environ["USERPROFILE"], "Pictures", "VIIS")
                 os.makedirs(documents_dir, exist_ok=True)
 
-                # List to store image paths
                 img_paths = []
 
                 for i in range(1, 5):
@@ -1333,7 +1368,7 @@ class ScreenPrinter(MDScreen):
                             Logger.info(f"Downloaded: {url}")
                         else:
                             Logger.warning(f"Image not found: {url} (Status: {response.status_code})")
-                            img_paths[-1] = None  # Mark as missing
+                            img_paths[-1] = None 
                     except Exception as e:
                         Logger.error(f"Failed to download {url}: {e}")
                         img_paths[-1] = None
@@ -1346,19 +1381,18 @@ class ScreenPrinter(MDScreen):
                     if img_paths[i] and os.path.exists(img_paths[i]):
                         try:
                             pdf.image(img_paths[i], x=x_positions[i], y=y_photo, w=40, h=30)
-                            # Optional: Add label under image
+
                             pdf.set_xy(x_positions[i], y_photo + 30)
                             pdf.set_font('Arial', '', 8)
                             pdf.cell(40, 5, labels[i], align='C')
                         except Exception as img_err:
                             Logger.error(f"FPDF failed to insert image {img_paths[i]}: {img_err}")
-                            # Optionally draw placeholder
+
                             pdf.set_draw_color(128)
                             pdf.rect(x_positions[i], y_photo, 40, 30)
                             pdf.set_xy(x_positions[i], y_photo + 15)
                             pdf.cell(40, 10, "Foto Error", align='C')
                     else:
-                        # Draw placeholder box
                         pdf.set_draw_color(128)
                         pdf.rect(x_positions[i], y_photo, 40, 30)
                         pdf.set_xy(x_positions[i], y_photo + 10)
@@ -1366,9 +1400,9 @@ class ScreenPrinter(MDScreen):
                         pdf.set_xy(x_positions[i], y_photo + 15)
                         pdf.cell(40, 5, "Tersedia", align='C')
                         pdf.set_xy(x_positions[i], y_photo + 30)
-                        pdf.set_font('Arial', '', 8)
+                        pdf.set_font('Arial', 'B', 8)
                         pdf.cell(40, 5, labels[i], align='C')
-                        pdf.set_font('Arial', '', 12)
+                        pdf.set_font('Arial', 'B', 12)
 
             except Exception as e:
                 Logger.error(f"{self.name}: {e}")
@@ -1376,191 +1410,244 @@ class ScreenPrinter(MDScreen):
                 pdf.set_font('Arial', 'I', 10)
                 pdf.cell(0, 10, "Foto kendaraan: Gagal dimuat", align='C')
                 pdf.ln(10)
-
-            pdf.ln(20)
-
-            # --- Technical Specs ---
-            pdf.set_font('Arial', 'B', 14)
-            pdf.cell(0, 10, "SPESIFIKASI TEKNIS KENDARAAN")
-            pdf.ln(8)
-
-            pdf.set_font('Arial', '', 11)
-            specs = [
-                f"Merek: {dt_merk}",
-                f"Tipe: {dt_type}",
-                f"Bahan Bakar: {dt_bhn_bkr}",
-                f"Warna: {dt_warna}",
-                # f"Tahun: 2014",
-                # f"Isi Silinder: 1,493 cc",
-                # f"Daya Motor: 0.0 KW",
-                # f"Ukuran Ban: 550 R13.S",
-                # f"Konfigurasi Sumbu: 1.1",
-                # f"Pajang: 3,750 mm",
-                # f"Lebar: 1,650 mm",
-                # f"Tinggi: 1,825 mm",
-                # f"Jarak Sumbu: 1,970 mm",
-                # f"Dimensi Muatan: (2,360x1,400x0) mm",
-                # f"Daya Angkut: 3 orang / 600 kg",
-                # f"Kelas Jalan: III"
-            ]
-            for spec in specs:
-                pdf.cell(0, 7, spec)
-                pdf.ln(5)
-
+            # HASIL PENGUJIAN
+            # ==================================================================
             pdf.ln(5)
-
-            # --- Inspection Results ---
-            pdf.set_font('Arial', 'B', 14)
-            pdf.cell(0, 10, "HASIL PENGUJIAN")
-            pdf.ln(8)
-
-            # Axle Load
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "AXLE LOAD")
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 10)
-            pdf.cell(40, 8, "Sumbu")
-            pdf.cell(30, 8, "Kiri (kg)")
-            pdf.cell(30, 8, "Kanan (kg)")
-            pdf.cell(30, 8, "Total (kg)")
-            pdf.ln(8)
+            pdf.cell(0, 8, "II. HASIL PENGUJIAN", align='L', ln=1)
+            # --- A. Pemeriksaan Visual ---
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "A. Pemeriksaan Visual", align='L', ln=1)
+            # Tabel Visual 1
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(95, 6, "Visual 1", border=1, align='C')
+            pdf.cell(95, 6, "Visual 2", border=1, align='C')
+            pdf.ln()
+            # Tabel Visual 1
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(10, 6, "No", border=1, align='C')
+            pdf.cell(50, 6, "Item Komponen", border=1, align='C')
+            pdf.cell(35, 6, "Keterangan", border=1, align='C')
+            # Tabel Visual 2
+            pdf.cell(10, 6, "No", border=1, align='C')
+            pdf.cell(50, 6, "Item Komponen", border=1, align='C')
+            pdf.cell(35, 6, "Keterangan", border=1, align='C')
+            pdf.ln()
+            # Data Dummy untuk Visual (HARUS DIGANTI DENGAN DATA DARI DB)
+            visual_1_items = ["Identifikasi", "Dimensi kendaraan", "Bodi, pintu, kaca", "Sistem Roda & Ban", "Kaca Spion", "Penghapus Kaca", "Sabuk Keselamatan", "Bumper", "Penutup Lampu"]
+            visual_2_items = ["Rangka Landasan", "Converter Kit", "Penerus Daya", "As dan Suspensi", "Sistem kemudi", "Sistem Rem Utama", "Sistem Rem Parkir", "Sistem bahan bakar", "Sistem Pembuangan"]
+            pdf.set_font('Arial', '', 9)
+            max_rows = max(len(visual_1_items), len(visual_2_items))
+            for i in range(max_rows):
+                # Kolom Visual 1
+                item1 = visual_1_items[i] if i < len(visual_1_items) else ""
+                pdf.cell(10, 5, str(i+1) if item1 else "", border=1, align='C')
+                pdf.cell(50, 5, item1, border=1)
+                pdf.cell(35, 5, "Baik", border=1, align='C') # Keterangan dummy
 
+                # Kolom Visual 2
+                item2 = visual_2_items[i] if i < len(visual_2_items) else ""
+                pdf.cell(10, 5, str(i+1) if item2 else "", border=1, align='C')
+                pdf.cell(50, 5, item2, border=1)
+                pdf.cell(35, 5, "Baik", border=1, align='C') # Keterangan dummy
+                pdf.ln()
+            pdf.ln(5)
+            # Pengujian Emisi----------------------------------------------------
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "B. Pengujian Emisi", align='L', ln=1)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(60, 6, "Item", border=1, align='C')
+            pdf.cell(65, 6, "Nilai Pengujian", border=1, align='C')
+            pdf.cell(65, 6, "Hasil", border=1, align='C')
+            pdf.ln()
+            pdf.set_font('Arial', '', 10)
+            create_result_row_simple = lambda item, value, result: (pdf.cell(60, 6, item, border=1), pdf.cell(65, 6, str(value), border=1, align='C'), pdf.cell(65, 6, result, border=1, align='C'), pdf.ln())
+            create_result_row_simple("HC", getattr(self, 'emission_hc_value', 0.0), "Belum Diuji")
+            create_result_row_simple("CO", getattr(self, 'emission_co_value', 0.0), "Belum Diuji")
+
+            bahan_bakar_text = db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1] if dt_bhn_bkr else ''
+
+            if 'solar' in bahan_bakar_text.lower():
+                create_result_row_simple("Ketebalan Asap", getattr(self, 'emission_smoke_value', 0.0), "Belum Diuji")
+            pdf.ln(5)
+            # Pengujian Daya Pancar Lampu ---------------------------------------
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "C. Pengujian Daya Pancar Lampu", align='L', ln=1)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(60, 6, "Item Pengujian", border=1, align='C')
+            pdf.cell(65, 6, "Hasil", border=1, align='C')
+            pdf.cell(65, 6, "Keterangan", border=1, align='C')
+            pdf.ln()
+            pdf.set_font('Arial', '', 10)
+            create_result_row_simple("Daya Pancar Kanan", getattr(self, 'lamp_right_value', 0), "Belum Diuji")
+            create_result_row_simple("Daya Pancar Kiri", getattr(self, 'lamp_left_value', 0), "Belum Diuji")
+            create_result_row_simple("Penyimpangan Kanan", "0", "Belum Diuji")
+            create_result_row_simple("Penyimpangan Kiri", "0", "Belum Diuji")
+            pdf.ln(5)
+            # --- D. Pengujian Load & Brake ---
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "D. Pengujian Load & Brake", align='L', ln=1)  
+            # Tabel Axle Load
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(0, 6, "Axle Load", align='L', ln=1)
+            pdf.cell(47, 6, "Sumbu", border=1, align='C')
+            pdf.cell(48, 6, "Kiri (kg)", border=1, align='C')
+            pdf.cell(48, 6, "Kanan (kg)", border=1, align='C')
+            pdf.cell(47, 6, "Total (kg)", border=1, align='C')
+            pdf.ln()
+            pdf.set_font('Arial', '', 10)
             for i in range(10):
                 if db_load_total_value[i] > 0:
-                    pdf.cell(40, 8, f"Sumbu {i+1}")
-                    pdf.cell(30, 8, f"{int(db_load_left_value[i])}")
-                    pdf.cell(30, 8, f"{int(db_load_right_value[i])}")
-                    pdf.cell(30, 8, f"{int(db_load_total_value[i])}")
-                    pdf.ln(8)
-
+                    pdf.cell(47, 6, f"Sumbu {i+1}", border=1)
+                    pdf.cell(48, 6, str(int(db_load_left_value[i])), border=1, align='C')
+                    pdf.cell(48, 6, str(int(db_load_right_value[i])), border=1, align='C')
+                    pdf.cell(47, 6, str(int(db_load_total_value[i])), border=1, align='C')
+                    pdf.ln()
+            pdf.ln(5)
+            # Tabel Rem Utama
             pdf.set_font('Arial', 'B', 10)
-            pdf.cell(100, 8, "Total:")
-            pdf.cell(30, 8, f"{int(dt_load_total_value)} kg")
-            pdf.ln(8)
-
-            # Brake
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "REM UTAMA")
+            pdf.cell(0, 6, "Rem Utama", align='L', ln=1)
+            pdf.cell(31, 6, "Sumbu", border=1, align='C')
+            pdf.cell(31, 6, "Kiri (kg)", border=1, align='C')
+            pdf.cell(31, 6, "Kanan (kg)", border=1, align='C')
+            pdf.cell(31, 6, "Total (kg)", border=1, align='C')
+            pdf.cell(31, 6, "Selisih (%)", border=1, align='C')
+            pdf.cell(35, 6, "Hasil", border=1, align='C')
             pdf.ln(5)
             pdf.set_font('Arial', '', 10)
-            pdf.cell(40, 8, "Sumbu")
-            pdf.cell(30, 8, "Kiri (kg)")
-            pdf.cell(30, 8, "Kanan (kg)")
-            pdf.cell(30, 8, "Selisih (%)")
-            pdf.ln(8)
-
             for i in range(10):
                 if db_brake_total_value[i] > 0:
-                    pdf.cell(40, 8, f"Sumbu {i+1}")
-                    pdf.cell(30, 8, f"{int(db_brake_left_value[i])}")
-                    pdf.cell(30, 8, f"{int(db_brake_right_value[i])}")
-                    pdf.cell(30, 8, f"{int(db_brake_difference_value[i])}")
-                    pdf.ln(8)
+                    pdf.cell(31, 6, f"Sumbu {i+1}", border=1)
+                    pdf.cell(31, 6, str(int(db_brake_left_value[i])), border=1, align='C')
+                    pdf.cell(31, 6, str(int(db_brake_right_value[i])), border=1, align='C')
+                    pdf.cell(31, 6, str(int(db_brake_total_value[i])), border=1, align='C')
+                    pdf.cell(31, 6, str(db_brake_difference_value[i]), border=1, align='C')
 
+                    status_per_sumbu = "Lulus" if db_brake_difference_value[i] <= 8 else "Tidak Lulus"
+                    pdf.cell(35, 6, status_per_sumbu, border=1, align='C')
+                    pdf.ln()
+            # --- PERHITUNGAN MANUAL REM UTAMA ---
+            total_gaya_rem_utama = np.sum(db_brake_total_value)
+            berat_total_sumbu = np.sum(db_load_total_value)
+            efisiensi_rem_utama = (total_gaya_rem_utama / berat_total_sumbu) * 100 if berat_total_sumbu > 0 else 0
+            efisiensi_rem_utama_status = "Lulus" if efisiensi_rem_utama >= 50 else "Tidak Lulus"
             pdf.set_font('Arial', 'B', 10)
-            pdf.cell(100, 8, "Total Rem:")
-            pdf.cell(30, 8, f"{int(dt_brake_total_value)} kg")
-            pdf.ln(8)
-            pdf.cell(100, 8, f"Efisiensi: {np.round(dt_brake_efficiency_value, 1)} %")
-            pdf.ln(8)
-            result_brake = "Lulus" if dt_brake_flag == 2 else "Tidak Lulus" if dt_brake_flag == 1 else "Belum Diuji"
-            pdf.cell(100, 8, f"Status: {result_brake}")
-            pdf.ln(8)
-
-            # Handbrake
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "REM PARKIR")
-            pdf.ln(5)
+            pdf.cell(155, 6, "Total Gaya Pengereman", border=1)
+            pdf.cell(35, 6, f"{int(total_gaya_rem_utama)} kg", border=1, align='C')
+            pdf.ln()
+            pdf.cell(155, 6, "Efisiensi Rem Utama (>= 50%)", border=1)
+            pdf.cell(35, 6, f"{efisiensi_rem_utama:.1f} % ({efisiensi_rem_utama_status})", border=1, align='C')
+            pdf.ln(10)
+            # Tabel Rem Parkir
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(0, 6, "Rem Parkir", align='L', ln=1)
+            pdf.cell(47, 6, "Sumbu", border=1, align='C')
+            pdf.cell(48, 6, "Kiri (kg)", border=1, align='C')
+            pdf.cell(48, 6, "Kanan (kg)", border=1, align='C')
+            pdf.cell(47, 6, "Total (kg)", border=1, align='C')
+            pdf.ln()
             pdf.set_font('Arial', '', 10)
-            pdf.cell(40, 8, "Sumbu")
-            pdf.cell(30, 8, "Kiri (kg)")
-            pdf.cell(30, 8, "Kanan (kg)")
-            pdf.ln(8)
-
+            db_handbrake_total_value = np.zeros(10)
             for i in range(10):
-                if db_handbrake_left_value[i] > 0 or db_handbrake_right_value[i] > 0:
-                    pdf.cell(40, 8, f"Sumbu {i+1}")
-                    pdf.cell(30, 8, f"{int(db_handbrake_left_value[i])}")
-                    pdf.cell(30, 8, f"{int(db_handbrake_right_value[i])}")
-                    pdf.ln(8)
-
+                db_handbrake_total_value[i] = db_handbrake_left_value[i] + db_handbrake_right_value[i]
+                if db_handbrake_total_value[i] > 0:
+                    pdf.cell(47, 6, f"Sumbu {i+1}", border=1)
+                    pdf.cell(48, 6, str(int(db_handbrake_left_value[i])), border=1, align='C')
+                    pdf.cell(48, 6, str(int(db_handbrake_right_value[i])), border=1, align='C')
+                    pdf.cell(47, 6, str(int(db_handbrake_total_value[i])), border=1, align='C')
+                    pdf.ln()
+            # --- PERHITUNGAN MANUAL REM PARKIR ---
+            total_gaya_rem_parkir = np.sum(db_handbrake_total_value)
+            jbb_float = float(dt_jbb) if dt_jbb else 0.0
+            efisiensi_rem_parkir = (total_gaya_rem_parkir / jbb_float) * 100 if jbb_float > 0 else 0
+            efisiensi_rem_parkir_status = "Lulus" if efisiensi_rem_parkir >= 12 else "Tidak Lulus"
             pdf.set_font('Arial', 'B', 10)
-            pdf.cell(100, 8, "Total Rem Parkir:")
-            pdf.cell(30, 8, f"{int(dt_handbrake_total_value)} kg")
-            pdf.ln(8)
-            pdf.cell(100, 8, f"Efisiensi: {np.round(dt_handbrake_efficiency_value, 1)} %")
-            pdf.ln(8)
-            result_handbrake = "Lulus" if dt_handbrake_flag == 2 else "Tidak Lulus" if dt_handbrake_flag == 1 else "Belum Diuji"
-            pdf.cell(100, 8, f"Status: {result_handbrake}")
-            pdf.ln(8)
-
-            # Lamp Check
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "PENGECEKAN LAMPU")
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 10)
-            lamp_status = "Lulus" if dt_visual_flag == 1 else "Belum Diperiksa"
-            pdf.cell(0, 8, f"Hasil: {lamp_status}")
-            pdf.ln(8)
-
-            # Emission
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "EMISI")
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 10)
-            pdf.cell(0, 8, f"CO: {getattr(self, 'emission_co_value', 0.0) or 0.0} %")
-            pdf.ln(8)
-            pdf.cell(0, 8, f"HC: {getattr(self, 'emission_hc_value', 0.0) or 0.0} ppm")
-            pdf.ln(8)
-            pdf.cell(0, 8, f"Asap: {getattr(self, 'emission_smoke_value', 0.0) or 0.0} %")
-            pdf.ln(8)
-
-            # Speed & Sideslip
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "KECEPATAN & SIDE SLIP")
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 10)
-            pdf.cell(0, 8, f"Kecepatan: {dt_speed_value} rpm")
-            pdf.ln(8)
-            pdf.cell(0, 8, f"Side Slip: {dt_sideslip_value} mm")
+            pdf.cell(143, 6, "Total Gaya Pengereman Parkir", border=1)
+            pdf.cell(47, 6, f"{int(total_gaya_rem_parkir)} kg", border=1, align='C')
+            pdf.ln()
+            pdf.cell(143, 6, "Efisiensi Rem Parkir (>= 12%)", border=1)
+            pdf.cell(47, 6, f"{efisiensi_rem_parkir:.1f} % ({efisiensi_rem_parkir_status})", border=1, align='C')
             pdf.ln(10)
 
-            # Final Result
-            pdf.set_font('Arial', 'B', 16)
-            final_ok = (dt_brake_flag == 2) and (dt_handbrake_flag == 2) and (dt_load_flag == 2)
+            # --- E. Pengujian Lainnya ---
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "E. Pengujian Lainnya", align='L', ln=1)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(60, 6, "Item", border=1, align='C')
+            pdf.cell(65, 6, "Nilai Pengujian", border=1, align='C')
+            pdf.cell(65, 6, "Hasil", border=1, align='C')
+            pdf.ln()
+            pdf.set_font('Arial', '', 10)
+            status_dict = {0: "Belum Diuji", 1: "TIDAK LULUS", 2: "LULUS"}
+            create_result_row_simple("Side Slip", f"{dt_sideslip_value}  mm/m", status_dict.get(dt_sideslip_flag, "Error"))
+            create_result_row_simple("Speedometer", f"{dt_speed_value}  km/jam", status_dict.get(dt_speed_flag, "Error"))
+            noise_value = getattr(self, 'dt_noise_value', 0)
+            create_result_row_simple("Kebisingan", f"{noise_value} dB", "Belum Diuji")
+            glass_value = getattr(self, 'dt_glass_value', 0)
+            create_result_row_simple("Ketebalan Kaca", f"{glass_value} %", "Belum Diuji")
+            pdf.ln(10)
+            # ==================================================================
+            # 6. KEPUTUSAN AKHIR
+            # ==================================================================
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "III. KEPUTUSAN AKHIR", align='L', ln=1)
+            
+            dt_load_flag = getattr(self, 'dt_load_flag', 0)
+            dt_brake_flag = getattr(self, 'dt_brake_flag', 0)
+            dt_handbrake_flag = getattr(self, 'dt_handbrake_flag', 0)
+
+            final_ok = (
+                dt_brake_flag == 2 and
+                dt_handbrake_flag == 2 and
+                dt_load_flag == 2 and
+                dt_sideslip_flag == 2 and
+                dt_speed_flag == 2
+            )
             result_text = "LULUS" if final_ok else "TIDAK LULUS"
-            pdf.cell(0, 10, f"KEPUTUSAN: {result_text}", align='C')
-            pdf.ln(15)
-
-            # Operator
-            pdf.set_font('Arial', '', 12)
-            pdf.cell(0, 8, "Petugas Penguji:")
-            pdf.ln(8)
-            pdf.cell(0, 8, "Nama: ")
+            
+            pdf.set_font('Arial', 'B', 16)
+            pdf.cell(0, 15, result_text, border=1, align='C', ln=1)
             pdf.ln(10)
-            try:
-                pdf.image("assets/images/signature.png", x=20, y=pdf.get_y(), w=40)
-            except:
-                pdf.cell(0, 10, "Tanda Tangan: ________________")
-            pdf.ln(15)
 
-            # Save PDF
+            # ==================================================================
+            # 7. TANGGAL DAN TANDA TANGAN
+            # ==================================================================
+            pdf.set_font('Arial', '', 12)
+            
+            tgl_sekarang = datetime.date.today()
+            try:
+                from dateutil.relativedelta import relativedelta
+                tgl_habis = tgl_sekarang + relativedelta(months=+6)
+            except ImportError:
+                tgl_habis = tgl_sekarang + datetime.timedelta(days=180)
+            
+            pdf.cell(0, 7, f"Berlaku hingga: {tgl_habis.strftime('%d %B %Y')}", align='R', ln=1)
+            pdf.ln(20)
+            
+            pdf.cell(0, 7, f"{dt_user}", align='R', ln=1)
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 7, "Petugas Penguji", align='R', ln=1)
+
+            # ==================================================================
+            # 8. SIMPAN PDF
+            # ==================================================================
             documents_dir = os.path.join(os.environ["USERPROFILE"], "Documents")
-            folder_name = f"Hasil_Uji_VIIS_Final_{time.strftime('%Y-%m-%d')}"
+            folder_name = f"Laporan_Akhir_VIIS_{time.strftime('%Y-%m-%d')}"
             date_folder_path = os.path.join(documents_dir, folder_name)
             os.makedirs(date_folder_path, exist_ok=True)
-
-            pdf_filename = f"Hasil_Uji_No_{dt_no_antri}.pdf"
+            
+            pdf_filename = f"Laporan_Akhir_{dt_no_pol}_{dt_no_antri}.pdf"
             pdf_path = os.path.join(date_folder_path, pdf_filename)
 
             pdf.output(pdf_path, 'F')
-            toast(f"PDF saved: {pdf_path}")
+            toast(f"Laporan Akhir disimpan: {pdf_path}")
             os.startfile(pdf_path)
 
         except Exception as e:
-            toast_msg = 'Gagal menyimpan PDF'
+            toast_msg = f'Gagal membuat Laporan Akhir PDF'
             toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, Error: {e}")
+            Logger.error(f"{self.name}: {toast_msg}, Detail: {e}")
+
 
     def exec_print_thermal(self):
         global dt_no_antri, dt_no_pol, dt_no_uji, dt_jns_kend
@@ -1637,7 +1724,7 @@ class ScreenPrinter(MDScreen):
             printer.textln(f"KEPUTUSAN: {result}")
 
             printer.textln("Petugas:")
-            printer.textln(" ")
+            printer.textln(" ") 
             printer.cut()
 
             toast("Thermal print berhasil")
