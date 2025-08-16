@@ -1276,7 +1276,6 @@ class ScreenPrinter(MDScreen):
             pdf = FPDF(format='A4', unit='mm')
             pdf.add_page()
             pdf.set_auto_page_break(auto=True, margin=15)
-
             # KOP SURAT
             # ==================================================================
             pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", x=170, y=8, w=32)
@@ -1415,7 +1414,7 @@ class ScreenPrinter(MDScreen):
             pdf.ln(5)
             pdf.set_font('Arial', 'B', 12)
             pdf.cell(0, 8, "II. HASIL PENGUJIAN", align='L', ln=1)
-            # --- A. Pemeriksaan Visual ---
+            # Pemeriksaan VisuaL-----------------------------------------------------
             pdf.set_font('Arial', 'B', 11)
             pdf.cell(0, 7, "A. Pemeriksaan Visual", align='L', ln=1)
             # Tabel Visual 1
@@ -1423,29 +1422,28 @@ class ScreenPrinter(MDScreen):
             pdf.cell(95, 6, "Visual 1", border=1, align='C')
             pdf.cell(95, 6, "Visual 2", border=1, align='C')
             pdf.ln()
-            # Tabel Visual 1
+            # Tabel Visual 1-----------
             pdf.set_font('Arial', 'B', 10)
             pdf.cell(10, 6, "No", border=1, align='C')
             pdf.cell(50, 6, "Item Komponen", border=1, align='C')
             pdf.cell(35, 6, "Keterangan", border=1, align='C')
-            # Tabel Visual 2
+            # Tabel Visual 2-----------
             pdf.cell(10, 6, "No", border=1, align='C')
             pdf.cell(50, 6, "Item Komponen", border=1, align='C')
             pdf.cell(35, 6, "Keterangan", border=1, align='C')
             pdf.ln()
-            # Data Dummy untuk Visual (HARUS DIGANTI DENGAN DATA DARI DB)
+            # Data Dummy untuk Visual (GANTI DENGAN DATA DARI DB)
             visual_1_items = ["Identifikasi", "Dimensi kendaraan", "Bodi, pintu, kaca", "Sistem Roda & Ban", "Kaca Spion", "Penghapus Kaca", "Sabuk Keselamatan", "Bumper", "Penutup Lampu"]
             visual_2_items = ["Rangka Landasan", "Converter Kit", "Penerus Daya", "As dan Suspensi", "Sistem kemudi", "Sistem Rem Utama", "Sistem Rem Parkir", "Sistem bahan bakar", "Sistem Pembuangan"]
             pdf.set_font('Arial', '', 9)
             max_rows = max(len(visual_1_items), len(visual_2_items))
             for i in range(max_rows):
-                # Kolom Visual 1
+                # Kolom Visual 1---------------
                 item1 = visual_1_items[i] if i < len(visual_1_items) else ""
                 pdf.cell(10, 5, str(i+1) if item1 else "", border=1, align='C')
                 pdf.cell(50, 5, item1, border=1)
                 pdf.cell(35, 5, "Baik", border=1, align='C') # Keterangan dummy
-
-                # Kolom Visual 2
+                # Kolom Visual 2---------------
                 item2 = visual_2_items[i] if i < len(visual_2_items) else ""
                 pdf.cell(10, 5, str(i+1) if item2 else "", border=1, align='C')
                 pdf.cell(50, 5, item2, border=1)
@@ -1484,10 +1482,10 @@ class ScreenPrinter(MDScreen):
             create_result_row_simple("Penyimpangan Kanan", "0", "Belum Diuji")
             create_result_row_simple("Penyimpangan Kiri", "0", "Belum Diuji")
             pdf.ln(5)
-            # --- D. Pengujian Load & Brake ---
+            # Pengujian Load & Brake ----------------------------------------------
             pdf.set_font('Arial', 'B', 11)
             pdf.cell(0, 7, "D. Pengujian Load & Brake", align='L', ln=1)  
-            # Tabel Axle Load
+            # Tabel Axle Load----------------------------
             pdf.set_font('Arial', 'B', 10)
             pdf.cell(0, 6, "Axle Load", align='L', ln=1)
             pdf.cell(47, 6, "Sumbu", border=1, align='C')
@@ -1504,7 +1502,7 @@ class ScreenPrinter(MDScreen):
                     pdf.cell(47, 6, str(int(db_load_total_value[i])), border=1, align='C')
                     pdf.ln()
             pdf.ln(5)
-            # Tabel Rem Utama
+            # Tabel Rem Utama------------------------
             pdf.set_font('Arial', 'B', 10)
             pdf.cell(0, 6, "Rem Utama", align='L', ln=1)
             pdf.cell(31, 6, "Sumbu", border=1, align='C')
@@ -1526,7 +1524,6 @@ class ScreenPrinter(MDScreen):
                     status_per_sumbu = "Lulus" if db_brake_difference_value[i] <= 8 else "Tidak Lulus"
                     pdf.cell(35, 6, status_per_sumbu, border=1, align='C')
                     pdf.ln()
-            # --- PERHITUNGAN MANUAL REM UTAMA ---
             total_gaya_rem_utama = np.sum(db_brake_total_value)
             berat_total_sumbu = np.sum(db_load_total_value)
             efisiensi_rem_utama = (total_gaya_rem_utama / berat_total_sumbu) * 100 if berat_total_sumbu > 0 else 0
@@ -1538,7 +1535,7 @@ class ScreenPrinter(MDScreen):
             pdf.cell(155, 6, "Efisiensi Rem Utama (>= 50%)", border=1)
             pdf.cell(35, 6, f"{efisiensi_rem_utama:.1f} % ({efisiensi_rem_utama_status})", border=1, align='C')
             pdf.ln(10)
-            # Tabel Rem Parkir
+            # Tabel Rem Parkir------------------------
             pdf.set_font('Arial', 'B', 10)
             pdf.cell(0, 6, "Rem Parkir", align='L', ln=1)
             pdf.cell(47, 6, "Sumbu", border=1, align='C')
@@ -1556,7 +1553,6 @@ class ScreenPrinter(MDScreen):
                     pdf.cell(48, 6, str(int(db_handbrake_right_value[i])), border=1, align='C')
                     pdf.cell(47, 6, str(int(db_handbrake_total_value[i])), border=1, align='C')
                     pdf.ln()
-            # --- PERHITUNGAN MANUAL REM PARKIR ---
             total_gaya_rem_parkir = np.sum(db_handbrake_total_value)
             jbb_float = float(dt_jbb) if dt_jbb else 0.0
             efisiensi_rem_parkir = (total_gaya_rem_parkir / jbb_float) * 100 if jbb_float > 0 else 0
@@ -1568,8 +1564,7 @@ class ScreenPrinter(MDScreen):
             pdf.cell(143, 6, "Efisiensi Rem Parkir (>= 12%)", border=1)
             pdf.cell(47, 6, f"{efisiensi_rem_parkir:.1f} % ({efisiensi_rem_parkir_status})", border=1, align='C')
             pdf.ln(10)
-
-            # --- E. Pengujian Lainnya ---
+            # Pengujian Lainnya----------------------------------------------------------------------
             pdf.set_font('Arial', 'B', 11)
             pdf.cell(0, 7, "E. Pengujian Lainnya", align='L', ln=1)
             pdf.set_font('Arial', 'B', 10)
@@ -1586,8 +1581,6 @@ class ScreenPrinter(MDScreen):
             glass_value = getattr(self, 'dt_glass_value', 0)
             create_result_row_simple("Ketebalan Kaca", f"{glass_value} %", "Belum Diuji")
             pdf.ln(10)
-            # ==================================================================
-            # 6. KEPUTUSAN AKHIR
             # ==================================================================
             pdf.set_font('Arial', 'B', 12)
             pdf.cell(0, 8, "III. KEPUTUSAN AKHIR", align='L', ln=1)
@@ -1608,9 +1601,6 @@ class ScreenPrinter(MDScreen):
             pdf.set_font('Arial', 'B', 16)
             pdf.cell(0, 15, result_text, border=1, align='C', ln=1)
             pdf.ln(10)
-
-            # ==================================================================
-            # 7. TANGGAL DAN TANDA TANGAN
             # ==================================================================
             pdf.set_font('Arial', '', 12)
             
@@ -1627,9 +1617,6 @@ class ScreenPrinter(MDScreen):
             pdf.cell(0, 7, f"{dt_user}", align='R', ln=1)
             pdf.set_font('Arial', 'B', 12)
             pdf.cell(0, 7, "Petugas Penguji", align='R', ln=1)
-
-            # ==================================================================
-            # 8. SIMPAN PDF
             # ==================================================================
             documents_dir = os.path.join(os.environ["USERPROFILE"], "Documents")
             folder_name = f"Laporan_Akhir_VIIS_{time.strftime('%Y-%m-%d')}"
