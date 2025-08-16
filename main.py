@@ -1360,7 +1360,7 @@ class ScreenPrinter(MDScreen):
                     img_paths.append(local_path)
 
                     try:
-                        response = requests.get(url, timeout=5, stream=True)
+                        response = requests.get(url, timeout=5, stream=True, verify=False)
                         if response.status_code == 200:
                             with open(local_path, 'wb') as f:
                                 f.write(response.content)
