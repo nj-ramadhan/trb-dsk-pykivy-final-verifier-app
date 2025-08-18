@@ -139,20 +139,20 @@ class ScreenHome(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")
 
-    def exec_navigate_login(self):
-        global dt_user
-        try:
-            if (dt_user == ""):
-                self.screen_manager.current = 'screen_login'
-            else:
-                toast_msg = f"Anda sudah login sebagai {dt_user}"
-                toast(toast_msg)
-                Logger.info(f"{self.name}: {toast_msg}")  
+    # def exec_navigate_login(self):
+    #     global dt_user
+    #     try:
+    #         if (dt_user == ""):
+    #             self.screen_manager.current = 'screen_login'
+    #         else:
+    #             toast_msg = f"Anda sudah login sebagai {dt_user}"
+    #             toast(toast_msg)
+    #             Logger.info(f"{self.name}: {toast_msg}")  
 
-        except Exception as e:
-            toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Login'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+    #     except Exception as e:
+    #         toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Login'
+    #         toast(toast_msg)
+    #         Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
     def exec_navigate_main(self):
         try:
@@ -163,103 +163,103 @@ class ScreenHome(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-class ScreenLogin(MDScreen):
-    def __init__(self, **kwargs):
-        super(ScreenLogin, self).__init__(**kwargs)
-        Clock.schedule_once(self.delayed_init, 1)
+# class ScreenLogin(MDScreen):
+#     def __init__(self, **kwargs):
+#         super(ScreenLogin, self).__init__(**kwargs)
+#         Clock.schedule_once(self.delayed_init, 1)
     
-    def delayed_init(self, dt):
-        self.ids.lb_title.text = APP_TITLE
-        self.ids.lb_subtitle.text = APP_SUBTITLE        
-        self.ids.img_pemkab.source = f'assets/images/{IMG_LOGO_PEMKAB}'
-        self.ids.img_dishub.source = f'assets/images/{IMG_LOGO_DISHUB}'
-        self.ids.lb_pemkab.text = LB_PEMKAB
-        self.ids.lb_dishub.text = LB_DISHUB
-        self.ids.lb_unit.text = LB_UNIT
-        self.ids.lb_unit_address.text = LB_UNIT_ADDRESS
+#     def delayed_init(self, dt):
+#         self.ids.lb_title.text = APP_TITLE
+#         self.ids.lb_subtitle.text = APP_SUBTITLE        
+#         self.ids.img_pemkab.source = f'assets/images/{IMG_LOGO_PEMKAB}'
+#         self.ids.img_dishub.source = f'assets/images/{IMG_LOGO_DISHUB}'
+#         self.ids.lb_pemkab.text = LB_PEMKAB
+#         self.ids.lb_dishub.text = LB_DISHUB
+#         self.ids.lb_unit.text = LB_UNIT
+#         self.ids.lb_unit_address.text = LB_UNIT_ADDRESS
 
-    def exec_cancel(self):
-        try:
-            self.ids.tx_username.text = ""
-            self.ids.tx_password.text = ""    
+#     def exec_cancel(self):
+#         try:
+#             self.ids.tx_username.text = ""
+#             self.ids.tx_password.text = ""    
 
-        except Exception as e:
-            toast_msg = f'error Login: {e}'
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+#         except Exception as e:
+#             toast_msg = f'error Login: {e}'
+#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    def exec_login(self):
-        global mydb, db_users
-        global dt_id_user, dt_user, dt_foto_user
+#     def exec_login(self):
+#         global mydb, db_users
+#         global dt_id_user, dt_user, dt_foto_user
 
-        screen_main = self.screen_manager.get_screen('screen_main')
+#         screen_main = self.screen_manager.get_screen('screen_main')
 
-        try:
-            screen_main.exec_reload_database()
-            input_username = self.ids.tx_username.text
-            input_password = self.ids.tx_password.text        
-            # Adding salt at the last of the password
-            dataBase_password = input_password
-            # Encoding the password
-            hashed_password = hashlib.md5(dataBase_password.encode())
+#         try:
+#             screen_main.exec_reload_database()
+#             input_username = self.ids.tx_username.text
+#             input_password = self.ids.tx_password.text        
+#             # Adding salt at the last of the password
+#             dataBase_password = input_password
+#             # Encoding the password
+#             hashed_password = hashlib.md5(dataBase_password.encode())
 
-            mycursor = mydb.cursor()
-            mycursor.execute(f"SELECT id_user, nama, username, password, image FROM {TB_USER} WHERE username = '{input_username}' and password = '{hashed_password.hexdigest()}'")
-            myresult = mycursor.fetchone()
-            db_users = np.array(myresult).T
+#             mycursor = mydb.cursor()
+#             mycursor.execute(f"SELECT id_user, nama, username, password, image FROM {TB_USER} WHERE username = '{input_username}' and password = '{hashed_password.hexdigest()}'")
+#             myresult = mycursor.fetchone()
+#             db_users = np.array(myresult).T
             
-            if myresult is None:
-                toast_msg = f'Gagal Masuk, Nama Pengguna atau Password Salah'
-                toast(toast_msg) 
-                Logger.warning(f"{self.name}: {toast_msg}") 
-            else:
-                toast_msg = f'Berhasil Masuk, Selamat Datang {myresult[1]}'
-                toast(toast_msg)
-                Logger.info(f"{self.name}: {toast_msg}")  
+#             if myresult is None:
+#                 toast_msg = f'Gagal Masuk, Nama Pengguna atau Password Salah'
+#                 toast(toast_msg) 
+#                 Logger.warning(f"{self.name}: {toast_msg}") 
+#             else:
+#                 toast_msg = f'Berhasil Masuk, Selamat Datang {myresult[1]}'
+#                 toast(toast_msg)
+#                 Logger.info(f"{self.name}: {toast_msg}")  
 
-                dt_id_user = myresult[0]
-                dt_user = myresult[1]
-                dt_foto_user = myresult[4]
-                self.ids.tx_username.text = ""
-                self.ids.tx_password.text = "" 
-                self.screen_manager.current = 'screen_main'
+#                 dt_id_user = myresult[0]
+#                 dt_user = myresult[1]
+#                 dt_foto_user = myresult[4]
+#                 self.ids.tx_username.text = ""
+#                 self.ids.tx_password.text = "" 
+#                 self.screen_manager.current = 'screen_main'
 
-        except Exception as e:
-            toast_msg = f'Gagal masuk, silahkan isi nama user dan password yang sesuai'
-            toast(toast_msg)  
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+#         except Exception as e:
+#             toast_msg = f'Gagal masuk, silahkan isi nama user dan password yang sesuai'
+#             toast(toast_msg)  
+#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    def exec_navigate_home(self):
-        try:
-            self.screen_manager.current = 'screen_home'
+#     def exec_navigate_home(self):
+#         try:
+#             self.screen_manager.current = 'screen_home'
 
-        except Exception as e:
-            toast_msg = f'Gagal Berpindah ke Halaman Awal'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")
+#         except Exception as e:
+#             toast_msg = f'Gagal Berpindah ke Halaman Awal'
+#             toast(toast_msg)
+#             Logger.error(f"{self.name}: {toast_msg}, {e}")
 
-    def exec_navigate_login(self):
-        global dt_user
-        try:
-            if (dt_user == ""):
-                self.screen_manager.current = 'screen_login'
-            else:
-                toast_msg = f"Anda sudah login sebagai {dt_user}"
-                toast(toast_msg)
-                Logger.info(f"{self.name}: {toast_msg}")  
+#     def exec_navigate_login(self):
+#         global dt_user
+#         try:
+#             if (dt_user == ""):
+#                 self.screen_manager.current = 'screen_login'
+#             else:
+#                 toast_msg = f"Anda sudah login sebagai {dt_user}"
+#                 toast(toast_msg)
+#                 Logger.info(f"{self.name}: {toast_msg}")  
 
-        except Exception as e:
-            toast_msg = f'Gagal Berpindah ke Halaman Login'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+#         except Exception as e:
+#             toast_msg = f'Gagal Berpindah ke Halaman Login'
+#             toast(toast_msg)x
+#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    def exec_navigate_main(self):
-        try:
-            self.screen_manager.current = 'screen_main'
+#     def exec_navigate_main(self):
+#         try:
+#             self.screen_manager.current = 'screen_main'
 
-        except Exception as e:
-            toast_msg = f'Gagal Berpindah ke Halaman Utama'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+#         except Exception as e:
+#             toast_msg = f'Gagal Berpindah ke Halaman Utama'
+#             toast(toast_msg)
+#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
 class ScreenMain(MDScreen):   
     def __init__(self, **kwargs):
@@ -271,7 +271,10 @@ class ScreenMain(MDScreen):
         global dt_dash_antri, dt_dash_belum_uji, dt_dash_sudah_uji
         global db_brake_total_value
 
-        dt_user = dt_foto_user = dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = ""
+        # dt_user = dt_foto_user = dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = ""
+        dt_user = "Operator" #dc
+        dt_foto_user = "" #dc
+        dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = "" #dc
         dt_merk = dt_type = dt_jns_kend = dt_jbb = dt_brt_ksg = dt_warna = dt_chasis = dt_no_mesin = ""
         dt_id_user = 1
         dt_visual_flag = dt_load_flag = dt_brake_flag = dt_handbrake_flag = dt_sideslip_flag = dt_speed_flag = 0
@@ -301,15 +304,15 @@ class ScreenMain(MDScreen):
         
         try:
             screen_home = self.screen_manager.get_screen('screen_home')
-            screen_login = self.screen_manager.get_screen('screen_login')
+            #screen_login = self.screen_manager.get_screen('screen_login')
             screen_printer = self.screen_manager.get_screen('screen_printer')
             
             self.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             self.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_home.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_home.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
-            screen_login.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
-            screen_login.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
+            #screen_login.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
+            #screen_login.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_printer.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_printer.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
 
@@ -320,21 +323,21 @@ class ScreenMain(MDScreen):
             # self.ids.bt_calibrate.disabled = False if dt_user != '' else True
             # self.ids.bt_add_data.disabled = False if dt_user != '' else True
             # self.ids.bt_add_queue.disabled = False if dt_user != '' else True
-            self.ids.bt_logout.disabled = False if dt_user != '' else True
+            #self.ids.bt_logout.disabled = False if dt_user != '' else True
 
-            self.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' if dt_user != '' else 'Silahkan Login'
-            screen_home.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' if dt_user != '' else 'Silahkan Login'
-            screen_login.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' if dt_user != '' else 'Silahkan Login'
-            screen_printer.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' if dt_user != '' else 'Silahkan Login'
+            #self.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' #if dt_user != '' else 'Silahkan Login'
+            #screen_home.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' #if dt_user != '' else 'Silahkan Login'
+            #screen_login.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' if dt_user != '' else 'Silahkan Login'
+            #screen_printer.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' #if dt_user != '' else 'Silahkan Login'
 
-            if dt_user != '':
-                self.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
-                screen_home.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
-                screen_login.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
-            else:
-                self.ids.img_user.source = 'assets/images/icon-login.png'
-                screen_home.ids.img_user.source = 'assets/images/icon-login.png'
-                screen_login.ids.img_user.source = 'assets/images/icon-login.png'
+            # if dt_user != '':
+            #     self.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
+            #     screen_home.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
+            #     screen_login.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
+            # else:
+            # self.ids.img_user.source = 'assets/images/icon-login.png'
+            # screen_home.ids.img_user.source = 'assets/images/icon-login.png'
+            #     screen_login.ids.img_user.source = 'assets/images/icon-login.png'
 
         except Exception as e:
             toast_msg = f'Gagal Memperbaharui Tampilan'
@@ -491,11 +494,11 @@ class ScreenMain(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    def exec_logout(self):
-        global dt_user
+    # def exec_logout(self):
+    #     global dt_user
 
-        dt_user = ""
-        self.screen_manager.current = 'screen_login'
+    #     dt_user = ""
+    #     self.screen_manager.current = 'screen_login'
 
     def exec_navigate_home(self):
         try:
@@ -506,34 +509,34 @@ class ScreenMain(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    def exec_navigate_login(self):
-        global dt_user
-        try:
-            if (dt_user == ""):
-                self.screen_manager.current = 'screen_login'
-            else:
-                toast_msg = f"Anda sudah login sebagai {dt_user}"
-                toast(toast_msg)
-                Logger.info(f"{self.name}: {toast_msg}")
+    # def exec_navigate_login(self):
+    #     global dt_user
+    #     try:
+    #         if (dt_user == ""):
+    #             self.screen_manager.current = 'screen_login'
+    #         else:
+    #             toast_msg = f"Anda sudah login sebagai {dt_user}"
+    #             toast(toast_msg)
+    #             Logger.info(f"{self.name}: {toast_msg}")
 
-        except Exception as e:
-            toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Login'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+    #     except Exception as e:
+    #         toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Login'
+    #         toast(toast_msg)
+    #         Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
     def exec_navigate_menu(self):
 
-        if (dt_user != ''):
+        #if (dt_user != ''):
             # if (int(dt_load_flag) == 0 or int(dt_brake_flag) == 0 or int(dt_handbrake_flag) == 0):
-            self.screen_manager.current = 'screen_printer'
+        self.screen_manager.current = 'screen_printer'
             # else:
             #     toast_msg = f'No. Antrian {dt_no_antri} Sudah Tes'
             #     toast(toast_msg)
             #     Logger.info(f"{self.name}: {toast_msg}")
-        else:
-            toast_msg = f'Silahkan Login Untuk Melakukan Pengujian'
-            toast(toast_msg)
-            Logger.info(f"{self.name}: {toast_msg}")      
+        # else:
+        #     toast_msg = f'Silahkan Login Untuk Melakukan Pengujian'
+        #     toast(toast_msg)
+        #     Logger.info(f"{self.name}: {toast_msg}")      
 
     def exec_navigate_calibration(self):
         global dt_user
@@ -1011,18 +1014,18 @@ class ScreenAddQueue(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}") 
 
-    def exec_navigate_login(self):
-        global dt_user
-        try:
-            if (dt_user == ""):
-                self.screen_manager.current = 'screen_login'
-            else:
-                toast(f"Anda sudah login sebagai {dt_user}")
+    # def exec_navigate_login(self):
+    #     global dt_user
+    #     try:
+    #         if (dt_user == ""):
+    #             self.screen_manager.current = 'screen_login'
+    #         else:
+    #             toast(f"Anda sudah login sebagai {dt_user}")
 
-        except Exception as e:
-            toast_msg = f'Gagal Berpindah ke Halaman Login'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}") 
+    #     except Exception as e:
+    #         toast_msg = f'Gagal Berpindah ke Halaman Login'
+    #         toast(toast_msg)
+    #         Logger.error(f"{self.name}: {toast_msg}, {e}") 
 
     def exec_navigate_main(self):
         try:
@@ -1614,9 +1617,9 @@ class ScreenPrinter(MDScreen):
             pdf.cell(0, 7, f"Berlaku hingga: {tgl_habis.strftime('%d %B %Y')}", align='R', ln=1)
             pdf.ln(20)
             
-            pdf.cell(0, 7, f"{dt_user}", align='R', ln=1)
+            #pdf.cell(0, 7, f"{dt_user}", align='R', ln=1)
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 7, "Petugas Penguji", align='R', ln=1)
+            pdf.cell(0, 7, "Petugas Teknis Uji", align='R', ln=1)#dc
             # ==================================================================
             documents_dir = os.path.join(os.environ["USERPROFILE"], "Documents")
             folder_name = f"Laporan_Akhir_VIIS_{time.strftime('%Y-%m-%d')}"

@@ -2,7 +2,6 @@
 
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 #:include screen_home.kv
-#:include screen_login.kv
 #:include screen_main.kv
 #:include screen_printer.kv
 
@@ -16,10 +15,10 @@
         name: 'screen_home'
         screen_manager: screen_manager
 
-    ScreenLogin:
-        id: screen_login
-        name: 'screen_login'
-        screen_manager: screen_manager
+    #ScreenLogin:
+    #    id: screen_login
+    #    name: 'screen_login'
+    #    screen_manager: screen_manager
 
     ScreenMain:
         id: screen_main
