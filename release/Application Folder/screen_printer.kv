@@ -15,7 +15,7 @@
                     
             Image:
                 id: logo
-                source:'assets/logo-trb-dark.png'
+                source:'assets/images/logo-trb.png'
                 size_hint_x: 0.15
                 allow_stretch: True 
 
@@ -24,17 +24,17 @@
 				size_hint_x: 0.7
 
 				MDLabel:
-					id: title            
-					text: "VEHICLE INSPECTION INTEGRATION SYSTEM"
+					id: lb_title            
+					text: "VEHICLE INSPECTION INTEGRATION MANAGEMENT SYSTEM"
 					halign: "left"
 					valign: "middle"
-					font_style: 'H3'
+					font_style: 'H4'
 					theme_text_color: "Custom"
 					text_color: "#FFFFFF"
 
 				MDLabel:
-					id: subtitle            
-					text: "FINAL VERIFIER"
+					id: lb_subtitle            
+					text: "AXLE LOAD & BRAKE METER"
 					halign: "left"
 					valign: "middle"
 					font_style: 'H5'
@@ -44,16 +44,6 @@
 			MDBoxLayout:
 				orientation: "vertical"
 				size_hint_x: 0.15
-
-				MDRectangleFlatIconButton:
-					id: bt_logout
-					icon: "logout"
-					text: "LOGOUT"
-					md_bg_color: "#FF2A2A"
-					theme_text_color: "Custom"
-					text_color: "#EEEEEE"
-					size_hint_x: 1
-					on_press: root.exec_logout()
 
 				MDLabel:
 					id: lb_time
@@ -73,14 +63,14 @@
 					theme_text_color: "Custom"
 					text_color: "#FFFFFF"
 
-				MDLabel:
-					id: lb_operator
-					text: "Silahkan Login"
-					halign: "center"
-					valign: "middle"
-					font_style: 'H6'
-					theme_text_color: "Custom"
-					text_color: "#FFFFFF"
+				#MDLabel:
+				#	id: lb_operator
+				#	text: "Nama Operator"
+				#	halign: "center"
+				#	valign: "middle"
+				#	font_style: 'H6'
+				#	theme_text_color: "Custom"
+				#	text_color: "#FFFFFF"
 
 				MDLabel:
 					id: lb_comm
@@ -96,22 +86,22 @@
 			orientation: "horizontal"
 			size_hint_y: 0.7
 			padding:20
+			spacing:20
 
 			MDBoxLayout:
 				id: layout_display
 				orientation: "horizontal"
-				spacing:20
-
+						
 				MDBoxLayout:
 					orientation: "vertical"
-					size_hint_x: 0.4
+					size_hint_x: 0.5
 					padding:20
-					spacing:50
+					spacing:20
 
 					MDBoxLayout:
 						orientation: "vertical"
 						size_hint_y: 0.75
-						spacing:20
+						spacing:10
 
 						MDLabel:
 							text: "IDENTITAS KENDARAAN"
@@ -126,9 +116,8 @@
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
-
 							MDLabel:
-								id: lb_no_antrian
+								id: lb_no_antri
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -136,13 +125,12 @@
 						MDBoxLayout:
 							orientation: "horizontal"
 							MDLabel:
-								text: "No. Reg"
+								text: "No. Polisi"
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
-
 							MDLabel:
-								id: lb_no_reg
+								id: lb_no_pol
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -154,7 +142,6 @@
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
-
 							MDLabel:
 								id: lb_no_uji
 								halign: "left"
@@ -164,13 +151,38 @@
 						MDBoxLayout:
 							orientation: "horizontal"
 							MDLabel:
-								text: "Nama"
+								text: "Status Uji"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_sts_uji
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
 
+						MDBoxLayout:
+							orientation: "horizontal"
 							MDLabel:
-								id: lb_nama
+								text: "Merk"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_merk
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Type"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_type
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -182,9 +194,8 @@
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
-
 							MDLabel:
-								id: lb_jenis_kendaraan
+								id: lb_jns_kend
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -192,7 +203,51 @@
 						MDBoxLayout:
 							orientation: "horizontal"
 							MDLabel:
-								id: lb_status
+								text: "JBB"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_jbb
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+								
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Berat Kosong"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_brt_ksg
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Bahan Bakar"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_bhn_bkr
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Warna"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_warna
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -207,244 +262,96 @@
 
 				MDBoxLayout:
 					orientation: "vertical"
-					size_hint_x: 0.6
+					size_hint_x: 0.5
 
 					MDBoxLayout:
 						orientation: "vertical"
-						size_hint_y: 0.75
-						spacing:20
+						size_hint_y: 0.9
+						spacing:10
 
 						MDLabel:
-							text: "HASIL UJI KENDARAAN"
+							text: "HASIL PENGUJIAN"
 							halign: "center"
 							valign: "middle"
-							font_style: 'H4'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Jenis Pengujian"
-								halign: "center"
-								valign: "middle"
-								font_style: 'H5'
-
-							MDLabel:
-								text: "Nilai Hasil Pengujian"
-								halign: "center"
-								valign: "middle"
-								font_style: 'H5'
-
-							MDLabel:
-								text: "Status Hasil Pengujian"
-								halign: "center"
-								valign: "middle"
-								font_style: 'H5'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Play Detector"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_playdetect
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_playdetect
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Emission"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_emission
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_emission
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Slide Slip"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_sideslip
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_sideslip
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Axle Load"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_load
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_load
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Brake"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_brake
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_brake
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Speed"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_speed
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_speed
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Head Light"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_hlm
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_hlm
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Sound Level"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_slm
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_slm
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Window Tint"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_value_wtm
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
-
-							MDLabel:
-								id: lb_result_flag_wtm
-								halign: "center"
-								valign: "middle"
-								font_style: 'H6'
+							font_style: 'H6'
 						
 						MDBoxLayout:
 							orientation: "horizontal"
-							spacing:10
+							MDLabel:
+								text: "Visual Inspection"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_result_visual
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
 
-							MDRectangleFlatIconButton:
-								id: bt_print
-								text: "CETAK"
-								icon: "printer"
-								theme_text_color: "Custom"
-								text_color: "#EEEEEE"
-								md_bg_color: "#2CA02C"
-								size_hint_x: 0.5
-								disabled: True
-								on_press: root.exec_print()
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Axle Load & Brake Meter"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_result_load
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
 
-							MDRectangleFlatIconButton:
-								id: bt_back
-								text: "KEMBALI"
-								icon: "arrow-left"
-								theme_text_color: "Custom"
-								text_color: "#EEEEEE"
-								md_bg_color: "#4471C4"
-								size_hint_x: 0.5
-								disabled: True
-								on_press: root.exec_back()									
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Sideslip Tester"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_result_sideslip
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "Speedo Meter"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lb_result_speed
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+					MDBoxLayout:
+						orientation: "horizontal"
+						spacing: 20
+						size_hint_y: 0.1
+
+						MDRectangleFlatIconButton:
+							id: bt_back
+							text: "KEMBALI"
+							icon: "arrow-left"
+							theme_text_color: "Custom"
+							text_color: "#EEEEEE"
+							md_bg_color: "4471C4"
+							size_hint_x: 0.5
+							on_press: root.exec_navigate_main()
+
+						MDRectangleFlatIconButton:
+							id: bt_print
+							text: "CETAK "
+							icon: "printer"
+							theme_text_color: "Custom"
+							text_color: "#EEEEEE"
+							md_bg_color: "#2CA02C"
+							size_hint_x: 0.5
+							on_press: root.exec_print()
+
 		# footer layout
         MDBoxLayout:
             orientation: "horizontal"
@@ -457,13 +364,15 @@
 				md_bg_color: "#4471C4"
 				size_hint_x: 0.4
 				
-				Image:
-					source:'assets/logo-sorong.png'
+				AsyncImage:
+					id: img_pemkab
+					source:'assets/images/logo-sorong.png'
 					size_hint_x: 0.1
 					allow_stretch: True  
 
-				Image:
-					source:'assets/logo-dishub.png'
+				AsyncImage:
+					id: img_dishub
+					source:'assets/images/logo-dishub.png'
 					size_hint_x: 0.1
 					allow_stretch: True  
 
@@ -471,25 +380,35 @@
 					orientation: "vertical"
 					size_hint_x: 0.8
 
-					MDLabel:			
+					MDLabel:
+						id: lb_pemkab
 						text: "PEMERINTAH KABUPATEN SORONG"
 						halign: "left"
 						valign: "middle"
-						font_style: 'Subtitle1'
-
-					MDLabel:			
-						text: "DINAS PERHUBUNGAN"
-						halign: "left"
-						valign: "middle"
-						font_style: 'Subtitle1'
-
-					MDLabel:			
-						text: "UNIT PELAKSANA UJI BERKALA KENDARAAN BERMOTOR"
-						halign: "left"
-						valign: "middle"
+						theme_text_color: "Custom"
+						text_color: "#EEEEEE"						
 						font_style: 'Subtitle1'
 
 					MDLabel:
+						id: lb_dishub
+						text: "DINAS PERHUBUNGAN"
+						halign: "left"
+						valign: "middle"
+						theme_text_color: "Custom"
+						text_color: "#EEEEEE"
+						font_style: 'Subtitle1'
+
+					MDLabel:
+						id: lb_unit			
+						text: "UNIT PELAKSANA UJI BERKALA KENDARAAN BERMOTOR"
+						halign: "left"
+						valign: "middle"
+						theme_text_color: "Custom"
+						text_color: "#EEEEEE"
+						font_style: 'Subtitle1'
+
+					MDLabel:
+						id: lb_unit_address
 						text: " Klamasen, Distrik Mariat, Kabupaten Sorong, Papua Barat Daya. 98416"
 						halign: "left"
 						valign: "middle"
@@ -513,7 +432,7 @@
 
 				MDLabel:
 					id: lb_info
-					text: ""
+					text: "Silahkan pilih nomor Sumbu yang akan di uji kemudian pilih menu jenis pengujian untuk masing masing Sumbu"
 					halign: "left"
 					valign: "middle"
 					font_style: 'H6'
