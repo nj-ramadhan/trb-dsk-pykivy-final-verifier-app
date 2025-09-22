@@ -267,36 +267,68 @@
 					MDBoxLayout:
 						orientation: "vertical"
 						size_hint_y: 0.9
-						spacing:10
+						spacing: 5
+						padding: [0, 10, 0, 0]
 
 						MDLabel:
 							text: "HASIL PENGUJIAN"
 							halign: "center"
 							valign: "middle"
 							font_style: 'H6'
+							size_hint_y: 0.15
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "A. Pemeriksaan Visual"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: visual_result_label
+								text: "..."
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "B. Uji Emisi Gas Buang"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: emisi_result_label
+								text: "..."
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "C. Lampu Utama"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: lampu_result_label
+								text: "..."
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
 						
 						MDBoxLayout:
 							orientation: "horizontal"
 							MDLabel:
-								text: "Visual Inspection"
+								text: "D. Tingkat Kebisingan"
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
 							MDLabel:
-								id: lb_result_visual
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-
-						MDBoxLayout:
-							orientation: "horizontal"
-							MDLabel:
-								text: "Axle Load & Brake Meter"
-								halign: "left"
-								valign: "middle"
-								font_style: 'H6'
-							MDLabel:
-								id: lb_result_load
+								id: kebisingan_result_label
+								text: "..."
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -304,12 +336,13 @@
 						MDBoxLayout:
 							orientation: "horizontal"
 							MDLabel:
-								text: "Sideslip Tester"
+								text: "E. Kedalaman Alur Ban"
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
 							MDLabel:
-								id: lb_result_sideslip
+								id: ban_result_label
+								text: "..."
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -317,12 +350,55 @@
 						MDBoxLayout:
 							orientation: "horizontal"
 							MDLabel:
-								text: "Speedo Meter"
+								text: "F. Kegelapan Kaca"
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
 							MDLabel:
-								id: lb_result_speed
+								id: kaca_result_label
+								text: "..."
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "G. Uji Rem"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: axle_brake_result_label
+								text: "..."
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "H. Kincup Roda (Sideslip)"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: sideslip_result_label
+								text: "..."
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+
+						MDBoxLayout:
+							orientation: "horizontal"
+							MDLabel:
+								text: "I. Alat Petunjuk Kecepatan"
+								halign: "left"
+								valign: "middle"
+								font_style: 'H6'
+							MDLabel:
+								id: speedo_result_label
+								text: "..."
 								halign: "left"
 								valign: "middle"
 								font_style: 'H6'
@@ -338,9 +414,20 @@
 							icon: "arrow-left"
 							theme_text_color: "Custom"
 							text_color: "#EEEEEE"
-							md_bg_color: "4471C4"
-							size_hint_x: 0.5
+							md_bg_color: "#FF2A2A"
+							size_hint_x: 0.4
 							on_press: root.exec_navigate_main()
+						
+						
+						MDRectangleFlatIconButton:
+							id: bt_save
+							text: "SIMPAN"
+							icon: "content-save"
+							theme_text_color: "Custom"
+							text_color: "#EEEEEE"
+							md_bg_color: "#4471C4"
+							size_hint_x: 0.4
+							on_press: root.exec_save()
 
 						MDRectangleFlatIconButton:
 							id: bt_print
@@ -349,7 +436,7 @@
 							theme_text_color: "Custom"
 							text_color: "#EEEEEE"
 							md_bg_color: "#2CA02C"
-							size_hint_x: 0.5
+							size_hint_x: 0.4
 							on_press: root.exec_print()
 
 		# footer layout

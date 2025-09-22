@@ -38,6 +38,7 @@ import numpy as np
 import configparser, hashlib, mysql.connector
 from pymodbus.client import ModbusTcpClient
 from fpdf import FPDF
+from fpdf.enums import MethodReturnValue
 from escpos.printer import Serial
 import requests
 
@@ -79,6 +80,12 @@ TB_MERK = "merk"
 TB_BAHAN_BAKAR = "bahanbakar"
 TB_WARNA = "warna"
 TB_DATA_MASTER = "identkendaraan"
+TB_SKUJI = "subkomponen_uji"
+TB_IMAGE = "image_kendaraan"
+TB_TEMP_IMAGE = "temp_image_kendaraanbr"
+TB_DATA_KENDARAAN = "jeniskendaraan"
+TB_UJI = "uji"
+TB_UJI_DETAIL = "uji_detail"
 
 FTP_HOST = "194.31.53.37"
 FTP_USER = "root"
@@ -139,21 +146,6 @@ class ScreenHome(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")
 
-    # def exec_navigate_login(self):
-    #     global dt_user
-    #     try:
-    #         if (dt_user == ""):
-    #             self.screen_manager.current = 'screen_login'
-    #         else:
-    #             toast_msg = f"Anda sudah login sebagai {dt_user}"
-    #             toast(toast_msg)
-    #             Logger.info(f"{self.name}: {toast_msg}")  
-
-    #     except Exception as e:
-    #         toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Login'
-    #         toast(toast_msg)
-    #         Logger.error(f"{self.name}: {toast_msg}, {e}")  
-
     def exec_navigate_main(self):
         try:
             self.screen_manager.current = 'screen_main'
@@ -162,104 +154,6 @@ class ScreenHome(MDScreen):
             toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Utama'
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
-
-# class ScreenLogin(MDScreen):
-#     def __init__(self, **kwargs):
-#         super(ScreenLogin, self).__init__(**kwargs)
-#         Clock.schedule_once(self.delayed_init, 1)
-    
-#     def delayed_init(self, dt):
-#         self.ids.lb_title.text = APP_TITLE
-#         self.ids.lb_subtitle.text = APP_SUBTITLE        
-#         self.ids.img_pemkab.source = f'assets/images/{IMG_LOGO_PEMKAB}'
-#         self.ids.img_dishub.source = f'assets/images/{IMG_LOGO_DISHUB}'
-#         self.ids.lb_pemkab.text = LB_PEMKAB
-#         self.ids.lb_dishub.text = LB_DISHUB
-#         self.ids.lb_unit.text = LB_UNIT
-#         self.ids.lb_unit_address.text = LB_UNIT_ADDRESS
-
-#     def exec_cancel(self):
-#         try:
-#             self.ids.tx_username.text = ""
-#             self.ids.tx_password.text = ""    
-
-#         except Exception as e:
-#             toast_msg = f'error Login: {e}'
-#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
-
-#     def exec_login(self):
-#         global mydb, db_users
-#         global dt_id_user, dt_user, dt_foto_user
-
-#         screen_main = self.screen_manager.get_screen('screen_main')
-
-#         try:
-#             screen_main.exec_reload_database()
-#             input_username = self.ids.tx_username.text
-#             input_password = self.ids.tx_password.text        
-#             # Adding salt at the last of the password
-#             dataBase_password = input_password
-#             # Encoding the password
-#             hashed_password = hashlib.md5(dataBase_password.encode())
-
-#             mycursor = mydb.cursor()
-#             mycursor.execute(f"SELECT id_user, nama, username, password, image FROM {TB_USER} WHERE username = '{input_username}' and password = '{hashed_password.hexdigest()}'")
-#             myresult = mycursor.fetchone()
-#             db_users = np.array(myresult).T
-            
-#             if myresult is None:
-#                 toast_msg = f'Gagal Masuk, Nama Pengguna atau Password Salah'
-#                 toast(toast_msg) 
-#                 Logger.warning(f"{self.name}: {toast_msg}") 
-#             else:
-#                 toast_msg = f'Berhasil Masuk, Selamat Datang {myresult[1]}'
-#                 toast(toast_msg)
-#                 Logger.info(f"{self.name}: {toast_msg}")  
-
-#                 dt_id_user = myresult[0]
-#                 dt_user = myresult[1]
-#                 dt_foto_user = myresult[4]
-#                 self.ids.tx_username.text = ""
-#                 self.ids.tx_password.text = "" 
-#                 self.screen_manager.current = 'screen_main'
-
-#         except Exception as e:
-#             toast_msg = f'Gagal masuk, silahkan isi nama user dan password yang sesuai'
-#             toast(toast_msg)  
-#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
-
-#     def exec_navigate_home(self):
-#         try:
-#             self.screen_manager.current = 'screen_home'
-
-#         except Exception as e:
-#             toast_msg = f'Gagal Berpindah ke Halaman Awal'
-#             toast(toast_msg)
-#             Logger.error(f"{self.name}: {toast_msg}, {e}")
-
-#     def exec_navigate_login(self):
-#         global dt_user
-#         try:
-#             if (dt_user == ""):
-#                 self.screen_manager.current = 'screen_login'
-#             else:
-#                 toast_msg = f"Anda sudah login sebagai {dt_user}"
-#                 toast(toast_msg)
-#                 Logger.info(f"{self.name}: {toast_msg}")  
-
-#         except Exception as e:
-#             toast_msg = f'Gagal Berpindah ke Halaman Login'
-#             toast(toast_msg)x
-#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
-
-#     def exec_navigate_main(self):
-#         try:
-#             self.screen_manager.current = 'screen_main'
-
-#         except Exception as e:
-#             toast_msg = f'Gagal Berpindah ke Halaman Utama'
-#             toast(toast_msg)
-#             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
 class ScreenMain(MDScreen):   
     def __init__(self, **kwargs):
@@ -271,10 +165,9 @@ class ScreenMain(MDScreen):
         global dt_dash_antri, dt_dash_belum_uji, dt_dash_sudah_uji
         global db_brake_total_value
 
-        # dt_user = dt_foto_user = dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = ""
-        dt_user = "Operator" #dc
-        dt_foto_user = "" #dc
-        dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = "" #dc
+        dt_user = "Operator"
+        dt_foto_user = "" 
+        dt_no_antri = dt_no_pol = dt_no_uji = dt_sts_uji = dt_nama = ""
         dt_merk = dt_type = dt_jns_kend = dt_jbb = dt_brt_ksg = dt_warna = dt_chasis = dt_no_mesin = ""
         dt_id_user = 1
         dt_visual_flag = dt_load_flag = dt_brake_flag = dt_handbrake_flag = dt_sideslip_flag = dt_speed_flag = 0
@@ -304,40 +197,18 @@ class ScreenMain(MDScreen):
         
         try:
             screen_home = self.screen_manager.get_screen('screen_home')
-            #screen_login = self.screen_manager.get_screen('screen_login')
             screen_printer = self.screen_manager.get_screen('screen_printer')
             
             self.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             self.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_home.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_home.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
-            #screen_login.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
-            #screen_login.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
             screen_printer.ids.lb_time.text = str(time.strftime("%H:%M:%S", time.localtime()))
             screen_printer.ids.lb_date.text = str(time.strftime("%d/%m/%Y", time.localtime()))
 
             self.ids.lb_dash_antri.text = str(dt_dash_antri)
             self.ids.lb_dash_belum_uji.text = str(dt_dash_belum_uji)
             self.ids.lb_dash_sudah_uji.text = str(dt_dash_sudah_uji)
-
-            # self.ids.bt_calibrate.disabled = False if dt_user != '' else True
-            # self.ids.bt_add_data.disabled = False if dt_user != '' else True
-            # self.ids.bt_add_queue.disabled = False if dt_user != '' else True
-            #self.ids.bt_logout.disabled = False if dt_user != '' else True
-
-            #self.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' #if dt_user != '' else 'Silahkan Login'
-            #screen_home.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' #if dt_user != '' else 'Silahkan Login'
-            #screen_login.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' if dt_user != '' else 'Silahkan Login'
-            #screen_printer.ids.lb_operator.text = f'Login Sebagai: \n{dt_user}' #if dt_user != '' else 'Silahkan Login'
-
-            # if dt_user != '':
-            #     self.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
-            #     screen_home.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
-            #     screen_login.ids.img_user.source = f'https://{FTP_HOST}/system/storage/app/foto_user/{dt_foto_user}'
-            # else:
-            # self.ids.img_user.source = 'assets/images/icon-login.png'
-            # screen_home.ids.img_user.source = 'assets/images/icon-login.png'
-            #     screen_login.ids.img_user.source = 'assets/images/icon-login.png'
 
         except Exception as e:
             toast_msg = f'Gagal Memperbaharui Tampilan'
@@ -391,7 +262,7 @@ class ScreenMain(MDScreen):
             db_warna = np.array(result_tb_warna)
 
             cursor.execute(f"SELECT COUNT(*) FROM {TB_DATA}")
-            result = cursor.fetchone()  # Returns tuple like (123,)
+            result = cursor.fetchone() 
 
             if result is None:
                 dt_dash_antri = 0
@@ -435,11 +306,6 @@ class ScreenMain(MDScreen):
                         MDLabel(text='Berkala' if db_antrian[3, i] == 'B' else 'Uji Ulang' if (db_antrian[3, i]) == 'U' else 'Baru' if (db_antrian[3, i]) == 'BR' else 'Numpang Uji' if (db_antrian[3, i]) == 'NB' else 'Mutasi', size_hint_x= 0.07),
                         MDLabel(text='-' if db_antrian[4, i] == None else f"{db_merk[np.where(db_merk == db_antrian[4, i])[0][0],1]}" , size_hint_x= 0.08),
                         MDLabel(text=f"{db_antrian[5, i]}", size_hint_x= 0.10),
-                        # MDLabel(text=f"{db_antrian[6, i]}", size_hint_x= 0.15),
-                        # MDLabel(text=f"{db_antrian[7, i]}", size_hint_x= 0.05),
-                        # MDLabel(text=f"{db_antrian[8, i]}", size_hint_x= 0.05),
-                        # MDLabel(text='-' if db_antrian[9, i] == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == db_antrian[9, i])[0][0],1]}" , size_hint_x= 0.08),
-                        # MDLabel(text='-' if db_antrian[10, i] == None else f"{db_warna[np.where(db_warna == db_antrian[10, i])[0][0],1]}" , size_hint_x= 0.11),
                         MDLabel(text='Lulus' if (int(db_antrian[11, i]) == 2) else 'Tidak Lulus' if (int(db_antrian[11, i]) == 1) else 'Belum Diuji', size_hint_x= 0.05),
                         MDLabel(text='Lulus' if (int(db_antrian[12, i]) == 2) else 'Tidak Lulus' if (int(db_antrian[12, i]) == 1) else 'Belum Diuji', size_hint_x= 0.05),
                         MDLabel(text='Lulus' if (int(db_antrian[13, i]) == 2) else 'Tidak Lulus' if (int(db_antrian[13, i]) == 1) else 'Belum Diuji', size_hint_x= 0.05),
@@ -494,12 +360,6 @@ class ScreenMain(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    # def exec_logout(self):
-    #     global dt_user
-
-    #     dt_user = ""
-    #     self.screen_manager.current = 'screen_login'
-
     def exec_navigate_home(self):
         try:
             self.screen_manager.current = 'screen_home'
@@ -509,34 +369,9 @@ class ScreenMain(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
-    # def exec_navigate_login(self):
-    #     global dt_user
-    #     try:
-    #         if (dt_user == ""):
-    #             self.screen_manager.current = 'screen_login'
-    #         else:
-    #             toast_msg = f"Anda sudah login sebagai {dt_user}"
-    #             toast(toast_msg)
-    #             Logger.info(f"{self.name}: {toast_msg}")
-
-    #     except Exception as e:
-    #         toast_msg = f'Terjadi kesalahan saat berpindah ke halaman Login'
-    #         toast(toast_msg)
-    #         Logger.error(f"{self.name}: {toast_msg}, {e}")  
-
     def exec_navigate_menu(self):
 
-        #if (dt_user != ''):
-            # if (int(dt_load_flag) == 0 or int(dt_brake_flag) == 0 or int(dt_handbrake_flag) == 0):
         self.screen_manager.current = 'screen_printer'
-            # else:
-            #     toast_msg = f'No. Antrian {dt_no_antri} Sudah Tes'
-            #     toast(toast_msg)
-            #     Logger.info(f"{self.name}: {toast_msg}")
-        # else:
-        #     toast_msg = f'Silahkan Login Untuk Melakukan Pengujian'
-        #     toast(toast_msg)
-        #     Logger.info(f"{self.name}: {toast_msg}")      
 
     def exec_navigate_calibration(self):
         global dt_user
@@ -603,7 +438,7 @@ class ScreenAddData(MDScreen):
 
     def on_enter(self):
         """Called when screen is entered — safe to initialize dropdowns here."""
-        Clock.schedule_once(self.load_dropdowns, 0.1)  # Small delay to ensure UI is loaded
+        Clock.schedule_once(self.load_dropdowns, 0.1)  
 
     def on_leave(self):
         """Clean up menus to avoid memory leaks or errors."""
@@ -620,7 +455,6 @@ class ScreenAddData(MDScreen):
     def load_dropdowns(self, dt=None):
         """Initialize dropdown menus for Merk, Bahan Bakar, Warna."""
         try:
-            # --- Merk Dropdown ---
             tb_merk = mydb.cursor()
             tb_merk.execute(f"SELECT ID, DESCRIPTION FROM {TB_MERK}")
             result_tb_merk = tb_merk.fetchall()
@@ -639,8 +473,6 @@ class ScreenAddData(MDScreen):
                 )
             else:
                 self.menu_merk = None
-
-            # --- Bahan Bakar Dropdown ---
             tb_bahan_bakar = mydb.cursor()
             tb_bahan_bakar.execute(f"SELECT ID, DESCRIPTION FROM {TB_BAHAN_BAKAR}")
             result_tb_bahan_bakar = tb_bahan_bakar.fetchall()
@@ -660,7 +492,6 @@ class ScreenAddData(MDScreen):
             else:
                 self.menu_bahan_bakar = None
 
-            # --- Warna Dropdown ---
             tb_warna = mydb.cursor()
             tb_warna.execute(f"SELECT id_warna, nama FROM {TB_WARNA}")
             result_tb_warna = tb_warna.fetchall()
@@ -684,7 +515,6 @@ class ScreenAddData(MDScreen):
             toast(f"Error loading dropdowns: {str(e)}")
             Logger.error(f"ScreenAddData: Failed to load dropdowns - {e}")
 
-    # Set functions for dropdown selection
     def set_merk(self, text_item, id_item):
         self.ids.drop_merk.text = text_item
         self.ids.drop_merk.merk_id = id_item
@@ -740,25 +570,6 @@ class ScreenAddData(MDScreen):
             dt_jbb = self.ids.tx_jbb.text.strip()
             dt_brt_ksg = self.ids.tx_beratkosong.text.strip()
             dt_tgl_uji_terakhir = str(time.strftime("%Y/%m/%d %H:%M:%S", time.localtime()))
-
-            # self.ids.lb_nama.text = f'{dt_nama}'
-            # self.ids.lb_alamat.text = f'{dt_alamat}'
-            # self.ids.lb_no_uji.text = f'{dt_no_uji}'
-            # self.ids.lb_no_pol.text = f'{dt_no_pol}'
-            # self.ids.lb_status_uji.text = 'Berkala' if dt_status_uji == 'B' else 'Uji Ulang' if dt_status_uji == 'U' else 'Baru' if dt_status_uji == 'BR' else 'Numpang Uji' if dt_status_uji == 'NB' else 'Mutasi'
-            # self.ids.lb_tgl_uji_terakhir.text = f'{dt_tgl_uji_terakhir}'
-            # self.ids.lb_tgl_uji_habis.text = f'{dt_tgl_uji_habis}'
-            # self.ids.lb_merk.text = '-' if dt_id_merk == None else f"{db_merk[np.where(db_merk == dt_id_merk)[0][0],1]}"
-            # self.ids.lb_type.text = f'{dt_type}'
-            # self.ids.lb_jenis_kendaraan.text = f'{dt_jenis_kendaraan}'
-            # self.ids.lb_warna.text = '-' if dt_warna == None else f"{db_warna[np.where(db_warna == dt_warna)[0][0],1]}"
-            # self.ids.lb_chasis.text = f'{dt_chasis}'
-            # self.ids.lb_mesin.text = f'{dt_mesin}'
-            # self.ids.lb_bahan_bakar.text = '-' if dt_bhn_bkr == None else f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1]}"
-            # self.ids.lb_jbb.text = f'{dt_jbb}'
-            # self.ids.lb_berat_kosong.text = f'{dt_brt_ksg}'
-
-            # Validate dropdowns have values selected
             if not hasattr(self.ids.drop_merk, 'merk_id'):
                 toast("Pilih Merk!")
                 return
@@ -1014,19 +825,6 @@ class ScreenAddQueue(MDScreen):
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, {e}") 
 
-    # def exec_navigate_login(self):
-    #     global dt_user
-    #     try:
-    #         if (dt_user == ""):
-    #             self.screen_manager.current = 'screen_login'
-    #         else:
-    #             toast(f"Anda sudah login sebagai {dt_user}")
-
-    #     except Exception as e:
-    #         toast_msg = f'Gagal Berpindah ke Halaman Login'
-    #         toast(toast_msg)
-    #         Logger.error(f"{self.name}: {toast_msg}, {e}") 
-
     def exec_navigate_main(self):
         try:
             self.screen_manager.current = 'screen_main'
@@ -1039,6 +837,12 @@ class ScreenAddQueue(MDScreen):
 class ScreenPrinter(MDScreen):        
     def __init__(self, **kwargs):
         super(ScreenPrinter, self).__init__(**kwargs)
+        self.db_subkomponen = {}
+        self.current_vehicle_data = {}
+        self.current_test_results = {}
+        self.visual_components = {'V1': [], 'V2': []}
+        self.visual_sub_mapping = {}
+        self.failed_notes = []
         Clock.schedule_once(self.delayed_init, 1)        
 
     def delayed_init(self, dt):
@@ -1070,158 +874,945 @@ class ScreenPrinter(MDScreen):
         self.ids.lb_warna.text = '-' if dt_warna == None else f"{db_warna[np.where(db_warna == dt_warna)[0][0],1]}"
 
         self.load_data()
+        self.update_summary_labels()
 
     def load_data(self):
-        global db_merk, db_bahan_bakar, db_warna
-        global dt_no_antri, dt_no_pol, dt_no_uji, dt_sts_uji
-        global dt_merk, dt_type, dt_jns_kend, dt_jbb, dt_brt_ksg, dt_bhn_bkr, dt_warna
-        global dt_visual_flag, dt_load_flag, dt_brake_flag, dt_handbrake_flag, dt_sideslip_flag, dt_speed_flag
-        global db_load_left_value, db_load_right_value, db_load_total_value, dt_load_total_value
-        global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value, dt_brake_total_value, dt_brake_efficiency_value, dt_brake_difference_value
-        global db_handbrake_left_value, db_handbrake_right_value, dt_handbrake_total_value, dt_handbrake_efficiency_value, dt_handbrake_difference_value
-        global dt_visual_flag, dt_speed_flag, dt_speed_value, dt_sideslip_flag, dt_sideslip_value
-        
-        try:
-            # Connect to DB
-            cursor = mydb.cursor()
+            global mydb, dt_no_pol, dt_no_antri
+            
+            self.db_subkomponen = {}
+            self.current_vehicle_data = {}
+            self.current_test_results = {}
+            self.visual_components = {'V1': [], 'V2': []}
+            self.visual_sub_mapping = {}
+            self.failed_notes = []
 
-            # Query: Get one record by noantrian (or modify to get latest)
-            query = f"""
-            SELECT 
-                noantrian, nouji, nopol, jbb, berat_kosong,
-                load_flag,
-                load_l_s1_value, load_r_s1_value, load_total_s1_value,
-                load_l_s2_value, load_r_s2_value, load_total_s2_value,
-                load_l_s3_value, load_r_s3_value, load_total_s3_value,
-                load_l_s4_value, load_r_s4_value, load_total_s4_value,
-                load_l_s5_value, load_r_s5_value, load_total_s5_value,
-                load_l_s6_value, load_r_s6_value, load_total_s6_value,
-                load_l_s7_value, load_r_s7_value, load_total_s7_value,
-                load_l_s8_value, load_r_s8_value, load_total_s8_value,
-                load_l_s9_value, load_r_s9_value, load_total_s9_value,
-                load_l_s10_value, load_r_s10_value, load_total_s10_value,
-                load_total_value,
-                brake_flag,
-                brake_l_s1_value, brake_r_s1_value, brake_total_s1_value, brake_difference_s1_value,
-                brake_l_s2_value, brake_r_s2_value, brake_total_s2_value, brake_difference_s2_value,
-                brake_l_s3_value, brake_r_s3_value, brake_total_s3_value, brake_difference_s3_value,
-                brake_l_s4_value, brake_r_s4_value, brake_total_s4_value, brake_difference_s4_value,
-                brake_l_s5_value, brake_r_s5_value, brake_total_s5_value, brake_difference_s5_value,
-                brake_l_s6_value, brake_r_s6_value, brake_total_s6_value, brake_difference_s6_value,
-                brake_l_s7_value, brake_r_s7_value, brake_total_s7_value, brake_difference_s7_value,
-                brake_l_s8_value, brake_r_s8_value, brake_total_s8_value, brake_difference_s8_value,
-                brake_l_s9_value, brake_r_s9_value, brake_total_s9_value, brake_difference_s9_value,
-                brake_l_s10_value, brake_r_s10_value, brake_total_s10_value, brake_difference_s10_value,
-                brake_total_value, brake_efficiency_value, brake_difference_value,
-                handbrake_flag,
-                handbrake_l_s1_value, handbrake_r_s1_value,
-                handbrake_l_s2_value, handbrake_r_s2_value,
-                handbrake_l_s3_value, handbrake_r_s3_value,
-                handbrake_l_s4_value, handbrake_r_s4_value,
-                handbrake_l_s5_value, handbrake_r_s5_value,
-                handbrake_l_s6_value, handbrake_r_s6_value,
-                handbrake_l_s7_value, handbrake_r_s7_value,
-                handbrake_l_s8_value, handbrake_r_s8_value,
-                handbrake_l_s9_value, handbrake_r_s9_value,
-                handbrake_l_s10_value, handbrake_r_s10_value,
-                handbrake_total_value, handbrake_efficiency_value, handbrake_difference_value,
-                check_flag, 
-                speed_flag, speed_value,
-                sideslip_flag, sideslip_value
-            FROM {TB_DATA}
-            WHERE noantrian = %s
+            try:
+                mydb.ping(reconnect=True)
+                cursor = mydb.cursor(dictionary=True)
+                
+                query_latest_date = f"SELECT MAX(tanggal) as latest_date FROM {TB_UJI} WHERE nopol = %s"
+                cursor.execute(query_latest_date, (dt_no_pol,))
+                latest_date_result = cursor.fetchone()
+
+                if not latest_date_result or not latest_date_result['latest_date']:
+                    Logger.warning(f"No test history found in '{TB_UJI}' for NOPOL {dt_no_pol}.")
+                    query_main = f"SELECT * FROM {TB_IMAGE} WHERE nopol = %s AND noantrian = %s AND DATE(tgl_capture) = CURDATE() ORDER BY tgl_capture DESC LIMIT 1"
+                    cursor.execute(query_main, (dt_no_pol, dt_no_antri))
+                    self.current_vehicle_data = cursor.fetchone() or {}
+                    cursor.close()
+                    return
+
+                latest_test_timestamp = latest_date_result['latest_date']
+                
+                id_uji_list = []
+                query_get_ids = f"SELECT id_uji FROM {TB_UJI} WHERE nopol = %s AND DATE(tanggal) = DATE(%s)"
+                cursor.execute(query_get_ids, (dt_no_pol, latest_test_timestamp))
+                id_rows = cursor.fetchall()
+                
+                if id_rows:
+                    id_uji_list = [row['id_uji'] for row in id_rows]
+                
+                if id_uji_list:
+                    id_placeholders = ', '.join(['%s'] * len(id_uji_list))
+                    query_results = f"SELECT kode_subkomponen_uji, hasil, keterangan FROM {TB_UJI_DETAIL} WHERE id_uji IN ({id_placeholders})"
+                    cursor.execute(query_results, tuple(id_uji_list))
+                    result_rows = cursor.fetchall()
+                    for row in result_rows:
+                        self.current_test_results[row['kode_subkomponen_uji']] = row['hasil']
+                        if str(row['hasil']) == '0' and row.get('keterangan'):
+                            if row['keterangan'] not in self.failed_notes:
+                                self.failed_notes.append(row['keterangan'])
+
+                komponen_mekanis = ('M01', 'M02', 'M04', 'M05', 'K18', 'K20', 'K21', 'M06', 'M07', 'M08')
+                placeholders_mekanis = ', '.join(['%s'] * len(komponen_mekanis))
+                query_subkomponen = f"SELECT kode_komponen_uji, kode_subkomponen_uji, string, satuan FROM {TB_SKUJI} WHERE kode_komponen_uji IN ({placeholders_mekanis}) ORDER BY urut"
+                cursor.execute(query_subkomponen, komponen_mekanis)
+                subkomponen_rows = cursor.fetchall()
+                for row in subkomponen_rows:
+                    kode_komponen = row['kode_komponen_uji']
+                    if kode_komponen not in self.db_subkomponen: self.db_subkomponen[kode_komponen] = []
+                    self.db_subkomponen[kode_komponen].append(row)
+
+                query_main = f"SELECT * FROM {TB_IMAGE} WHERE nopol = %s AND noantrian = %s AND DATE(tgl_capture) = CURDATE() ORDER BY tgl_capture DESC LIMIT 1"
+                cursor.execute(query_main, (dt_no_pol, dt_no_antri))
+                self.current_vehicle_data = cursor.fetchone() or {}
+
+                cursor.execute(f"SELECT kode_komponen_uji, kode_kelompok_uji, nama FROM komponen_uji WHERE kode_kelompok_uji IN ('V1', 'V2') ORDER BY nama")
+                visual_rows = cursor.fetchall()
+                visual_komponen_kodes = [row['kode_komponen_uji'] for row in visual_rows]
+                for row in visual_rows:
+                    self.visual_components[row['kode_kelompok_uji']].append(row)
+                
+                if visual_komponen_kodes:
+                    placeholders_visual = ', '.join(['%s'] * len(visual_komponen_kodes))
+                    query_mapping = f"SELECT kode_komponen_uji, kode_subkomponen_uji FROM {TB_SKUJI} WHERE kode_komponen_uji IN ({placeholders_visual})"
+                    cursor.execute(query_mapping, tuple(visual_komponen_kodes))
+                    mapping_rows = cursor.fetchall()
+                    for row in mapping_rows:
+                        kode_komp = row['kode_komponen_uji']
+                        if kode_komp not in self.visual_sub_mapping: self.visual_sub_mapping[kode_komp] = []
+                        self.visual_sub_mapping[kode_komp].append(row['kode_subkomponen_uji'])
+
+                cursor.close()
+                Logger.info(f"Dynamic data loaded for NOPOL {dt_no_pol}")
+                self.update_summary_labels()
+
+            except mysql.connector.Error as err:
+                toast(f"Database Error: {err}")
+                Logger.error(f"{self.name}: load_data DB error: {err}", exc_info=True)
+            except Exception as e:
+                toast("Gagal memuat data pengujian dinamis")
+                Logger.error(f"{self.name}: load_data error: {e}", exc_info=True)
+
+    def format_number(self, value):
+            if value is None or str(value).strip() == '':
+                return "-"
+                
+            try:
+                num = float(value)
+                if num == int(num):
+                    return str(int(num))
+                else:
+                    return f"{num:.2f}" 
+            except (ValueError, TypeError):
+                return str(value)
+            
+    def update_summary_labels(self):
+            """Menganalisis hasil tes dan memperbarui label kesimpulan di layar."""
+            global db_bahan_bakar, dt_bhn_bkr
+
+            def get_status(is_lulus):
+                if is_lulus is None:
+                    return "Belum Uji", (0.5, 0.5, 0.5, 1) 
+                elif is_lulus:
+                    return "Lulus", (0.17, 0.63, 0.17, 1) 
+                else:
+                    return "Tidak Lulus", (1, 0.16, 0.16, 1)  
+            
+            def check_all_pass(codes_to_check):
+                if not codes_to_check:
+                    return None
+                
+                results = [self.current_test_results.get(code) for code in codes_to_check]
+                
+                if any(res is None for res in results):
+                    return None
+
+                return all(str(res) == '1' for res in results)
+
+            visual_codes_to_check = []
+            codes_to_exclude = {'SK127', 'SK96', 'SK163'}
+            for komp_code, sub_komp_list in self.visual_sub_mapping.items():
+                for sk_code in sub_komp_list:
+                    if sk_code not in codes_to_exclude:
+                        visual_codes_to_check.append(sk_code)
+            
+            status_visual = check_all_pass(visual_codes_to_check)
+            self.ids.visual_result_label.text, self.ids.visual_result_label.color = get_status(status_visual)
+
+            # B. Analisis Emisi
+            bahan_bakar_text = ""
+            try:
+                if dt_bhn_bkr:
+                    bahan_bakar_text = db_bahan_bakar[np.where(db_bahan_bakar == str(dt_bhn_bkr))[0][0], 1]
+            except (IndexError, TypeError):
+                bahan_bakar_text = ""
+            
+            emisi_codes = ['SK93', 'SK94'] if 'solar' not in bahan_bakar_text.lower() else ['SK122']
+            status_emisi = check_all_pass(emisi_codes)
+            self.ids.emisi_result_label.text, self.ids.emisi_result_label.color = get_status(status_emisi)
+            
+            # C. Analisis Lampu Utama
+            lampu_codes = ['SK97', 'SK128', 'SK99', 'SK98']
+            status_lampu = check_all_pass(lampu_codes)
+            self.ids.lampu_result_label.text, self.ids.lampu_result_label.color = get_status(status_lampu)
+
+            # D. Tingkat Kebisingan
+            kebisingan_codes = ['SK96']
+            status_kebisingan = check_all_pass(kebisingan_codes)
+            self.ids.kebisingan_result_label.text, self.ids.kebisingan_result_label.color = get_status(status_kebisingan)
+            
+            # E. Kedalaman Alur Ban
+            ban_codes = ['SK163']
+            status_ban = check_all_pass(ban_codes)
+            self.ids.ban_result_label.text, self.ids.ban_result_label.color = get_status(status_ban)
+            
+            # F. Kegelapan Kaca
+            kaca_codes = ['SK127']
+            status_kaca = check_all_pass(kaca_codes)
+            self.ids.kaca_result_label.text, self.ids.kaca_result_label.color = get_status(status_kaca)
+
+            # G. Uji Rem (Axle Load & Brake Meter)
+            brake_codes = ['SK529', 'SK716']
+            status_rem = check_all_pass(brake_codes)
+            self.ids.axle_brake_result_label.text, self.ids.axle_brake_result_label.color = get_status(status_rem)
+
+            # H. Kincup Roda (Sideslip)
+            sideslip_codes = ['SK100']
+            status_sideslip = check_all_pass(sideslip_codes)
+            self.ids.sideslip_result_label.text, self.ids.sideslip_result_label.color = get_status(status_sideslip)
+
+            # I. Alat Petunjuk Kecepatan (Speedometer)
+            speedo_codes = ['SK95']
+            status_speedo = check_all_pass(speedo_codes)
+            self.ids.speedo_result_label.text, self.ids.speedo_result_label.color = get_status(status_speedo)
+
+    def generate_dynamic_test_section(self, pdf, title, kode_komponen):
             """
+            VERSI FINAL: Mencetak satu bagian tabel hasil uji secara dinamis.
+            """
+            pdf.ln(2) 
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, title, align='L', ln=1)
+            
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(80, 6, "Item", border=1, align='C')
+            pdf.cell(55, 6, "Nilai Pengujian", border=1, align='C')
+            pdf.cell(55, 6, "Hasil", border=1, align='C', ln=1)
+            pdf.set_font('Arial', '', 10)
 
-            cursor.execute(query, (dt_no_antri,))
-            result = cursor.fetchone()
+            if kode_komponen not in self.db_subkomponen:
+                pdf.cell(190, 6, "Data komponen tidak terdefinisi", border=1, align='C', ln=1)
+                return
 
-            if result is None:
-                toast("Data tidak ditemukan untuk nomor antrian tersebut.")
-                # Reset variables or exit
-            else:
-                # Convert to NumPy array (optional, for consistency)
-                db_row = np.array(result, dtype=object)
+            for item in self.db_subkomponen[kode_komponen]:
+                sk_code = item['kode_subkomponen_uji']
+                item_name = item.get('string', sk_code)
+                
+                value = self.current_vehicle_data.get(sk_code, None)
+                satuan = item.get('satuan', '')
+                
+                display_value = 0 if value is None else value
+                nilai_pengujian = f"{self.format_number(display_value)} {satuan}".strip()
 
-                # === Map to your global variables used in PDF ===
-                # Basic Info
-                dt_no_antri = result[0]
-                dt_no_uji = result[1]
-                dt_no_pol = result[2]
-                dt_jbb = float(result[3]) if result[3] else 0.0
-                dt_brt_ksg = float(result[4]) if result[4] else 0.0
+                hasil_code = self.current_test_results.get(sk_code, -1)
+                if str(hasil_code) == '1':
+                    keterangan = "Lulus"
+                elif str(hasil_code) == '0':
+                    keterangan = "Tidak Lulus"
+                else:
+                    keterangan = "Belum Uji"
 
-                # Axle Load
-                dt_load_flag = int(result[5]) if result[5] is not None else 0
+                pdf.cell(80, 6, item_name, border=1)
+                pdf.cell(55, 6, nilai_pengujian, border=1, align='C')
+                
+                if keterangan == "Tidak Lulus":
+                    pdf.set_font('Arial', 'B', 10)
+                    pdf.cell(55, 6, keterangan, border=1, align='C', ln=1)
+                    pdf.set_font('Arial', '', 10) 
+                else:
+                    pdf.set_font('Arial', '', 10) 
+                    pdf.cell(55, 6, keterangan, border=1, align='C', ln=1)
 
-                # Initialize arrays for 10 axles (index 0 to 9)
-                db_load_left_value = np.zeros(10)
-                db_load_right_value = np.zeros(10)
-                db_load_total_value = np.zeros(10)
+    def generate_emisi_section(self, pdf):
+            global db_bahan_bakar, dt_bhn_bkr
 
-                for i in range(10):
-                    db_load_left_value[i] = float(result[6 + i*3]) if result[6 + i*3] else 0.0
-                    db_load_right_value[i] = float(result[7 + i*3]) if result[7 + i*3] else 0.0
-                    db_load_total_value[i] = float(result[8 + i*3]) if result[8 + i*3] else 0.0
+            bahan_bakar_text = ""
+            try:
+                if dt_bhn_bkr:
+                    bahan_bakar_text = db_bahan_bakar[np.where(db_bahan_bakar == str(dt_bhn_bkr))[0][0], 1]
+            except IndexError:
+                Logger.warning(f"ID Bahan Bakar {dt_bhn_bkr} tidak ditemukan.")
+                bahan_bakar_text = ""
 
-                dt_load_total_value = float(result[6 + 10*3]) if result[6 + 10*3] else 0.0  # load_total_value
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "B. Pengujian Emisi", align='L', ln=1)
 
-                # Brake
-                dt_brake_flag = int(result[37]) if result[37] is not None else 0
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(80, 6, "Item", border=1, align='C')
+            pdf.cell(55, 6, "Nilai Pengujian", border=1, align='C')
+            pdf.cell(55, 6, "Hasil", border=1, align='C', ln=1)
+            pdf.set_font('Arial', '', 10)
 
-                db_brake_left_value = np.zeros(10)
-                db_brake_right_value = np.zeros(10)
-                db_brake_total_value = np.zeros(10)
-                db_brake_difference_value = np.zeros(10)
+            kode_komponen = 'M01'
+            if kode_komponen not in self.db_subkomponen:
+                pdf.cell(190, 6, "Data emisi tidak tersedia", border=1, align='C', ln=1)
+                pdf.ln(5)
+                return
 
-                brake_start_idx = 38  # First brake_l_s1_value
-                for i in range(10):
-                    idx = brake_start_idx + i * 4
-                    db_brake_left_value[i] = float(result[idx]) if result[idx] else 0.0
-                    db_brake_right_value[i] = float(result[idx + 1]) if result[idx + 1] else 0.0
-                    db_brake_total_value[i] = float(result[idx + 2]) if result[idx + 2] else 0.0
-                    db_brake_difference_value[i] = float(result[idx + 3]) if result[idx + 3] else 0.0
+            for item in self.db_subkomponen[kode_komponen]:
+                sk_code = item['kode_subkomponen_uji']
 
-                dt_brake_total_value = float(result[38 + 10*4]) if result[38 + 10*4] else 0.0       # brake_total_value
-                dt_brake_efficiency_value = float(result[38 + 10*4 + 1]) if result[38 + 10*4 + 1] else 0.0  # brake_efficiency_value
-                dt_brake_difference_value = float(result[38 + 10*4 + 2]) if result[38 + 10*4 + 2] else 0.0  # brake_difference_value
+                
+                is_diesel = 'solar' in bahan_bakar_text.lower()
+                is_opacity_test = (sk_code == 'SK122')
 
-                # Handbrake
-                dt_handbrake_flag = int(result[81]) if result[81] is not None else 0
+                if is_diesel and not is_opacity_test:
+                    continue  
+                if not is_diesel and is_opacity_test:
+                    continue  
+                
+                item_name = item.get('string', sk_code)
+                value = self.current_vehicle_data.get(sk_code, None)
+                satuan = item.get('satuan', '')
+                display_value = 0 if value is None else value
+                nilai_pengujian = f"{self.format_number(display_value)} {satuan}".strip()
+                hasil_code = self.current_test_results.get(sk_code, -1)
+                keterangan = "Lulus" if str(hasil_code) == '1' else "Tidak Lulus" if str(hasil_code) == '0' else "Belum Uji"
 
-                db_handbrake_left_value = np.zeros(10)
-                db_handbrake_right_value = np.zeros(10)
+                pdf.cell(80, 6, item_name, border=1)
+                pdf.cell(55, 6, nilai_pengujian, border=1, align='C')
+                
+                if keterangan == "Tidak Lulus":
+                    pdf.set_font('Arial', 'B', 10)
+                    pdf.cell(55, 6, keterangan, border=1, align='C', ln=1)
+                    pdf.set_font('Arial', '', 10)
+                else:
+                    pdf.cell(55, 6, keterangan, border=1, align='C', ln=1)
 
-                # Handbrake values
-                handbrake_start_idx = 82  # handbrake_l_s1_value starts at index 82
-                for i in range(10):
-                    idx = handbrake_start_idx + i * 2
-                    db_handbrake_left_value[i] = float(result[idx]) if result[idx] is not None else 0.0
-                    db_handbrake_right_value[i] = float(result[idx + 1]) if result[idx + 1] is not None else 0.0
+    def generate_combined_test_section(self, pdf, title, list_of_kode_komponen):
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, title, align='L', ln=1)
+            
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(80, 6, "Item", border=1, align='C')
+            pdf.cell(55, 6, "Nilai Pengujian", border=1, align='C')
+            pdf.cell(55, 6, "Hasil", border=1, align='C')
+            pdf.ln()
 
-                dt_handbrake_total_value = float(result[102]) if result[102] is not None else 0.0
-                dt_handbrake_efficiency_value = float(result[103]) if result[103] is not None else 0.0
-                dt_handbrake_difference_value = float(result[104]) if result[104] is not None else 0.0
+            pdf.set_font('Arial', '', 10)
 
-                # Lamp / Visual Check
-                dt_visual_flag = int(result[105]) == 1 if result[105] is not None else False
+            for kode_komponen in list_of_kode_komponen:
+                if kode_komponen not in self.db_subkomponen:
+                    continue 
 
-                # Speed
-                dt_speed_flag = int(result[106]) == 1 if result[106] is not None else False
-                dt_speed_value = float(result[107]) if result[107] is not None else 0.0
+                for item in self.db_subkomponen[kode_komponen]:
+                    sk_code = item['kode_subkomponen_uji']
+                    item_name = item.get('string', sk_code)
 
-                # Sideslip
-                dt_sideslip_flag = int(result[108]) == 1 if result[108] is not None else False
-                dt_sideslip_value = float(result[109]) if result[109] is not None else 0.0
-
-                toast(f"Data berhasil dimuat: No Antri {dt_no_antri}")
-
-            cursor.close()
-            mydb.close()
-
-        except mysql.connector.Error as err:
-            toast(f"Database error: {err}")
-            Logger.error(f"MySQL Error: {err}")
+                    value = self.current_vehicle_data.get(sk_code, None)
+                    satuan = item.get('satuan', '')
                     
+                    display_value = 0 if value is None else value
+                    nilai_pengujian = f"{display_value} {satuan}".strip()
+
+                    hasil_code = self.current_test_results.get(sk_code, -1)
+                    if str(hasil_code) == '1':
+                        keterangan = "Lulus"
+                    elif str(hasil_code) == '0':
+                        keterangan = "Tidak Lulus"
+                    else:
+                        keterangan = "Belum Uji"
+
+                    pdf.cell(80, 6, item_name, border=1)
+                    pdf.cell(55, 6, nilai_pengujian, border=1, align='C')
+
+                    current_font = pdf.font_style
+                    if keterangan == "Tidak Lulus":
+                        pdf.set_font('Arial', 'B', 10)
+
+                    pdf.cell(55, 6, keterangan, border=1, align='C')
+
+                    if keterangan == "Tidak Lulus":
+                        pdf.set_font('Arial', current_font, 10)
+
+                    pdf.ln()
+            pdf.ln(2) 
+
+    def print_visual_block(self, pdf, title, item_list, starting_num):
+            w_no, w_item, w_ket = 8, 62, 25
+            w_total_col = w_no + w_item + w_ket
+            line_height = 5
+            
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(190, 6, title, border=1, align='C', ln=1)
+            y_header_start = pdf.get_y()
+            x_start_v1 = pdf.get_x()
+            x_start_v2 = x_start_v1 + w_total_col
+            
+            pdf.cell(w_no, 6, "No", border=1, align='C')
+            pdf.cell(w_item, 6, "Item Komponen", border=1, align='C')
+            pdf.cell(w_ket, 6, "Keterangan", border=1, align='C')
+            pdf.set_xy(x_start_v2, y_header_start)
+            pdf.cell(w_no, 6, "No", border=1, align='C')
+            pdf.cell(w_item, 6, "Item Komponen", border=1, align='C')
+            pdf.cell(w_ket, 6, "Keterangan", border=1, align='C', ln=1)
+
+            split_point = (len(item_list) + 1) // 2
+            display_left = item_list[:split_point]
+            display_right = item_list[split_point:]
+            max_rows = len(display_left)
+            
+            for i in range(max_rows):
+                item_left = display_left[i]
+                nama_left = item_left['nama']
+                kode_komp_left = item_left['kode_komponen_uji']
+                
+                sub_komponen_left = self.visual_sub_mapping.get(kode_komp_left, [])
+                if not sub_komponen_left:
+                    keterangan_left = "Tidak Ada ID"
+                else:
+                    keterangan_left = "Lulus"  
+                    found_result = False
+                    for sk_code in sub_komponen_left:
+                        hasil = self.current_test_results.get(sk_code)
+                        if hasil is not None:
+                            found_result = True
+                            if str(hasil) == '0':
+                                keterangan_left = "Tidak Lulus"
+                                break
+                    if not found_result:
+                        keterangan_left = "Belum Uji"
+
+                nama_right, keterangan_right = "", ""
+                if i < len(display_right):
+                    item_right = display_right[i]
+                    nama_right = item_right['nama']
+                    kode_komp_right = item_right['kode_komponen_uji']
+                    
+                    sub_komponen_right = self.visual_sub_mapping.get(kode_komp_right, [])
+                    if not sub_komponen_right:
+                        keterangan_right = "Tidak Ada ID"
+                    else:
+                        keterangan_right = "Lulus"
+                        found_result = False
+                        for sk_code in sub_komponen_right:
+                            hasil = self.current_test_results.get(sk_code)
+                            if hasil is not None:
+                                found_result = True
+                                if str(hasil) == '0':
+                                    keterangan_right = "Tidak Lulus"
+                                    break 
+                        if not found_result:
+                            keterangan_right = "Belum Uji"
+                                
+                start_y = pdf.get_y()
+                pdf.set_font('Arial', '', 9)
+                
+                height_left = pdf.multi_cell(w_item, line_height, nama_left, dry_run=True, output=MethodReturnValue.HEIGHT)
+                height_right = 0
+                if nama_right:
+                    height_right = pdf.multi_cell(w_item, line_height, nama_right, dry_run=True, output=MethodReturnValue.HEIGHT)
+                
+                row_height = max(height_left, height_right, line_height)
+
+                y_pos_text = start_y + (row_height - line_height) / 2
+                pdf.rect(x_start_v1, start_y, w_no, row_height)
+                pdf.set_xy(x_start_v1, y_pos_text)
+                pdf.cell(w_no, line_height, str(starting_num + i), align='C')
+                pdf.rect(x_start_v1 + w_no, start_y, w_item, row_height)
+                pdf.set_xy(x_start_v1 + w_no + 2, start_y + (row_height - height_left) / 2) # +2 untuk padding
+                pdf.multi_cell(w_item - 2, line_height, nama_left, align='L') # -2 untuk padding
+                pdf.rect(x_start_v1 + w_no + w_item, start_y, w_ket, row_height)
+                pdf.set_xy(x_start_v1 + w_no + w_item, y_pos_text)
+                if keterangan_left == "Tidak Lulus":
+                    pdf.set_font('Arial', 'B', 9)
+                    pdf.cell(w_ket, line_height, keterangan_left.upper(), align='C')
+                    pdf.set_font('Arial', '', 9)
+                else:
+                    pdf.cell(w_ket, line_height, keterangan_left, align='C')
+
+                # 4. Cetak Kolom Kanan
+                if i < len(display_right):
+                    y_pos_text_right = start_y + (row_height - line_height) / 2
+                    # Nomor
+                    pdf.rect(x_start_v2, start_y, w_no, row_height)
+                    pdf.set_xy(x_start_v2, y_pos_text_right)
+                    pdf.cell(w_no, line_height, str(starting_num + split_point + i), align='C')
+                    # Item Komponen
+                    pdf.rect(x_start_v2 + w_no, start_y, w_item, row_height)
+                    pdf.set_xy(x_start_v2 + w_no + 2, start_y + (row_height - height_right) / 2)
+                    pdf.multi_cell(w_item - 2, line_height, nama_right, align='L')
+                    # Keterangan
+                    pdf.rect(x_start_v2 + w_no + w_item, start_y, w_ket, row_height)
+                    pdf.set_xy(x_start_v2 + w_no + w_item, y_pos_text_right)
+                    if keterangan_right == "Tidak Lulus":
+                        pdf.set_font('Arial', 'B', 9)
+                        pdf.cell(w_ket, line_height, keterangan_right.upper(), align='C')
+                        pdf.set_font('Arial', '', 9)
+                    else:
+                        pdf.cell(w_ket, line_height, keterangan_right, align='C')
+
+                # Atur posisi Y untuk baris selanjutnya
+                pdf.set_y(start_y + row_height)
+
+    def generate_visual_section(self, pdf):
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "A. Pemeriksaan Visual", align='L', ln=1)
+
+            v1_items = self.visual_components.get('V1', [])
+            v2_items = self.visual_components.get('V2', [])
+            
+            codes_to_exclude = ['K21', 'K18', 'K20']
+
+            filtered_v1_items = [
+                item for item in v1_items 
+                if item['kode_komponen_uji'] not in codes_to_exclude
+            ]
+
+            self.print_visual_block(pdf, "Visual 1", filtered_v1_items, 1)
+            
+
+            self.print_visual_block(pdf, "Visual 2", v2_items, 1)
+            
+            pdf.ln(2)
+
+    def generate_notes_section(self, pdf):
+            if not self.failed_notes:
+                return
+
+            pdf.ln(5)
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "CATATAN PEMERIKSAAN", align='L', ln=1)
+            
+            pdf.set_font('Arial', '', 10)
+            
+            for i, note in enumerate(self.failed_notes):
+                pdf.multi_cell(190, 5, f"{i + 1}. {note}", border=0, align='L')
+                pdf.ln(1) 
+            pdf.ln(5)
+
+    def generate_identity_section(self, pdf):
+            global mydb, db_merk, db_warna, db_bahan_bakar
+            global dt_no_uji, dt_jns_kend
+
+            identitas = {}
+            try:
+                if not mydb.is_connected():
+                    self.manager.get_screen('screen_main').exec_reload_database()
+                    
+                cursor = mydb.cursor(dictionary=True)
+                query = f"SELECT * FROM {TB_DATA_MASTER} WHERE nouji = %s LIMIT 1"
+                cursor.execute(query, (dt_no_uji,))
+                identitas = cursor.fetchone() or {}
+                cursor.close()
+            except Exception as e:
+                Logger.error(f"Gagal mengambil data identitas kendaraan untuk PDF: {e}")
+                identitas = {}
+
+            def get_name_from_db(db_array, item_id):
+                try:
+                    return db_array[np.where(db_array == str(item_id))[0][0], 1]
+                except (IndexError, TypeError):
+                    return "-"
+            
+            def get_warna_plat(kode_plat):
+                if kode_plat == 'H': return "Hitam"
+                if kode_plat == 'K': return "Kuning"
+                if kode_plat == 'M': return "Merah"
+                if kode_plat == 'P': return "Putih"
+                return str(kode_plat) if kode_plat else "-"
+
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "I. IDENTITAS KENDARAAN", align='L', ln=1)
+            pdf.set_font('Arial', '', 10)
+            
+            line_height = 5
+            col_width_label = 35
+            col_width_value = 60
+            
+            rows_data = [
+                ["No Uji", identitas.get('NOUJI'), "Warna Plat", get_warna_plat(identitas.get('WARNA_PLAT'))],
+                ["No. Registrasi", identitas.get('NOPOL'), "Warna Kendaraan", get_name_from_db(db_warna, identitas.get('WARNA_KEND'))],
+                ["Nama", identitas.get('NAMA'), "Daya Motor", identitas.get('DAYAMOTOR')],
+                ["Alamat", identitas.get('ALAMAT'), "Silinder", identitas.get('SILINDER')],
+                ["Merk", get_name_from_db(db_merk, identitas.get('MERK_ID')), "Jenis Kendaraan", dt_jns_kend],
+                ["Tipe", identitas.get('TYPE'), "Tahun Kendaraan", identitas.get('TH_BUAT')],
+                ["No. Chasis", identitas.get('CHASIS'), "Bahan Bakar", get_name_from_db(db_bahan_bakar, identitas.get('BHN_BAKAR'))],
+                ["No. Mesin", identitas.get('MESIN'), "NO HP", identitas.get('NOHP')],
+            ]
+            for row in rows_data:
+                label_kiri, val_kiri, label_kanan, val_kanan = row
+                y_pos = pdf.get_y()
+                x_pos_kiri = pdf.get_x()
+                x_pos_kanan = x_pos_kiri + col_width_label + col_width_value + 10
+
+                # --- Kolom Kiri ---
+                pdf.set_xy(x_pos_kiri, y_pos)
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_label, line_height, label_kiri)
+                pdf.cell(3, line_height, ":")
+                pdf.set_font('Arial', '', 10)
+
+                if label_kiri == "Alamat":
+                    pdf.multi_cell(col_width_value, line_height, str(val_kiri if val_kiri else "-"))
+                    y_after_kiri = pdf.get_y()
+                else:
+                    pdf.cell(col_width_value, line_height, self.format_number(val_kiri))
+                    y_after_kiri = y_pos + line_height
+                
+                # --- Kolom Kanan ---
+                pdf.set_xy(x_pos_kanan, y_pos)
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_label, line_height, label_kanan)
+                pdf.cell(3, line_height, ":")
+                pdf.set_font('Arial', '', 10)
+
+                pdf.cell(col_width_value, line_height, str(val_kanan if val_kanan else "-"))
+                y_after_kanan = y_pos + line_height
+
+                pdf.set_y(max(y_after_kiri, y_after_kanan))
+            pdf.ln(3)
+
+    def generate_dimensions_section(self, pdf):
+            global mydb, dt_jns_kend, dt_no_pol, dt_no_antri, TB_IMAGE, TB_DATA_KENDARAAN
+             
+            stsbak = '0'
+            try:
+                mycursor = mydb.cursor()
+                query = f"SELECT stsbak FROM {TB_DATA_KENDARAAN} WHERE namajenis = %s"
+                mycursor.execute(query, (dt_jns_kend,))
+                result = mycursor.fetchone()
+
+                if result:
+                    stsbak = str(result[0])
+                    Logger.info(f"Ditemukan stsbak = {stsbak} untuk namajenis: {dt_jns_kend}")
+                else:
+                    Logger.warning(f"Tidak ditemukan stsbak untuk namajenis: {dt_jns_kend}")
+                mycursor.close()
+            except Exception as e:
+                Logger.error(f"Gagal mengambil data stsbak untuk PDF: {e}")
+
+            dimensi_data = {}
+            try:
+                cursor = mydb.cursor(dictionary=True)
+                query_main = f"SELECT * FROM {TB_IMAGE} WHERE nopol = %s AND noantrian = %s AND DATE(tgl_capture) = CURDATE() ORDER BY tgl_capture DESC LIMIT 1"
+                cursor.execute(query_main, (dt_no_pol, dt_no_antri))
+                dimensi_data = cursor.fetchone()
+
+                if not dimensi_data:
+                    Logger.warning(f"Data dimensi tidak ditemukan di {TB_IMAGE} untuk nopol {dt_no_pol}")
+                    dimensi_data = {}
+                cursor.close()
+            except Exception as e:
+                Logger.error(f"Gagal mengambil data dimensi dari {TB_IMAGE}: {e}")
+                dimensi_data = {}
+
+            if not dimensi_data:
+                pdf.ln(5)
+                pdf.set_font('Arial', 'BI', 10)
+                pdf.cell(0, 7, "Data Dimensi Kendaraan tidak ditemukan.", align='L', ln=1)
+                return
+
+            p_bak_tangki_label, p_bak_tangki_col = "", ""
+            l_bak_tangki_label, l_bak_tangki_col = "", ""
+            t_bak_tangki_label, t_bak_tangki_col = "", ""
+            bhn_bak_label, bhn_bak_col = "", ""
+            jns_bak_label, jns_bak_col = "", ""
+            jns_muatan_label, jns_muatan_col = "", ""
+            berat_jns_label, berat_jns_col = "", ""
+
+            if stsbak == '2': 
+                p_bak_tangki_label = "Panjang Tangki"
+                p_bak_tangki_col = "ptang"
+                l_bak_tangki_label = "Lebar Tangki"
+                l_bak_tangki_col = "ltang"
+                t_bak_tangki_label = "Timggi Tangki"
+                t_bak_tangki_col = "ttang"
+                jns_muatan_label = "Jenis Muatan"
+                jns_muatan_col = "jenis_muatan"
+                berat_jns_label = "Berat Jenis"
+                berat_jns_col = "berat_jenis_muatan"
+            elif stsbak == '1':
+                p_bak_tangki_label = "Panjang Bak"
+                p_bak_tangki_col = "pbak"
+                l_bak_tangki_label = "Lebar Bak"
+                l_bak_tangki_col = "lbak"
+                t_bak_tangki_label = "Tinggi Bak"
+                t_bak_tangki_col = "tbak"
+                bhn_bak_label = "Bahan Bak"
+                bhn_bak_col = "bhn_bak"
+                jns_bak_label = "Jenis Bak"
+                jns_bak_col = "jns_bak"
+
+            jbb_value = self.format_number(dimensi_data.get('jbb'))
+            jbkb_value = self.format_number(dimensi_data.get('jbkb'))
+            jbb_jbkb_string = f"{jbb_value} / {jbkb_value}"
+
+            # Ambil nilai JBI dan JBKBI, format, lalu gabungkan
+            jbi_value = self.format_number(dimensi_data.get('jbi'))
+            jbkbi_value = self.format_number(dimensi_data.get('jbkbi'))
+            jbi_jbkbi_string = f"{jbi_value} / {jbkbi_value}"
+
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 8, "II. DIMENSI KENDARAAN", align='L', ln=1)
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 7, "A. Ukuran Kendaraan", align='L', ln=1)
+            pdf.set_font('Arial', '', 10)
+
+            line_height = 5
+            col_width_label = 35
+            col_width_value = 60
+            
+            rows_data = [
+                ["Panjang Kendaraan", dimensi_data.get('P'), p_bak_tangki_label, dimensi_data.get(p_bak_tangki_col)],
+                ["Lebar Kendaraan", dimensi_data.get('L'), l_bak_tangki_label, dimensi_data.get(l_bak_tangki_col)],
+                ["Tinggi Kendaraan", dimensi_data.get('T'), t_bak_tangki_label, dimensi_data.get(t_bak_tangki_col)],
+                ["Jumlah Sumbu", dimensi_data.get('jumlahsumbu'), bhn_bak_label, dimensi_data.get(bhn_bak_col)],
+                ["FOH", dimensi_data.get('FOH'), jns_bak_label, dimensi_data.get(jns_bak_col)],
+                ["ROH", dimensi_data.get('ROH'), jns_muatan_label, dimensi_data.get(jns_muatan_col)],
+                ["JBB / JBKB", jbb_jbkb_string, berat_jns_label, dimensi_data.get(berat_jns_col)],       # <-- MENGGUNAKAN STRING GABUNGAN
+                ["JBI / JBKBI", jbi_jbkbi_string, "Berat Kosong", dimensi_data.get('bk')],               # <-- MENGGUNAKAN STRING GABUNGAN
+                ["KJT", dimensi_data.get('kjt'), "MST", dimensi_data.get('mst')],
+                ["Wheel Base", dimensi_data.get('ptbp_q'), "Ground Clearance", dimensi_data.get('jt_gc')],
+            ]
+
+            for row in rows_data:
+                label_kiri, val_kiri, label_kanan, val_kanan = row
+                y_pos = pdf.get_y()
+                x_pos_kiri = pdf.get_x()
+                x_pos_kanan = x_pos_kiri + col_width_label + col_width_value + 10
+                
+                # Kolom Kiri
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_label, line_height, label_kiri)
+                pdf.cell(3, line_height, ":" if label_kiri else "")
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_value, line_height, self.format_number(val_kiri) if label_kiri else "")
+                
+                # Kolom Kanan
+                pdf.set_xy(x_pos_kanan, y_pos)
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_label, line_height, label_kanan)
+                pdf.cell(3, line_height, ":" if label_kanan else "")
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_value, line_height, self.format_number(val_kanan) if label_kanan else "")
+                pdf.ln()
+
+    def generate_axle_tire_section(self, pdf):
+            global mydb, dt_no_pol, dt_no_antri, TB_IMAGE
+
+            data = {}
+            try:
+                cursor = mydb.cursor(dictionary=True)
+                
+                query_main = f"SELECT * FROM {TB_IMAGE} WHERE nopol = %s AND noantrian = %s AND DATE(tgl_capture) = CURDATE() ORDER BY tgl_capture DESC LIMIT 1"
+                cursor.execute(query_main, (dt_no_pol, dt_no_antri))
+                data = cursor.fetchone()
+
+                if not data:
+                    # Pesan toast sudah ditampilkan di load_data(), cukup log di sini
+                    Logger.warning(f"Data Jarak Sumbu tidak ditemukan di {TB_IMAGE} untuk nopol {dt_no_pol}")
+                    data = {}
+                cursor.close()
+            except Exception as e:
+                Logger.error(f"Gagal mengambil data Jarak Sumbu dari {TB_IMAGE}: {e}")
+                data = {}
+
+            if not data:
+                return
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 8, "B. Jarak Sumbu dan Ukuran Ban Daya Angkut", align='L', ln=1)
+            pdf.set_font('Arial', '', 10)
+            
+            line_height = 5
+            col_width_label = 35
+            col_width_value = 60
+
+            axle_cols = {
+                "Jarak Sumbu 1": "s1s2_a1", "Jarak Sumbu 2": "s2s3_a2", "Jarak Sumbu 3": "s3s4_a3",
+                "Jarak Sumbu 4": "s4s5_a4", "Jarak Sumbu 5": "s5s6_a5", "Jarak Sumbu 6": "s6s7_a6",
+                "Jarak Sumbu 7": "s7s8_a7", "Jarak Sumbu 8": "s8s9_a8", "Jarak Sumbu 9": "s9s10_a9",
+                "Jarak Sumbu 10": "s10s11_a10", "Jarak Sumbu 11": "s11s12_a11", "Jarak Sumbu 12": "s12_s13_a12"
+            }
+            
+            axle_data = []
+            for label, col in axle_cols.items():
+                value = data.get(col)
+                if value and float(value) != 0:
+                    axle_data.append([label, value])
+            
+            if axle_data:
+                for i in range(0, len(axle_data), 2):
+                    y_pos = pdf.get_y()
+                    x_pos_kiri = pdf.get_x()
+                    x_pos_kanan = x_pos_kiri + col_width_label + col_width_value + 10
+                    
+                    # Kolom Kiri
+                    label_kiri, val_kiri = axle_data[i]
+                    pdf.cell(col_width_label, line_height, label_kiri)
+                    pdf.cell(3, line_height, ":")
+                    pdf.set_font('Arial', '', 10)
+                    pdf.cell(col_width_value, line_height, self.format_number(val_kiri))
+                    pdf.set_font('Arial', '', 10)
+
+                    # Kolom Kanan (jika ada pasangan)
+                    if i + 1 < len(axle_data):
+                        label_kanan, val_kanan = axle_data[i+1]
+                        pdf.set_xy(x_pos_kanan, y_pos)
+                        pdf.cell(col_width_label, line_height, label_kanan)
+                        pdf.cell(3, line_height, ":")
+                        pdf.set_font('Arial', '', 10)
+                        pdf.cell(col_width_value, line_height, self.format_number(val_kanan))
+                        pdf.set_font('Arial', '', 10)
+                    pdf.ln()
+
+            pdf.ln(2) # Beri sedikit spasi
+            tire_rows = [
+                ["Ukuran Ban 1", data.get('ban1'), "Daya Angkut Orang", data.get('dao')],
+                ["Ukuran Ban 2", data.get('ban2'), "Daya Angkut Barang", data.get('dab')],
+                ["Ukuran Ban 3", data.get('ban3'), "Jumlah Tempat Duduk", data.get('jtd')],
+                ["Ukuran Ban 4", data.get('ban4'), "Jumlah Tempat Berdiri", data.get('jtb')],
+                ["Ukuran Ban 5", data.get('ban5'), "Jumlah Orang", data.get('jml_orang')],
+            ]
+
+            for row in tire_rows:
+                label_kiri, val_kiri, label_kanan, val_kanan = row
+                y_pos = pdf.get_y()
+                x_pos_kiri = pdf.get_x()
+                x_pos_kanan = x_pos_kiri + col_width_label + col_width_value + 10
+
+                pdf.cell(col_width_label, line_height, label_kiri)
+                pdf.cell(3, line_height, ":" if label_kiri else "")
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_value, line_height, self.format_number(val_kiri) if label_kiri else "")
+                
+                pdf.set_xy(x_pos_kanan, y_pos)
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_label, line_height, label_kanan)
+                pdf.cell(3, line_height, ":" if label_kanan else "")
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(col_width_value, line_height, self.format_number(val_kanan) if label_kanan else "")
+                pdf.ln()
+
+    def generate_load_brake_section(self, pdf):
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(0, 8, "G. Pengujian Beban dan Rem", align='L', ln=1)
+
+            axle_details = {}
+            import re
+            for komp_code in ['M06', 'M07', 'M08']:
+                if komp_code in self.db_subkomponen:
+                    for item in self.db_subkomponen[komp_code]:
+                        match = re.search(r'\(S(\d+)\)|Sumbu (\d+)|S(\d+)$', item['string'])
+                        if match:
+                            axle_num_str = match.group(1) or match.group(2) or match.group(3)
+                            axle_num = int(axle_num_str)
+                            
+                            if axle_num not in axle_details:
+                                axle_details[axle_num] = {}
+                            
+                            if 'string' not in axle_details[axle_num]:
+                                nama_sumbu_cleaned = re.sub(r'\(S\d+\)|Sumbu \d+|S\d+$', '', item['string']).strip()
+                                nama_sumbu_cleaned = nama_sumbu_cleaned.replace('Kiri', '').replace('Kanan', '').replace('Selisih', '').strip()
+                                axle_details[axle_num]['string_nama_sumbu'] = nama_sumbu_cleaned or f"Sumbu {axle_num}"
+
+                            sk_code = item['kode_subkomponen_uji']
+                            item_str = item['string'].lower()
+                            
+                            prefix = ""
+                            if komp_code == 'M06': prefix = 'load'
+                            elif komp_code == 'M07': prefix = 'brake'
+                            elif komp_code == 'M08': prefix = 'park'
+                            
+                            if 'kiri' in item_str:
+                                axle_details[axle_num][f'{prefix}_kiri'] = sk_code
+                            elif 'kanan' in item_str:
+                                axle_details[axle_num][f'{prefix}_kanan'] = sk_code
+                            elif 'selisih' in item_str:
+                                axle_details[axle_num][f'{prefix}_selisih'] = sk_code
+
+            pdf.set_font('Arial', 'B', 10)
+            pdf.ln(1)
+            pdf.cell(0, 7, "Berat Kendaraan", align='L', ln=1)
+            pdf.cell(95, 6, "Item", border=1, align='C')
+            pdf.cell(95, 6, "Berat", border=1, align='C', ln=1)
+            pdf.set_font('Arial', '', 10)
+            
+            active_axles = []
+            for i in range(1, 13):
+                axle_weight = self.current_vehicle_data.get(f's{i}')
+                if axle_weight and float(axle_weight) > 0:
+                    active_axles.append(i)
+                    pdf.cell(95, 6, f"Sumbu {i}", border=1)
+                    pdf.cell(95, 6, self.format_number(axle_weight), border=1, align='C', ln=1)
+
+            total_weight = self.current_vehicle_data.get('bk')
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(95, 6, "Total Berat Kendaraan", border=1)
+            pdf.cell(95, 6, self.format_number(total_weight) if total_weight else "-", border=1, align='C', ln=1)
+            
+            pdf.ln(1)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(0, 7, "Rem Utama", align='L', ln=1)
+            pdf.cell(35, 6, "Item", border=1, align='C')
+            pdf.cell(30, 6, "Kiri (kg)", border=1, align='C')
+            pdf.cell(30, 6, "Kanan (kg)", border=1, align='C')
+            pdf.cell(30, 6, "Total (kg)", border=1, align='C')
+            pdf.cell(30, 6, "Selisih (%)", border=1, align='C')
+            pdf.cell(35, 6, "Hasil", border=1, align='C', ln=1)
+
+            sorted_axles = sorted(list(set(active_axles) | set(axle_details.keys())))
+
+            for i in sorted_axles:
+                details = axle_details.get(i, {})
+                kiri_val = float(self.current_vehicle_data.get(details.get('brake_kiri'), 0) or 0)
+                kanan_val = float(self.current_vehicle_data.get(details.get('brake_kanan'), 0) or 0)
+
+                total_val = kiri_val + kanan_val
+                
+                selisih_col_name = f"SELISIH_REM_S{i}"
+                selisih_val = float(self.current_vehicle_data.get(selisih_col_name, 0) or 0)
+                
+                if kiri_val > 0 or kanan_val > 0 or selisih_val > 0:
+                    
+
+                    hasil_rem_sumbu = self.current_test_results.get(details.get('brake_selisih'), -1)
+
+                    keterangan = "Lulus" if str(hasil_rem_sumbu) == '1' else "Tidak Lulus" if str(hasil_rem_sumbu) == '0' else "Belum Uji"
+                    
+                    pdf.set_font('Arial', '', 10)
+                    pdf.cell(35, 6, f"Sumbu {i}", border=1, align='C')
+                    pdf.cell(30, 6, self.format_number(kiri_val), border=1, align='C')
+                    pdf.cell(30, 6, self.format_number(kanan_val), border=1, align='C')
+                    pdf.cell(30, 6, self.format_number(total_val), border=1, align='C')
+                    pdf.cell(30, 6, self.format_number(selisih_val), border=1, align='C')
+                    
+                    if "Tidak Lulus" in keterangan.upper():
+                        pdf.set_font('Arial', 'B', 10)
+                    pdf.cell(35, 6, keterangan, border=1, align='C', ln=1)
+                    pdf.set_font('Arial', '', 10)
+
+            total_rem = float(self.current_vehicle_data.get('TOTAL_REM', 0) or 0)
+            efisiensi_rem = float(self.current_vehicle_data.get('efisiensi_remutama', 0) or 0)
+            hasil_rem_utama_total = self.current_test_results.get('SK529', -1)
+            keterangan_rem_utama = "Lulus" if str(hasil_rem_utama_total) == '1' else "Tidak Lulus" if str(hasil_rem_utama_total) == '0' else "Belum Uji"
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(150, 6, "Total Gaya Pengereman", border=1)
+            pdf.cell(40, 6, f"{self.format_number(total_rem)} kg", border=1, align='C', ln=1)
+            pdf.cell(150, 6, "Efisiensi Rem Utama", border=1)
+            pdf.cell(40, 6, f"{self.format_number(efisiensi_rem)} %", border=1, align='C', ln=1)
+            pdf.cell(150, 6, "Hasil Pengujian", border=1)
+            if "Tidak Lulus" in keterangan_rem_utama.upper():
+                pdf.set_font('Arial', 'B', 10)
+            pdf.cell(40, 6, keterangan_rem_utama, border=1, align='C', ln=1)
+            pdf.set_font('Arial', '', 10)
+            
+            # Tabel Rem Parkir
+            pdf.ln(1)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(0, 7, "Rem Parkir", align='L', ln=1)
+            pdf.cell(50, 6, "Item", border=1, align='C')
+            pdf.cell(45, 6, "Kiri (kg)", border=1, align='C')
+            pdf.cell(45, 6, "Kanan (kg)", border=1, align='C')
+            pdf.cell(50, 6, "Total (kg)", border=1, align='C', ln=1)
+            total_gaya_parkir = 0
+            for i in sorted_axles:
+                details = axle_details.get(i, {})
+                kiri_val = float(self.current_vehicle_data.get(details.get('park_kiri'), 0) or 0)
+                kanan_val = float(self.current_vehicle_data.get(details.get('park_kanan'), 0) or 0)
+                total_sumbu = kiri_val + kanan_val
+                if kiri_val > 0 or kanan_val > 0:
+                    pdf.set_font('Arial', '', 10)
+                    pdf.cell(50, 6, f"Sumbu {i}", border=1, align='C')
+                    pdf.cell(45, 6, self.format_number(kiri_val), border=1, align='C')
+                    pdf.cell(45, 6, self.format_number(kanan_val), border=1, align='C')
+                    pdf.cell(50, 6, self.format_number(total_sumbu), border=1, align='C', ln=1)
+                    total_gaya_parkir += total_sumbu
+            efisiensi_parkir = float(self.current_vehicle_data.get('efisiensi_remparkir', 0) or 0)
+            hasil_rem_parkir_total = self.current_test_results.get('SK716', -1)
+            keterangan_rem_parkir = "Lulus" if str(hasil_rem_parkir_total) == '1' else "Tidak Lulus" if str(hasil_rem_parkir_total) == '0' else "Belum Uji"
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(140, 6, "Total Gaya Pengereman", border=1)
+            pdf.cell(50, 6, f"{self.format_number(total_gaya_parkir)} kg", border=1, align='C', ln=1)
+            pdf.cell(140, 6, "Efisiensi Rem Parkir", border=1)
+            pdf.cell(50, 6, f"{self.format_number(efisiensi_parkir)} %", border=1, align='C', ln=1)
+            pdf.cell(140, 6, "Hasil Pengujian", border=1)
+            if "Tidak Lulus" in keterangan_rem_parkir.upper():
+                pdf.set_font('Arial', 'B', 10)
+            pdf.cell(50, 6, keterangan_rem_parkir, border=1, align='C', ln=1)
+            pdf.set_font('Arial', '', 10)
+
     def exec_navigate_main(self):
         try:
             self.screen_manager.current = 'screen_main'
@@ -1232,34 +1823,144 @@ class ScreenPrinter(MDScreen):
             Logger.error(f"{self.name}: {toast_msg}, {e}")  
 
     def exec_save(self):
-        global mydb, db_antrian, dt_id_user, dt_no_antri
+            """
+            Memperbarui data di tabel image_kendaraan dan uji_detail 
+            berdasarkan data dari tb_cekident untuk antrian saat ini.
+            """
+            global mydb, dt_no_antri, dt_no_pol
 
-        try:
+            COLUMN_MAPPING = {
+                'load_total_s1_value': 'SK102', 'load_total_s2_value': 'SK103', 'load_total_s3_value': 'SK104',
+                'load_total_s4_value': 'SK105', 'load_total_s5_value': 'SK630', 'load_total_s6_value': 'SK631',
+                'load_total_s7_value': 'SK632', 'load_total_s8_value': 'SK633', 'load_total_s9_value': 'SK634',
+                'load_total_s10_value': 'SK635', 'load_total_s11_value': 'SK636', 'load_total_s12_value': 'SK637',
+                'load_total_value': 'bk',
+                'brake_l_s1_value' : 'SK106', 'brake_r_s1_value' : 'SK107', 'brake_l_s2_value' : 'SK108',
+                'brake_r_s2_value' : 'SK109', 'brake_l_s3_value' : 'SK110', 'brake_r_s3_value' : 'SK111',
+                'brake_l_s4_value' : 'SK112', 'brake_r_s4_value' : 'SK113', 'brake_l_s5_value' : 'SK500',
+                'brake_r_s5_value' : 'SK501', 'brake_l_s6_value' : 'SK502', 'brake_r_s6_value' : 'SK503',
+                'brake_l_s7_value' : 'SK504', 'brake_r_s7_value' : 'SK505', 'brake_l_s8_value' : 'SK506',
+                'brake_r_s8_value' : 'SK507', 'brake_l_s9_value' : 'SK508', 'brake_r_s9_value' : 'SK509',
+                'brake_l_s10_value': 'SK510', 'brake_r_s10_value': 'SK511', 'brake_l_s11_value': 'SK512',
+                'brake_r_s11_value': 'SK513', 'brake_l_s12_value': 'SK514', 'brake_r_s12_value': 'SK515',
+                'brake_difference_s1_value' : 'SELISIH_REM_S1', 'brake_difference_s2_value' : 'SELISIH_REM_S2',
+                'brake_difference_s3_value' : 'SELISIH_REM_S3', 'brake_difference_s4_value' : 'SELISIH_REM_S4',
+                'brake_difference_s5_value' : 'SELISIH_REM_S5', 'brake_difference_s6_value' : 'SELISIH_REM_S6',
+                'brake_difference_s7_value' : 'SELISIH_REM_S7', 'brake_difference_s8_value' : 'SELISIH_REM_S8',
+                'brake_difference_s9_value' : 'SELISIH_REM_S9', 'brake_difference_s10_value': 'SELISIH_REM_S10',
+                'brake_difference_s11_value': 'SELISIH_REM_S11', 'brake_difference_s12_value': 'SELISIH_REM_S12',
+                'brake_total_value' : 'TOTAL_REM', 'brake_efficicency_value' : 'efisiensi_remutama',
+                'handbrake_l_s1_value' : 'SK114', 'handbrake_r_s1_value' : 'SK115', 'handbrake_l_s2_value' : 'SK116',
+                'handbrake_r_s2_value' : 'SK117', 'handbrake_l_s3_value' : 'SK118', 'handbrake_r_s3_value' : 'SK119',
+                'handbrake_l_s4_value' : 'SK120', 'handbrake_r_s4_value' : 'SK121', 'handbrake_l_s5_value' : 'SK700',
+                'handbrake_r_s5_value' : 'SK701', 'handbrake_l_s6_value' : 'SK702', 'handbrake_r_s6_value' : 'SK703',
+                'handbrake_l_s7_value' : 'SK704', 'handbrake_r_s7_value' : 'SK705', 'handbrake_l_s8_value' : 'SK706',
+                'handbrake_r_s8_value' : 'SK707', 'handbrake_l_s9_value' : 'SK708', 'handbrake_r_s9_value' : 'SK709',
+                'handbrake_l_s10_value': 'SK710', 'handbrake_r_s10_value': 'SK711', 'handbrake_l_s11_value' : 'SK712',
+                'handbrake_r_s11_value': 'SK713', 'handbrake_l_s12_value': 'SK714', 'handbrake_r_s12_value': 'SK715',
+                'handbrake_total_value' : 'TOTAL_REM_PARKIR', 'handbrake_efficicency_value' : 'efisiensi_remparkir',
+                'handbrake_l_value' : "TOTAL_REM_PARKIR_KIRI", 'handbrake_r_value' : "TOTAL_REM_PARKIR_KANAN",
+                'emission_co_value' : 'SK93', 'emission_hc_value' : 'SK94', 'emission_smoke_value': 'SK122',
+                'hlm_right_value' : 'SK97', 'hlm_left_value' : 'SK128', 'hlm_diff_right_value' : 'SK99',
+                'hlm_diff_left_value' : 'SK98', 'slm_value' : 'SK96', 'tread_depth_value': 'SK163',
+                'wtm_flag': 'SK127', 'sideslip_value': 'SK100', 'speed_value': 'SK95'
+            }
+
+            FLAG_TO_SKCODE_MAPPING = {
+                'emission_co_flag': 'SK93', 'emission_hc_flag': 'SK94', 'emission_smoke_flag': 'SK122',
+                'speed_flag': 'SK95', 'slm_flag': 'SK96', 'hlm_right_flag': 'SK97',
+                'hlm_diff_left_flag': 'SK98', 'hlm_diff_right_flag': 'SK99', 'sideslip_flag': 'SK100',
+                'wtm_flag': 'SK127', 'hlm_left_flag': 'SK128', 'tread_depth_flag': 'SK163',
+                'brake_efficiency_flag': 'SK529', 'handbrake_efficiency_flag': 'SK716',
+                'brake_difference_s1_flag': 'SK516', 'brake_difference_s2_flag': 'SK517',
+                'brake_difference_s3_flag': 'SK518', 'brake_difference_s4_flag': 'SK519',
+                'brake_difference_s5_flag': 'SK520', 'brake_difference_s6_flag': 'SK521',
+                'brake_difference_s7_flag': 'SK522', 'brake_difference_s8_flag': 'SK523',
+                'brake_difference_s9_flag': 'SK524', 'brake_difference_s10_flag': 'SK525',
+                'brake_difference_s11_flag': 'SK526', 'brake_difference_s12_flag': 'SK527'
+            }
+
+            cursor = None
             try:
-                mycursor = mydb.cursor()
-                # Build SQL query safely
-                sql = f"UPDATE {TB_DATA} SET print_flag = 1"
-                mycursor.execute(sql)
-                mydb.commit()
-                Logger.info(f"Successfully updated print flag for noantrian={dt_no_antri}")
-            except Exception as e:
-                toast_msg = f'Error Save Print FLag'
-                toast(toast_msg)
-                Logger.error(f"{self.name}: {toast_msg}, {e}")          
-        except Exception as e:
-            toast_msg = f'Error Save Data'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+                mydb.ping(reconnect=True)
+                cursor = mydb.cursor()
+
+                query_sumber = f"SELECT * FROM {TB_DATA} WHERE noantrian = %s AND nopol = %s LIMIT 1"
+                cursor.execute(query_sumber, (dt_no_antri, dt_no_pol))
+                sumber_data_row = cursor.fetchone()
+                if not sumber_data_row:
+                    toast("Data sumber di tb_cekident tidak ditemukan!")
+                    return
+                column_names = [desc[0] for desc in cursor.description]
+                sumber_data = dict(zip(column_names, sumber_data_row))
+
+                cursor.execute(f"SELECT MAX(DATE(tanggal)) FROM {TB_UJI} WHERE nopol = %s", (dt_no_pol,))
+                latest_date = cursor.fetchone()[0]
+
+                if not latest_date:
+                    toast(f"Tidak ditemukan riwayat uji untuk nopol {dt_no_pol}")
+                    return
+
+                cursor.execute(f"SELECT id_uji FROM {TB_UJI} WHERE nopol = %s AND DATE(tanggal) = %s", (dt_no_pol, latest_date))
+                id_uji_rows = cursor.fetchall()
+                if not id_uji_rows:
+                    toast(f"Tidak ditemukan ID Uji untuk sesi terakhir nopol {dt_no_pol}")
+                    return
+                
+                id_uji_list = tuple(item[0] for item in id_uji_rows)
+                
+                placeholders = ', '.join(['%s'] * len(id_uji_list))
+
+                sql_update = f"""
+                    UPDATE {TB_UJI_DETAIL}
+                    SET hasil = %s
+                    WHERE id_uji IN ({placeholders})
+                    AND kode_subkomponen_uji = %s
+                """
+                
+                updates_to_commit = 0
+                for flag_column, sk_code in FLAG_TO_SKCODE_MAPPING.items():
+                    value = sumber_data.get(flag_column)
+                    if value is not None:
+                        try:
+                            value_to_save = str(int(value))
+                            params = (value_to_save,) + id_uji_list + (sk_code,)
+                            cursor.execute(sql_update, params)
+                            
+                            if cursor.rowcount > 0:
+                                updates_to_commit += cursor.rowcount
+                                Logger.info(f"Berhasil UPDATE untuk {flag_column} ('{value_to_save}') -> {sk_code}. Baris terpengaruh: {cursor.rowcount}")
+                        except (ValueError, TypeError):
+                            Logger.warning(f"Nilai '{value}' untuk '{flag_column}' dilewati.")
+
+                if updates_to_commit > 0:
+                    mydb.commit()
+                    toast(f"Update berhasil! {updates_to_commit} data hasil uji telah disimpan.")
+                    Logger.info(f"COMMIT berhasil. Total {updates_to_commit} baris diubah.")
+                    Logger.info("Data berhasil disimpan, otomatis memuat ulang data terbaru...")
+                    self.load_data() 
+                else:
+                    toast("Tidak ada data hasil uji yang cocok untuk diupdate.")
+
+            except mysql.connector.Error as err:
+                toast(f"Gagal menyimpan data: {err}")
+                Logger.error(f"Error DB untuk antrian {dt_no_antri}: {err}", exc_info=True)
+                if mydb.in_transaction:
+                    mydb.rollback()
+            finally:
+                if cursor:
+                    cursor.close()
 
     def exec_print(self):
-        try:           
-            self.exec_print_thermal()
-            self.exec_print_pdf()
+            try:
+                Logger.info("Tombol Cetak ditekan. Memulai proses cetak dengan data yang ada di memori...")
+                self.exec_print_pdf()
+                self.exec_print_thermal()
 
-        except Exception as e:
-            toast_msg = f'Gagal Mencetak Hasil Uji'
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, {e}")  
+            except Exception as e:
+                toast_msg = f'Gagal Mencetak Hasil Uji'
+                toast(toast_msg)
+                Logger.error(f"{self.name}: {toast_msg}, Error: {e}") 
 
     def exec_print_pdf(self):
         global dt_no_antri, dt_no_pol, dt_no_uji, dt_nama, dt_jns_kend
@@ -1275,86 +1976,47 @@ class ScreenPrinter(MDScreen):
         global dt_sideslip_flag, dt_speed_flag, dt_sideslip_value, dt_speed_value
 
         try:
+            Logger.info(f"DEBUG: Isi self.db_subkomponen sebelum cetak PDF: {self.db_subkomponen}")
+
             print_datetime = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime())
             pdf = FPDF(format='A4', unit='mm')
             pdf.add_page()
             pdf.set_auto_page_break(auto=True, margin=15)
-            # KOP SURAT
             # ==================================================================
-            pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", x=170, y=8, w=32)
-            pdf.image(f"assets/images/{IMG_LOGO_PEMKAB}", x=10, y=8, w=32)
-
-            pdf.set_font('Arial', 'B', 16)
-            pdf.cell(0, 7, LB_PEMKAB, align='C', ln=1)
-            pdf.set_font('Arial', 'B', 16)
-            pdf.cell(0, 9, LB_DISHUB, align='C', ln=1)
+            pdf.image(f"assets/images/{IMG_LOGO_DISHUB}", x=170, y=8, w=21)
+            pdf.image(f"assets/images/{IMG_LOGO_PEMKAB}", x=10, y=8, w=21)
+            pdf.set_font('Arial', 'B', 14)
+            pdf.cell(0, 5, LB_PEMKAB, align='C', ln=1)
+            pdf.set_font('Arial', 'B', 14)
+            pdf.cell(0, 5, LB_DISHUB, align='C', ln=1)
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "UNIT PELAKSANA TEKNIS DAERAH", align='C', ln=1)
+            pdf.cell(0, 5, "UNIT PELAKSANA TEKNIS DAERAH", align='C', ln=1)
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "PENGUJIAN KENDARAAN BERMOTOR", align='C', ln=1)
-            pdf.set_font('Arial', '', 9)
+            pdf.cell(0, 5, "PENGUJIAN KENDARAAN BERMOTOR", align='C', ln=1)
+            pdf.set_font('Arial', '', 8)
             pdf.cell(0, 5, LB_UNIT_ADDRESS, align='C', ln=1)
             # ==================================================================
             pdf.set_line_width(1)
-            pdf.line(10, 48, 200, 48)
+            pdf.line(10, 36, 200, 36)
             pdf.set_line_width(0.2)
-            pdf.line(10, 49, 200, 49)
-            pdf.ln(5)
-            # ==================================================================
-            pdf.set_font('Arial', 'B', 16)
-            pdf.cell(0, 8, "BERITA ACARA PEMERIKSAAN", align='C', ln=1)
-            pdf.cell(0, 8, "TEKNIS UJI KENDARAAN BERMOTOR", align='C', ln=1)
-            pdf.set_font('Arial', '', 14)
-            pdf.cell(0, 8, f"Tanggal:{time.strftime('%d %B %Y')}", align='C', ln=1)
+            pdf.line(10, 37, 200, 37)
+            pdf.ln(3)
             # ==================================================================
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "IDENTITAS KENDARAAN", align='L', ln=1)
-            pdf.set_font('Arial', '', 12)
-            col_width1 = 35
-            col_width2 = 60
-
-            y_pos = pdf.get_y()
-            pdf.cell(col_width1, 7, "No. Reg Kendaraan")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{dt_no_pol}")
-            pdf.cell(col_width1, 7, "Merk")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{db_merk[np.where(db_merk == dt_merk)[0][0],1] if dt_merk else '-'}")
-            pdf.ln() #baris 2
-            pdf.cell(col_width1, 7, "Jenis Kendaraan")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{dt_jns_kend}")
-            pdf.cell(col_width1, 7, "Tipe")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{dt_type}")
-            pdf.ln() #baris 3
-            pdf.cell(col_width1, 7, "JBB")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{dt_jbb} kg")
-            pdf.cell(col_width1, 7, "Bahan Bakar")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1] if dt_bhn_bkr else '-'}")
-            pdf.ln() #baris 4
-            pdf.cell(col_width1, 7, "Berat Kosong")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{dt_brt_ksg} kg")
-            pdf.cell(col_width1, 7, "Warna")
-            pdf.cell(5, 7, ":")
-            pdf.cell(col_width2, 7, f"{db_warna[np.where(db_warna == dt_warna)[0][0],1] if dt_warna else '-'}")
-            pdf.ln(10)
+            pdf.cell(0, 5, "BERITA ACARA PEMERIKSAAN", align='C', ln=1)
+            pdf.cell(0, 5, "TEKNIS UJI KENDARAAN BERMOTOR", align='C', ln=1)
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(0, 5, f"Tanggal:{time.strftime('%d %B %Y')}", align='C', ln=1)
             # ==================================================================
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "Foto Kendaraan:")
-            pdf.ln(10)
+            pdf.cell(0, 8, "FOTO KENDARAAN:")
+            pdf.ln(8)
             y_photo = pdf.get_y()
-
             try:
                 today = time.strftime("%Y-%m-%d")
                 base_url = f"https://{FTP_HOST}/system/storage/app/capture/{today}/{dt_sts_uji}-{dt_no_antri}/{dt_no_pol}"
-
                 documents_dir = os.path.join(os.environ["USERPROFILE"], "Pictures", "VIIS")
                 os.makedirs(documents_dir, exist_ok=True)
-
                 img_paths = []
 
                 for i in range(1, 5):
@@ -1377,7 +2039,7 @@ class ScreenPrinter(MDScreen):
 
                 y_photo = pdf.get_y()
                 x_positions = [15, 60, 110, 160]
-                labels = ["Depan", "Belakang", "Kanan", "Kiri"]
+                labels = ["Depan", "Kiri", "Kanan", "Belakang"]
 
                 for i in range(4):
                     if img_paths[i] and os.path.exists(img_paths[i]):
@@ -1410,225 +2072,61 @@ class ScreenPrinter(MDScreen):
                 Logger.error(f"{self.name}: {e}")
                 pdf.ln(10)
                 pdf.set_font('Arial', 'I', 10)
-                pdf.cell(0, 10, "Foto kendaraan: Gagal dimuat", align='C')
+                pdf.cell(0, 10, "Foto kendaraan: Dynamic Gagal dimuat", align='C')
                 pdf.ln(10)
+            pdf.ln(5)
+            self.generate_identity_section(pdf)
+            self.generate_dimensions_section(pdf)
+            self.generate_axle_tire_section(pdf)
+            pdf.add_page()
             # HASIL PENGUJIAN
             # ==================================================================
-            pdf.ln(5)
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "II. HASIL PENGUJIAN", align='L', ln=1)
-            # Pemeriksaan VisuaL-----------------------------------------------------
-            pdf.set_font('Arial', 'B', 11)
-            pdf.cell(0, 7, "A. Pemeriksaan Visual", align='L', ln=1)
-            # Tabel Visual 1
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(95, 6, "Visual 1", border=1, align='C')
-            pdf.cell(95, 6, "Visual 2", border=1, align='C')
-            pdf.ln()
-            # Tabel Visual 1-----------
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(10, 6, "No", border=1, align='C')
-            pdf.cell(50, 6, "Item Komponen", border=1, align='C')
-            pdf.cell(35, 6, "Keterangan", border=1, align='C')
-            # Tabel Visual 2-----------
-            pdf.cell(10, 6, "No", border=1, align='C')
-            pdf.cell(50, 6, "Item Komponen", border=1, align='C')
-            pdf.cell(35, 6, "Keterangan", border=1, align='C')
-            pdf.ln()
-            # Data Dummy untuk Visual (GANTI DENGAN DATA DARI DB)
-            visual_1_items = ["Identifikasi", "Dimensi kendaraan", "Bodi, pintu, kaca", "Sistem Roda & Ban", "Kaca Spion", "Penghapus Kaca", "Sabuk Keselamatan", "Bumper", "Penutup Lampu"]
-            visual_2_items = ["Rangka Landasan", "Converter Kit", "Penerus Daya", "As dan Suspensi", "Sistem kemudi", "Sistem Rem Utama", "Sistem Rem Parkir", "Sistem bahan bakar", "Sistem Pembuangan"]
-            pdf.set_font('Arial', '', 9)
-            max_rows = max(len(visual_1_items), len(visual_2_items))
-            for i in range(max_rows):
-                # Kolom Visual 1---------------
-                item1 = visual_1_items[i] if i < len(visual_1_items) else ""
-                pdf.cell(10, 5, str(i+1) if item1 else "", border=1, align='C')
-                pdf.cell(50, 5, item1, border=1)
-                pdf.cell(35, 5, "Baik", border=1, align='C') # Keterangan dummy
-                # Kolom Visual 2---------------
-                item2 = visual_2_items[i] if i < len(visual_2_items) else ""
-                pdf.cell(10, 5, str(i+1) if item2 else "", border=1, align='C')
-                pdf.cell(50, 5, item2, border=1)
-                pdf.cell(35, 5, "Baik", border=1, align='C') # Keterangan dummy
-                pdf.ln()
-            pdf.ln(5)
-            # Pengujian Emisi----------------------------------------------------
-            pdf.set_font('Arial', 'B', 11)
-            pdf.cell(0, 7, "B. Pengujian Emisi", align='L', ln=1)
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(60, 6, "Item", border=1, align='C')
-            pdf.cell(65, 6, "Nilai Pengujian", border=1, align='C')
-            pdf.cell(65, 6, "Hasil", border=1, align='C')
-            pdf.ln()
-            pdf.set_font('Arial', '', 10)
-            create_result_row_simple = lambda item, value, result: (pdf.cell(60, 6, item, border=1), pdf.cell(65, 6, str(value), border=1, align='C'), pdf.cell(65, 6, result, border=1, align='C'), pdf.ln())
-            create_result_row_simple("HC", getattr(self, 'emission_hc_value', 0.0), "Belum Diuji")
-            create_result_row_simple("CO", getattr(self, 'emission_co_value', 0.0), "Belum Diuji")
+            pdf.cell(0, 5, "III. HASIL PENGUJIAN", align='L', ln=1)
+            self.generate_visual_section(pdf)
+            self.generate_emisi_section(pdf)
+            self.generate_dynamic_test_section(pdf, "C. Pengujian Daya Pancar Lampu", "M04")
+            self.generate_dynamic_test_section(pdf, "D. Tingkat Kebisingan", "K21")
+            self.generate_dynamic_test_section(pdf, "E. Kedalaman Alur Ban", "K18")
+            self.generate_dynamic_test_section(pdf, "F. Kegelapan Kaca", "K20")
+            pdf.add_page()
+            self.generate_load_brake_section(pdf)
+            self.generate_dynamic_test_section(pdf, "H. Pengujian Kincup Roda Depan", "M05")
+            self.generate_dynamic_test_section(pdf, "I. Pengujian Kecepatan", "M02")
 
-            bahan_bakar_text = db_bahan_bakar[np.where(db_bahan_bakar == dt_bhn_bkr)[0][0],1] if dt_bhn_bkr else ''
+            self.generate_notes_section(pdf)
+            pdf.cell(0, 8, "IV. KEPUTUSAN AKHIR", align='L', ln=1)
 
-            if 'solar' in bahan_bakar_text.lower():
-                create_result_row_simple("Ketebalan Asap", getattr(self, 'emission_smoke_value', 0.0), "Belum Diuji")
-            pdf.ln(5)
-            # Pengujian Daya Pancar Lampu ---------------------------------------
-            pdf.set_font('Arial', 'B', 11)
-            pdf.cell(0, 7, "C. Pengujian Daya Pancar Lampu", align='L', ln=1)
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(60, 6, "Item Pengujian", border=1, align='C')
-            pdf.cell(65, 6, "Hasil", border=1, align='C')
-            pdf.cell(65, 6, "Keterangan", border=1, align='C')
-            pdf.ln()
-            pdf.set_font('Arial', '', 10)
-            create_result_row_simple("Daya Pancar Kanan", getattr(self, 'lamp_right_value', 0), "Belum Diuji")
-            create_result_row_simple("Daya Pancar Kiri", getattr(self, 'lamp_left_value', 0), "Belum Diuji")
-            create_result_row_simple("Penyimpangan Kanan", "0", "Belum Diuji")
-            create_result_row_simple("Penyimpangan Kiri", "0", "Belum Diuji")
-            pdf.ln(5)
-            # Pengujian Load & Brake ----------------------------------------------
-            pdf.set_font('Arial', 'B', 11)
-            pdf.cell(0, 7, "D. Pengujian Load & Brake", align='L', ln=1)  
-            # Tabel Axle Load----------------------------
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(0, 6, "Axle Load", align='L', ln=1)
-            pdf.cell(47, 6, "Sumbu", border=1, align='C')
-            pdf.cell(48, 6, "Kiri (kg)", border=1, align='C')
-            pdf.cell(48, 6, "Kanan (kg)", border=1, align='C')
-            pdf.cell(47, 6, "Total (kg)", border=1, align='C')
-            pdf.ln()
-            pdf.set_font('Arial', '', 10)
-            for i in range(10):
-                if db_load_total_value[i] > 0:
-                    pdf.cell(47, 6, f"Sumbu {i+1}", border=1)
-                    pdf.cell(48, 6, str(int(db_load_left_value[i])), border=1, align='C')
-                    pdf.cell(48, 6, str(int(db_load_right_value[i])), border=1, align='C')
-                    pdf.cell(47, 6, str(int(db_load_total_value[i])), border=1, align='C')
-                    pdf.ln()
-            pdf.ln(5)
-            # Tabel Rem Utama------------------------
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(0, 6, "Rem Utama", align='L', ln=1)
-            pdf.cell(31, 6, "Sumbu", border=1, align='C')
-            pdf.cell(31, 6, "Kiri (kg)", border=1, align='C')
-            pdf.cell(31, 6, "Kanan (kg)", border=1, align='C')
-            pdf.cell(31, 6, "Total (kg)", border=1, align='C')
-            pdf.cell(31, 6, "Selisih (%)", border=1, align='C')
-            pdf.cell(35, 6, "Hasil", border=1, align='C')
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 10)
-            for i in range(10):
-                if db_brake_total_value[i] > 0:
-                    pdf.cell(31, 6, f"Sumbu {i+1}", border=1)
-                    pdf.cell(31, 6, str(int(db_brake_left_value[i])), border=1, align='C')
-                    pdf.cell(31, 6, str(int(db_brake_right_value[i])), border=1, align='C')
-                    pdf.cell(31, 6, str(int(db_brake_total_value[i])), border=1, align='C')
-                    pdf.cell(31, 6, str(db_brake_difference_value[i]), border=1, align='C')
-
-                    status_per_sumbu = "Lulus" if db_brake_difference_value[i] <= 8 else "Tidak Lulus"
-                    pdf.cell(35, 6, status_per_sumbu, border=1, align='C')
-                    pdf.ln()
-            total_gaya_rem_utama = np.sum(db_brake_total_value)
-            berat_total_sumbu = np.sum(db_load_total_value)
-            efisiensi_rem_utama = (total_gaya_rem_utama / berat_total_sumbu) * 100 if berat_total_sumbu > 0 else 0
-            efisiensi_rem_utama_status = "Lulus" if efisiensi_rem_utama >= 50 else "Tidak Lulus"
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(155, 6, "Total Gaya Pengereman", border=1)
-            pdf.cell(35, 6, f"{int(total_gaya_rem_utama)} kg", border=1, align='C')
-            pdf.ln()
-            pdf.cell(155, 6, "Efisiensi Rem Utama (>= 50%)", border=1)
-            pdf.cell(35, 6, f"{efisiensi_rem_utama:.1f} % ({efisiensi_rem_utama_status})", border=1, align='C')
-            pdf.ln(10)
-            # Tabel Rem Parkir------------------------
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(0, 6, "Rem Parkir", align='L', ln=1)
-            pdf.cell(47, 6, "Sumbu", border=1, align='C')
-            pdf.cell(48, 6, "Kiri (kg)", border=1, align='C')
-            pdf.cell(48, 6, "Kanan (kg)", border=1, align='C')
-            pdf.cell(47, 6, "Total (kg)", border=1, align='C')
-            pdf.ln()
-            pdf.set_font('Arial', '', 10)
-            db_handbrake_total_value = np.zeros(10)
-            for i in range(10):
-                db_handbrake_total_value[i] = db_handbrake_left_value[i] + db_handbrake_right_value[i]
-                if db_handbrake_total_value[i] > 0:
-                    pdf.cell(47, 6, f"Sumbu {i+1}", border=1)
-                    pdf.cell(48, 6, str(int(db_handbrake_left_value[i])), border=1, align='C')
-                    pdf.cell(48, 6, str(int(db_handbrake_right_value[i])), border=1, align='C')
-                    pdf.cell(47, 6, str(int(db_handbrake_total_value[i])), border=1, align='C')
-                    pdf.ln()
-            total_gaya_rem_parkir = np.sum(db_handbrake_total_value)
-            jbb_float = float(dt_jbb) if dt_jbb else 0.0
-            efisiensi_rem_parkir = (total_gaya_rem_parkir / jbb_float) * 100 if jbb_float > 0 else 0
-            efisiensi_rem_parkir_status = "Lulus" if efisiensi_rem_parkir >= 12 else "Tidak Lulus"
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(143, 6, "Total Gaya Pengereman Parkir", border=1)
-            pdf.cell(47, 6, f"{int(total_gaya_rem_parkir)} kg", border=1, align='C')
-            pdf.ln()
-            pdf.cell(143, 6, "Efisiensi Rem Parkir (>= 12%)", border=1)
-            pdf.cell(47, 6, f"{efisiensi_rem_parkir:.1f} % ({efisiensi_rem_parkir_status})", border=1, align='C')
-            pdf.ln(10)
-            # Pengujian Lainnya----------------------------------------------------------------------
-            pdf.set_font('Arial', 'B', 11)
-            pdf.cell(0, 7, "E. Pengujian Lainnya", align='L', ln=1)
-            pdf.set_font('Arial', 'B', 10)
-            pdf.cell(60, 6, "Item", border=1, align='C')
-            pdf.cell(65, 6, "Nilai Pengujian", border=1, align='C')
-            pdf.cell(65, 6, "Hasil", border=1, align='C')
-            pdf.ln()
-            pdf.set_font('Arial', '', 10)
-            status_dict = {0: "Belum Diuji", 1: "TIDAK LULUS", 2: "LULUS"}
-            create_result_row_simple("Side Slip", f"{dt_sideslip_value}  mm/m", status_dict.get(dt_sideslip_flag, "Error"))
-            create_result_row_simple("Speedometer", f"{dt_speed_value}  km/jam", status_dict.get(dt_speed_flag, "Error"))
-            noise_value = getattr(self, 'dt_noise_value', 0)
-            create_result_row_simple("Kebisingan", f"{noise_value} dB", "Belum Diuji")
-            glass_value = getattr(self, 'dt_glass_value', 0)
-            create_result_row_simple("Ketebalan Kaca", f"{glass_value} %", "Belum Diuji")
-            pdf.ln(10)
-            # ==================================================================
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 8, "III. KEPUTUSAN AKHIR", align='L', ln=1)
-            
-            dt_load_flag = getattr(self, 'dt_load_flag', 0)
-            dt_brake_flag = getattr(self, 'dt_brake_flag', 0)
-            dt_handbrake_flag = getattr(self, 'dt_handbrake_flag', 0)
-
-            final_ok = (
-                dt_brake_flag == 2 and
-                dt_handbrake_flag == 2 and
-                dt_load_flag == 2 and
-                dt_sideslip_flag == 2 and
-                dt_speed_flag == 2
-            )
-            result_text = "LULUS" if final_ok else "TIDAK LULUS"
+            if self.current_test_results and all(str(hasil) == '1' for hasil in self.current_test_results.values()):
+                result_text = "LULUS"
+            else:
+                result_text = "TIDAK LULUS"
             
             pdf.set_font('Arial', 'B', 16)
             pdf.cell(0, 15, result_text, border=1, align='C', ln=1)
+            pdf.ln(5)
+            
+            # Tampilkan tanggal berlaku hanya jika LULUS
+            if result_text == "LULUS":
+                pdf.set_font('Arial', '', 12)
+                tgl_sekarang = datetime.date.today()
+                try:
+                    from dateutil.relativedelta import relativedelta
+                    tgl_habis = tgl_sekarang + relativedelta(months=+6)
+                except ImportError:
+                    tgl_habis = tgl_sekarang + datetime.timedelta(days=180)
+                pdf.cell(0, 7, f"Berlaku hingga: {tgl_habis.strftime('%d %B %Y')}", align='R', ln=1)
+            
             pdf.ln(10)
-            # ==================================================================
-            pdf.set_font('Arial', '', 12)
-            
-            tgl_sekarang = datetime.date.today()
-            try:
-                from dateutil.relativedelta import relativedelta
-                tgl_habis = tgl_sekarang + relativedelta(months=+6)
-            except ImportError:
-                tgl_habis = tgl_sekarang + datetime.timedelta(days=180)
-            
-            pdf.cell(0, 7, f"Berlaku hingga: {tgl_habis.strftime('%d %B %Y')}", align='R', ln=1)
-            pdf.ln(20)
-            
-            #pdf.cell(0, 7, f"{dt_user}", align='R', ln=1)
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 7, "Petugas Teknis Uji", align='R', ln=1)#dc
-            # ==================================================================
+            pdf.cell(0, 7, "Petugas Teknis Uji", align='R', ln=1)
+            
             documents_dir = os.path.join(os.environ["USERPROFILE"], "Documents")
             folder_name = f"Laporan_Akhir_VIIS_{time.strftime('%Y-%m-%d')}"
             date_folder_path = os.path.join(documents_dir, folder_name)
             os.makedirs(date_folder_path, exist_ok=True)
-            
             pdf_filename = f"Laporan_Akhir_{dt_no_pol}_{dt_no_antri}.pdf"
             pdf_path = os.path.join(date_folder_path, pdf_filename)
-
             pdf.output(pdf_path, 'F')
             toast(f"Laporan Akhir disimpan: {pdf_path}")
             os.startfile(pdf_path)
@@ -1637,7 +2135,6 @@ class ScreenPrinter(MDScreen):
             toast_msg = f'Gagal membuat Laporan Akhir PDF'
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, Detail: {e}")
-
 
     def exec_print_thermal(self):
         global dt_no_antri, dt_no_pol, dt_no_uji, dt_jns_kend
@@ -1658,8 +2155,6 @@ class ScreenPrinter(MDScreen):
             )
 
             print_datetime = time.strftime("%d %b %Y %H:%M", time.localtime())
-
-            # Logo (if supported)
             try:
                 printer.image("assets/images/logo-dishub-thermal.png")
             except:
@@ -1810,7 +2305,6 @@ class FinalVerifierApp(MDApp):
         self.refresh_all_fonts()
 
     def refresh_all_fonts(self):
-        # Refresh fonts for all screens in the ScreenManager
         if hasattr(self, 'root') and hasattr(self.root, 'screens'):
             for screen in self.root.screens:
                 self.refresh_fonts(screen)
