@@ -69,11 +69,11 @@ LB_UNIT = config['app']['LB_UNIT']
 LB_UNIT_ADDRESS = config['app']['LB_UNIT_ADDRESS']
 
 # SQL setting
-DB_HOST = "194.31.53.37"
-DB_USER = "Pndujikir2022!"
-DB_PASSWORD = "@Kirpnd2022!"
+DB_HOST = "156.67.217.60"
+DB_USER = "pkbsorong2024!"
+DB_PASSWORD = "@Sorongpkb2024"
+DB_NAME = "dishub"
 
-DB_NAME = "pkbpandeglang"
 TB_DATA = "tb_cekident"
 TB_USER = "users"
 TB_MERK = "merk"
