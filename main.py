@@ -87,7 +87,7 @@ TB_DATA_KENDARAAN = "jeniskendaraan"
 TB_UJI = "uji"
 TB_UJI_DETAIL = "uji_detail"
 
-FTP_HOST = "194.31.53.37"
+FTP_HOST = "156.67.217.60"
 FTP_USER = "root"
 FTP_PASS = "@D15HUBp2022!"
 
@@ -271,7 +271,7 @@ class ScreenMain(MDScreen):
                 dt_dash_antri = result[0]
                 query = f"""SELECT noantrian, nopol, nouji, statusuji, merk, type, idjeniskendaraan, jbb, berat_kosong, bahan_bakar, warna, 
                             check_flag, load_flag, brake_flag, handbrake_flag, sideslip_flag, speed_flag 
-                            FROM {TB_DATA} WHERE print_flag = 0"""
+                            FROM {TB_DATA} WHERE print_flag = 2"""
                 cursor.execute(query)
                 result_tb_antrian = cursor.fetchall()
                 db_antrian = np.array(result_tb_antrian).T
@@ -1863,7 +1863,7 @@ class ScreenPrinter(MDScreen):
                 'emission_co_value' : 'SK93', 'emission_hc_value' : 'SK94', 'emission_smoke_value': 'SK122',
                 'hlm_right_value' : 'SK97', 'hlm_left_value' : 'SK128', 'hlm_diff_right_value' : 'SK99',
                 'hlm_diff_left_value' : 'SK98', 'slm_value' : 'SK96', 'tread_depth_value': 'SK163',
-                'wtm_flag': 'SK127', 'sideslip_value': 'SK100', 'speed_value': 'SK95'
+                'sideslip_value': 'SK100', 'speed_value': 'SK95'
             }
 
             FLAG_TO_SKCODE_MAPPING = {
@@ -2135,89 +2135,6 @@ class ScreenPrinter(MDScreen):
             toast_msg = f'Gagal membuat Laporan Akhir PDF'
             toast(toast_msg)
             Logger.error(f"{self.name}: {toast_msg}, Detail: {e}")
-
-    def exec_print_thermal(self):
-        global dt_no_antri, dt_no_pol, dt_no_uji, dt_jns_kend
-        global dt_load_flag, dt_brake_flag, dt_handbrake_flag
-        global db_load_left_value, db_load_right_value, db_load_total_value, dt_load_total_value
-        global db_brake_left_value, db_brake_right_value, db_brake_total_value, db_brake_difference_value, dt_brake_total_value, dt_brake_efficiency_value
-        global db_handbrake_left_value, db_handbrake_right_value, dt_handbrake_total_value, dt_handbrake_efficiency_value
-
-        try:
-            printer = Serial(
-                devfile=PRINTER_THERM_COM,
-                baudrate=PRINTER_THERM_BAUD,
-                bytesize=PRINTER_THERM_BYTESIZE,
-                parity=PRINTER_THERM_PARITY,
-                stopbits=PRINTER_THERM_STOPBITS,
-                timeout=PRINTER_THERM_TIMEOUT,
-                dsrdtr=PRINTER_THERM_DSRDTR,
-            )
-
-            print_datetime = time.strftime("%d %b %Y %H:%M", time.localtime())
-            try:
-                printer.image("assets/images/logo-dishub-thermal.png")
-            except:
-                printer.textln("DISHUB PANDEGLANG")
-
-            printer.textln("VIIS - AXLE & BRAKE")
-            printer.textln("="*32)
-
-            # Header
-            printer.text(f"Antrian: {dt_no_antri}\n")
-            printer.text(f"No Pol: {dt_no_pol}\n")
-            printer.text(f"No Uji: {dt_no_uji}\n")
-            printer.text(f"Jenis: {dt_jns_kend}\n")
-            printer.text(f"Tgl: {print_datetime}\n")
-            printer.textln("-" * 32)
-
-            # Axle Load
-            printer.textln("AXLE LOAD")
-            printer.text("Sb\tKiri\tKanan\tTotal\n")
-            for i in range(10):
-                if db_load_total_value[i] > 0:
-                    printer.text(f"S{i+1}\t{int(db_load_left_value[i])}\t{int(db_load_right_value[i])}\t{int(db_load_total_value[i])}\n")
-            printer.text(f"Ttl: {int(dt_load_total_value)} kg\n")
-            printer.text(f"Status: {'Lulus' if dt_load_flag == 2 else 'Tdk Lulus' if dt_load_flag == 1 else 'Belum'}\n")
-            printer.textln("-" * 32)
-
-            # Brake
-            printer.textln("REM UTAMA")
-            printer.text("Sb\tKiri\tKanan\tSelisih\n")
-            for i in range(10):
-                if db_brake_total_value[i] > 0:
-                    printer.text(f"S{i+1}\t{int(db_brake_left_value[i])}\t{int(db_brake_right_value[i])}\t{int(db_brake_difference_value[i])}\n")
-            printer.text(f"Ttl: {int(dt_brake_total_value)} kg\n")
-            printer.text(f"Efisiensi: {dt_brake_efficiency_value:.1f}%\n")
-            printer.text(f"Status: {'Lulus' if dt_brake_flag == 2 else 'Tdk Lulus' if dt_brake_flag == 1 else 'Belum'}\n")
-            printer.textln("-" * 32)
-
-            # Handbrake
-            printer.textln("REM PARKIR")
-            printer.text("Sb\tKiri\tKanan\n")
-            for i in range(10):
-                if db_handbrake_left_value[i] > 0 or db_handbrake_right_value[i] > 0:
-                    printer.text(f"S{i+1}\t{int(db_handbrake_left_value[i])}\t{int(db_handbrake_right_value[i])}\n")
-            printer.text(f"Ttl: {int(dt_handbrake_total_value)} kg\n")
-            printer.text(f"Efisiensi: {dt_handbrake_efficiency_value:.1f}%\n")
-            printer.text(f"Status: {'Lulus' if dt_handbrake_flag == 2 else 'Tdk Lulus' if dt_handbrake_flag == 1 else 'Belum'}\n")
-            printer.textln("=" * 32)
-
-            # Final Result
-            final_ok = (dt_brake_flag == 2) and (dt_handbrake_flag == 2)
-            result = "LULUS" if final_ok else "TIDAK LULUS"
-            printer.textln(f"KEPUTUSAN: {result}")
-
-            printer.textln("Petugas:")
-            printer.textln(" ") 
-            printer.cut()
-
-            toast("Thermal print berhasil")
-
-        except Exception as e:
-            toast_msg = "Gagal cetak thermal"
-            toast(toast_msg)
-            Logger.error(f"{self.name}: {toast_msg}, Error: {e}")
 
     def exec_navigate_main(self):
         try:
